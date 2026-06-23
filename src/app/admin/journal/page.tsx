@@ -199,7 +199,7 @@ function AiGenerateModal({ onClose, onApply }: { onClose: () => void; onApply: (
                       onClick={() => { onApply(result); onClose(); }}
                       className="border border-signal px-6 py-3 hover:bg-signal transition-colors"
                     >
-                      <span className="lab text-white" style={{ fontSize: "0.6rem" }}>Use This Content</span>
+                      <span className="lab text-white" style={{ fontSize: "0.6rem" }}>Publish Now</span>
                     </button>
                   </div>
                 </div>
@@ -268,9 +268,20 @@ export default function AdminJournal() {
       excerpt: data.excerpt,
       tags: data.tags.split(",").map((t) => t.trim()).filter(Boolean),
       content: data.content,
+      status: "published",
     };
-    setEditing(newPost);
-    setMode("add");
+    startTransition(async () => {
+      const result = await addPost(newPost);
+      if (result.ok) {
+        notify("Post published!");
+        setShowAi(false);
+        const res = await fetch("/api/admin/journal");
+        const d = await res.json();
+        setPosts(d);
+      } else {
+        notify(`Error: ${result.error}`);
+      }
+    });
   }
 
   async function handleDelete(slug: string, title: string) {
