@@ -18,7 +18,7 @@ function readingTime(text: string) {
 }
 
 export default async function JournalPage() {
-  const posts = await getJournal(false);
+  const posts = await getJournal(false).catch(() => []);
   const [featured, ...rest] = posts;
 
   return (

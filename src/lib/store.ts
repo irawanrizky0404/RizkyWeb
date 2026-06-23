@@ -53,6 +53,20 @@ async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
 
     const data = await response.json();
     const value = data.record || data;
+    
+    if (value === null || value === undefined) {
+      console.warn(`[store] ${key} returned null, using fallback`);
+      return fallback;
+    }
+    
+    if (typeof value === 'object') {
+      const keys = Object.keys(value);
+      if (keys.length === 0 || (keys.length === 1 && value[keys[0]] === null)) {
+        console.warn(`[store] ${key} returned empty object or {"data": null}, using fallback`);
+        return fallback;
+      }
+    }
+    
     memoryCache[key] = JSON.stringify(value);
     return value as T;
   } catch (err) {

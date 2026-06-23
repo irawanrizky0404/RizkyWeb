@@ -10,7 +10,7 @@ type PageProps = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { slug } = await props.params;
-  const posts = await getJournal();
+  const posts = await getJournal().catch(() => []);
   const post = posts.find((p) => p.slug === slug);
   if (!post) return { title: "Not Found" };
   return buildMetadata({
@@ -29,7 +29,7 @@ function readingTime(text: string) {
 
 export default async function JournalPostPage(props: PageProps) {
   const { slug } = await props.params;
-  const posts = await getJournal();
+  const posts = await getJournal().catch(() => []);
   const post = posts.find((p) => p.slug === slug);
   if (!post) notFound();
 
