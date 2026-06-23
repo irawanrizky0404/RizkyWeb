@@ -31,10 +31,6 @@ export function Hero() {
       onMouseLeave={onLeave}
       className="relative h-[100svh] min-h-[560px] overflow-hidden bg-black select-none"
     >
-      {/* LETTERBOX BARS */}
-      <div className="absolute top-0 left-0 right-0 z-50 bg-black h-6 md:h-16" />
-      <div className="absolute bottom-0 left-0 right-0 z-50 bg-black h-6 md:h-16" />
-
       {/* ── IMAGE ──────────────────────────────────────────────────── */}
       <div
         className="absolute inset-[-4%]"
@@ -63,23 +59,23 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-0 z-[1]"
         style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px)" }} />
 
-      {/* Noise - stronger film grain */}
+      {/* Noise */}
       <div className="pointer-events-none absolute inset-0 z-[1]"
         style={{
-          opacity: 0.08,
+          opacity: 0.055,
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
           backgroundSize: "128px 128px",
         }} />
 
-      {/* Vignette - darker cinematic */}
+      {/* Vignette */}
       <div className="pointer-events-none absolute inset-0 z-[2]"
-        style={{ background: "radial-gradient(ellipse 80% 70% at 50% 40%, transparent 20%, rgba(0,0,0,0.7) 70%, #000 100%)" }} />
+        style={{ background: "radial-gradient(ellipse 85% 80% at 50% 40%, transparent 25%, rgba(8,8,8,0.5) 62%, #080808 100%)" }} />
 
       {/* Top burn */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-36 bg-gradient-to-b from-black via-black/60 to-transparent" />
 
       {/* Bottom burn */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-48 bg-gradient-to-t from-black via-black/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-56 bg-gradient-to-t from-black via-black/70 to-transparent" />
 
       {/* ── TOP LEFT: catalogue ────────────────────────────────────── */}
       <div className="absolute left-5 top-0 z-10 flex flex-col pt-[4.5rem] md:left-12 md:pt-20">
