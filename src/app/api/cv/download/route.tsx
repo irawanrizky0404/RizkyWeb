@@ -5,7 +5,7 @@ import { getCV } from "@/lib/store";
 
 export async function GET() {
   try {
-    const cv = await getCV();
+    const cv = getCV();
     const buffer = await renderToBuffer(<CVPDF cv={cv} />);
 
     return new NextResponse(new Uint8Array(buffer), {

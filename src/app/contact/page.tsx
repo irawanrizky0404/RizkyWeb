@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/store";
 import { ContactLinks } from "@/components/contact/contact-links";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 
-export async function generateMetadata(): Promise<Metadata> {
+export function generateMetadata(): Metadata {
   return buildMetadata({
     title: "Contact",
     description: `Get in touch with ${siteConfig.name}.`,

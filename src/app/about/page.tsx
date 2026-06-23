@@ -6,16 +6,16 @@ import { buildMetadata, getCV, getServices } from "@/lib/store";
 import { Reveal } from "@/components/ui/reveal";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 
-export async function generateMetadata(): Promise<Metadata> {
+export function generateMetadata(): Metadata {
   return buildMetadata({
     title: "About",
     description: `About ${siteConfig.name} — multidisciplinary visual artist working across 3D, animation, illustration, and identity.`,
   });
 }
 
-export default async function AboutPage() {
-  const [cvData, services] = await Promise.all([getCV(), getServices()]);
-  const { experiences, awards, education } = cvData;
+export default function AboutPage() {
+  const { experiences, awards, education } = getCV();
+  const services = getServices();
   return (
     <>
       {/* ── PAGE HEADER ─────────────────────────────────────────────── */}

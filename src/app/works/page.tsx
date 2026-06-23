@@ -5,15 +5,15 @@ import { buildMetadata } from "@/lib/store";
 import { WorkArchive } from "@/components/home/work-archive";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 
-export async function generateMetadata(): Promise<Metadata> {
+export function generateMetadata(): Metadata {
   return buildMetadata({
     title: "Work",
     description: "A curated visual archive of works in 3D, animation, illustration, and graphic design.",
   });
 }
 
-export default async function WorksPage() {
-  const works = await getWorks();
+export default function WorksPage() {
+  const works = getWorks();
 
   return (
     <>

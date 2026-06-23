@@ -36,12 +36,10 @@ const jsonLd = {
   },
 };
 
-export default async function Home() {
-  const [works, services, clients] = await Promise.all([
-    getWorks(),
-    getServices(),
-    getClients(),
-  ]);
+export default function Home() {
+  const works = getWorks();
+  const services = getServices();
+  const clients = getClients();
 
   return (
     <>

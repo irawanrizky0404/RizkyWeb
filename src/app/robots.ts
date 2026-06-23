@@ -1,8 +1,8 @@
 import { MetadataRoute } from "next";
 import { getSEO } from "@/lib/store";
 
-export default async function robots(): Promise<MetadataRoute.Robots> {
-  const seo = await getSEO();
+export default function robots(): MetadataRoute.Robots {
+  const seo = getSEO();
   const baseUrl = seo.canonicalBaseUrl || "https://rizkyirawan.com";
 
   return {

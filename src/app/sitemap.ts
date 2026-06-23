@@ -2,8 +2,9 @@ import { MetadataRoute } from "next";
 import { getWorks } from "@/lib/store";
 import { getSEO } from "@/lib/store";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [seo, works] = await Promise.all([getSEO(), getWorks()]);
+export default function sitemap(): MetadataRoute.Sitemap {
+  const seo = getSEO();
+  const works = getWorks();
   const baseUrl = seo.canonicalBaseUrl || "https://rizkyirawan.com";
 
   const staticPages = [

@@ -36,8 +36,8 @@ const ibmMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const seo = await getSEO();
+export function generateMetadata(): Metadata {
+  const seo = getSEO();
   const canonicalBase = seo.canonicalBaseUrl || "https://rizkyirawan.com";
   return {
     metadataBase: new URL(canonicalBase),
@@ -87,10 +87,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const design = await getDesign();
+  const design = getDesign();
   const cssVars = {
     "--signal": design.colors.signal,
     "--black": design.colors.black,

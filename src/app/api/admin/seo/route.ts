@@ -2,13 +2,13 @@ import { getSEO, saveSEO } from "@/lib/store";
 import type { SEOConfig } from "@/lib/store";
 
 export async function GET() {
-  return Response.json(await getSEO());
+  return Response.json(getSEO());
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    await saveSEO(body as SEOConfig);
+    saveSEO(body as SEOConfig);
     return Response.json({ ok: true });
   } catch (err) {
     console.error("[seo]", err);

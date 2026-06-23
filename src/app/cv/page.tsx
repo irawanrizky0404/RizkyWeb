@@ -5,16 +5,16 @@ import { buildMetadata, getCV, getClients } from "@/lib/store";
 import { Reveal } from "@/components/ui/reveal";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 
-export async function generateMetadata(): Promise<Metadata> {
+export function generateMetadata(): Metadata {
   return buildMetadata({
     title: "CV",
     description: `Curriculum vitae of ${siteConfig.name} — multidisciplinary visual artist.`,
   });
 }
 
-export default async function CVPage() {
-  const [cvData, clientList] = await Promise.all([getCV(), getClients()]);
-  const { experiences, skillGroups, tools, awards } = cvData;
+export default function CVPage() {
+  const { experiences, skillGroups, tools, awards } = getCV();
+  const clientList = getClients();
   return (
     <>
       {/* ── PAGE HEADER ─────────────────────────────────────────────── */}

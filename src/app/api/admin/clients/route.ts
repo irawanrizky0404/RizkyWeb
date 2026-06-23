@@ -2,5 +2,5 @@ import { NextResponse } from "next/server";
 import { getClients } from "@/lib/store";
 
 export async function GET() {
-  return NextResponse.json(await getClients());
+  return NextResponse.json(getClients());
 }
