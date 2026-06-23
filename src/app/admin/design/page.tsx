@@ -28,8 +28,10 @@ export default function AdminDesign() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
+    setLoaded(false);
+    setConfig(DEFAULT);
     fetch("/api/admin/design")
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error("Failed"); return r.json(); })
       .then((d) => { setConfig(d || DEFAULT); setLoaded(true); })
       .catch(() => { setConfig(DEFAULT); setLoaded(true); });
   }, []);

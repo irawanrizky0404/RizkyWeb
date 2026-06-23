@@ -203,8 +203,10 @@ export default function AdminCV() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    setLoaded(false);
+    setCV(EMPTY_CV);
     fetch("/api/admin/cv")
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error("Failed"); return r.json(); })
       .then((d) => { setCV(d || EMPTY_CV); setLoaded(true); })
       .catch(() => { setCV(EMPTY_CV); setLoaded(true); });
   }, []);
