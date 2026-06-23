@@ -133,7 +133,7 @@ export function NoiseTerrain() {
     window.addEventListener("resize", handleResize);
 
     return () => {
-      cancelAnimationId(animationId);
+      cancelAnimationFrame(animationId);
       window.removeEventListener("resize", handleResize);
       container.removeChild(renderer.domElement);
       geometry.dispose();
