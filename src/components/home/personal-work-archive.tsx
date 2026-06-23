@@ -120,8 +120,8 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
                 <div className="relative z-10 max-w-md">
                   {/* Category line */}
                   <div className="flex items-center gap-4 mb-6">
-                    <span className="w-6 h-[1px] bg-[#4a6a8a]" />
-                    <span className="lab text-[#5a7a9a]" style={{ fontSize: "0.5rem", letterSpacing: "0.25em" }}>
+                    <span className="w-6 h-[1px] bg-white/20" />
+                    <span className="lab text-white/30" style={{ fontSize: "0.5rem", letterSpacing: "0.25em" }}>
                       {project.category.toUpperCase()}
                     </span>
                     <span className="w-4 h-[1px] bg-white/10" />
