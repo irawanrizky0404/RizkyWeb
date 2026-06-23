@@ -38,7 +38,7 @@ CONTENT:
 [Full journal post content - 300-500 words, with thoughtful reflection on the topic. Use a personal, reflective tone. Include sensory details and artistic references where appropriate.]`,
           },
         ],
-        max_tokens: 800,
+        max_output_tokens: 800,
         temperature: 0.8,
       }),
     });

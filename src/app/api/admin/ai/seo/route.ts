@@ -41,7 +41,7 @@ OG_DESCRIPTION: [OpenGraph description, 60-100 chars, click-worthy]
 KEYWORDS: [5-7 relevant keywords, lowercase, comma-separated]`,
           },
         ],
-        max_tokens: 200,
+        max_output_tokens: 200,
         temperature: 0.7,
       }),
     });
