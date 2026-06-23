@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import type { Project } from "@/lib/types";
 
@@ -12,80 +12,113 @@ interface PersonalWorkArchiveProps {
 
 export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
   const personalProjects = projects.filter((p) => p.type === "personal" || p.tags.includes("Personal"));
+  const filmRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (filmRef.current) {
+        filmRef.current.style.opacity = Math.random() > 0.97 ? String(Math.random() * 0.06 + 0.02) : "0.04";
+      }
+    }, 80);
+    return () => clearInterval(interval);
+  }, []);
 
   if (personalProjects.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="dis text-white/10" style={{ fontSize: "clamp(1.5rem, 4vw, 3rem)" }}>
-          No works in this category yet.
+      <div className="min-h-screen flex items-center justify-center relative">
+        <p className="dis text-white/10" style={{ fontSize: "clamp(1.5rem, 4vw, 3rem)", letterSpacing: "0.3em" }}>
+          NO WORKS
         </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative overflow-hidden bg-[#050508]">
+      {/* FILM GRAIN */}
+      <div
+        ref={filmRef}
+        className="pointer-events-none absolute inset-0 z-40"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          opacity: 0.04,
+          mixBlendMode: "overlay",
+        }}
+      />
+
+      {/* VIGNETTE */}
+      <div className="pointer-events-none absolute inset-0 z-30" 
+        style={{ background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%)" }} 
+      />
+
       {personalProjects.map((project, i) => (
         <motion.section
           key={project.slug}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-10%" }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative border-t border-white/5"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.2 }}
+          className="relative border-t border-white/[0.03]"
         >
           <Link
             href={`/personal-works/${project.slug}`}
             className="group block"
           >
-            <div className={`flex flex-col md:flex-row ${i % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
-              {/* IMAGE */}
-              <div className="relative w-full md:w-1/2 aspect-[4/3] md:aspect-auto overflow-hidden bg-black">
+            <div className={`flex flex-col md:flex-row ${i % 2 === 1 ? 'md:flex-row-reverse' : ''} relative`}>
+              {/* IMAGE - LARGE */}
+              <div className="relative w-full md:w-3/5 aspect-[16/10] md:aspect-[21/9] overflow-hidden bg-black">
                 <Image
                   src={project.cover}
                   alt={project.title}
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover transition-all duration-700 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 60vw"
+                  className="object-cover"
                   style={{
-                    filter: "grayscale(0.3) contrast(1.05) brightness(0.9)",
+                    filter: "grayscale(1) contrast(1.5) brightness(0.5) sepia(0.2)",
+                    mixBlendMode: "multiply",
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent md:hidden" />
+                {/* Blue tint overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1a2a3a]/40 via-transparent to-[#0a0a10]/60" />
               </div>
 
-              {/* INFO */}
-              <div className="relative w-full md:w-1/2 flex flex-col justify-center px-8 py-12 md:px-16 md:py-24 bg-[#080808]">
-                {/* Number watermark */}
+              {/* INFO - DARK SIDE */}
+              <div className="relative w-full md:w-2/5 flex flex-col justify-center px-10 py-16 md:px-16 md:py-0 bg-[#050508]">
+                {/* Large number */}
                 <span 
-                  className="absolute top-4 right-8 md:top-auto md:bottom-8 md:right-16 text-white/[0.03] dis select-none pointer-events-none" 
-                  style={{ fontSize: "clamp(6rem, 20vw, 16rem)", lineHeight: 1 }}
+                  className="absolute top-8 right-8 md:top-auto md:bottom-4 md:right-6 text-white/[0.05] dis select-none pointer-events-none" 
+                  style={{ fontSize: "clamp(8rem, 25vw, 20rem)", lineHeight: 1, fontWeight: 300 }}
                 >
                   {String(i + 1).padStart(2, '0')}
                 </span>
 
-                <div className="relative z-10">
-                  <span className="lab text-white/30 block mb-4" style={{ fontSize: "0.55rem", letterSpacing: "0.2em" }}>
-                    {project.category} — {project.year}
-                  </span>
+                <div className="relative z-10 max-w-md">
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="w-6 h-[1px] bg-[#3a5a7a]" />
+                    <span className="lab text-[#4a6a8a]" style={{ fontSize: "0.5rem", letterSpacing: "0.25em" }}>
+                      {project.category.toUpperCase()}
+                    </span>
+                  </div>
                   
                   <h2 
-                    className="dis text-white group-hover:text-white/80 transition-colors duration-500" 
-                    style={{ fontSize: "clamp(2rem, 6vw, 5rem)", lineHeight: 0.9, letterSpacing: "-0.02em" }}
+                    className="dis text-white" 
+                    style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)", lineHeight: 0.85, letterSpacing: "-0.03em", fontWeight: 300 }}
                   >
                     {project.title}
                   </h2>
                   
-                  <div className="flex items-center gap-3 mt-6">
-                    <span className="w-8 h-[1px] bg-white/20" />
-                    <span className="lab text-white/25" style={{ fontSize: "0.5rem", letterSpacing: "0.1em" }}>
-                      {project.tags.slice(0, 2).join(" · ")}
+                  <div className="flex items-center gap-4 mt-8">
+                    <span className="dis text-white/30" style={{ fontSize: "clamp(1.5rem, 4vw, 3rem)", fontWeight: 300 }}>
+                      {project.year}
                     </span>
+                    <span className="w-12 h-[1px] bg-white/10" />
                   </div>
 
-                  <div className="mt-8 md:mt-10 flex items-center gap-2 text-white/40 group-hover:text-white transition-colors duration-300">
-                    <span className="lab" style={{ fontSize: "0.6rem", letterSpacing: "0.1em" }}>VIEW PROJECT</span>
-                    <span className="text-lg group-hover:translate-x-1 transition-transform duration-300">→</span>
+                  <div className="mt-10 flex items-center gap-3">
+                    <span className="lab text-white/30" style={{ fontSize: "0.55rem", letterSpacing: "0.2em" }}>
+                      ENTER
+                    </span>
+                    <span className="text-lg text-white/20 group-hover:text-white/60 group-hover:translate-x-1 transition-all duration-300">→</span>
                   </div>
                 </div>
               </div>
@@ -94,8 +127,15 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
         </motion.section>
       ))}
 
-      {/* FOOTER SPACE */}
-      <div className="h-32 border-t border-white/5" />
+      {/* FOOTER */}
+      <div className="relative z-10 h-32 border-t border-white/[0.03] flex items-center justify-between px-10 md:px-16">
+        <span className="lab text-white/10" style={{ fontSize: "0.5rem", letterSpacing: "0.2em" }}>
+          PERSONAL ARCHIVE — RIZKY IRAWAN
+        </span>
+        <Link href="/works" className="lab text-white/20 hover:text-white/50 transition-colors" style={{ fontSize: "0.5rem", letterSpacing: "0.15em" }}>
+          WORKS →
+        </Link>
+      </div>
     </div>
   );
 }

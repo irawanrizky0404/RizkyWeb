@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getWorks } from "@/lib/store";
 import { buildMetadata } from "@/lib/store";
 import { PersonalWorkArchive } from "@/components/home/personal-work-archive";
-import { MaskReveal } from "@/components/ui/mask-reveal";
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
@@ -17,16 +16,24 @@ export default async function PersonalWorksPage() {
   return (
     <>
       {/* PAGE HEADER */}
-      <div className="border-t-2 border-white/10 px-6 pt-24 pb-16 md:px-12 md:pt-36 md:pb-20">
-        <span className="fac text-white/20">FAC.05 — Personal</span>
-        <MaskReveal delay={0.15}>
-          <h1 className="dis text-white mt-2" style={{ fontSize: "clamp(4rem, 14vw, 14rem)", lineHeight: 0.8, letterSpacing: "-0.03em" }}>
-            Personal
-          </h1>
-        </MaskReveal>
-        <p className="lab text-white/25 mt-6 max-w-lg" style={{ fontSize: "0.65rem", letterSpacing: "0.05em", lineHeight: 1.8 }}>
-          PERSONAL PRACTICE — SEPARATE FROM CLIENT WORK
-        </p>
+      <div className="border-t border-white/[0.05] px-8 pt-28 pb-20 md:px-16 md:pt-40 md:pb-28 bg-[#050508]">
+        <div className="flex items-baseline gap-8">
+          <span className="lab text-[#4a6a8a]" style={{ fontSize: "0.55rem", letterSpacing: "0.3em" }}>
+            FAC.05 — PERSONAL
+          </span>
+          <span className="lab text-white/20" style={{ fontSize: "0.5rem", letterSpacing: "0.15em" }}>
+            2017—PRESENT
+          </span>
+        </div>
+        <h1 className="dis text-white mt-6" style={{ fontSize: "clamp(4rem, 15vw, 12rem)", lineHeight: 0.75, letterSpacing: "-0.04em", fontWeight: 300 }}>
+          Personal
+        </h1>
+        <div className="flex items-center gap-6 mt-8">
+          <span className="w-16 h-[1px] bg-[#3a5a7a]" />
+          <p className="lab text-white/20" style={{ fontSize: "0.6rem", letterSpacing: "0.1em", lineHeight: 1.8 }}>
+            SEPARATE FROM CLIENT WORK
+          </p>
+        </div>
       </div>
 
       {/* ARCHIVE */}
