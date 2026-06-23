@@ -3,7 +3,6 @@
 import { useState, useEffect, useTransition } from "react";
 import { addExperience, updateExperience, deleteExperience, addSkillGroup, updateSkillGroup, deleteSkillGroup, addToolGroup, updateToolGroup, deleteToolGroup, addEducation, updateEducation, deleteEducation, addAward, updateAward, deleteAward } from "@/app/admin/actions";
 import type { Experience, SkillGroup, Education, Award } from "@/lib/types";
-import type { CVData } from "@/lib/store";
 import { useRouter } from "next/navigation";
 
 type Tab = "experience" | "skills" | "tools" | "education" | "awards";

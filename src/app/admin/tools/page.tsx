@@ -110,7 +110,7 @@ export default function AdminTools() {
         <span className="lab text-signal" style={{ fontSize: "0.55rem" }}>FAC.ADM — Tools</span>
         <h1 className="dis text-white mt-1" style={{ fontSize: "clamp(2rem, 5vw, 5rem)", lineHeight: 0.88 }}>AI Tools</h1>
         <p className="lab text-white/30 mt-3" style={{ fontSize: "0.6rem" }}>
-          Generate titles, descriptions, and SEO metadata using xAI Grok.
+          Generate titles, descriptions, and SEO metadata using Groq AI.
         </p>
       </div>
 

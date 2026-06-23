@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminBodyClass } from "@/components/admin/admin-body-class";
 
 const navItems = [
@@ -11,7 +11,7 @@ const navItems = [
   { label: "Journal", href: "/admin/journal" },
   { label: "Services", href: "/admin/services" },
   { label: "CV", href: "/admin/cv" },
-  { label: "Upload & Media", href: "/admin/upload" },
+  { label: "Upload", href: "/admin/upload" },
   { label: "Design", href: "/admin/design" },
   { label: "AI Tools", href: "/admin/tools" },
   { label: "Settings", href: "/admin/settings" },
@@ -22,6 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   if (pathname === "/admin/login") return <><AdminBodyClass />{children}</>;
 
@@ -32,10 +33,70 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex">
+    <div className="min-h-screen bg-black text-white flex flex-col md:flex-row">
       <AdminBodyClass />
-      {/* Sidebar */}
-      <aside className="w-52 shrink-0 border-r border-rule flex flex-col">
+
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between border-b border-rule px-4 py-3 bg-black sticky top-0 z-50">
+        <div>
+          <span className="lab text-signal" style={{ fontSize: "0.5rem" }}>FAC.ADM</span>
+          <p className="dis text-white" style={{ fontSize: "1rem", lineHeight: 0.9 }}>Admin</p>
+        </div>
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="lab text-white/50 hover:text-white p-2"
+          style={{ fontSize: "1.2rem" }}
+        >
+          {menuOpen ? "✕" : "☰"}
+        </button>
+      </div>
+
+      {/* Mobile Navigation Overlay */}
+      {menuOpen && (
+        <div className="md:hidden fixed inset-0 top-[60px] bg-black z-40 overflow-auto">
+          <nav className="px-4 py-4 flex flex-col gap-1">
+            {navItems.map((item) => {
+              const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="lab px-4 py-3 rounded-sm transition-colors"
+                  style={{
+                    fontSize: "0.7rem",
+                    color: active ? "#080808" : "rgba(240,240,238,0.6)",
+                    background: active ? "#ff3500" : "transparent",
+                  }}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+            <div className="border-t border-rule mt-4 pt-4">
+              <a
+                href="/"
+                target="_blank"
+                className="lab text-white/40 hover:text-white transition-colors block py-2"
+                style={{ fontSize: "0.6rem" }}
+              >
+                ↗ View site
+              </a>
+              <button
+                onClick={logout}
+                disabled={loggingOut}
+                className="lab text-white/40 hover:text-signal transition-colors py-2"
+                style={{ fontSize: "0.6rem" }}
+              >
+                {loggingOut ? "Logging out…" : "Log out"}
+              </button>
+            </div>
+          </nav>
+        </div>
+      )}
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-52 shrink-0 border-r border-rule flex-col">
         {/* Logo */}
         <div className="border-b border-rule px-5 py-5">
           <span className="lab text-signal" style={{ fontSize: "0.55rem" }}>FAC.ADM</span>
@@ -43,7 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
+        <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-auto">
           {navItems.map((item) => {
             const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
             return (
@@ -84,7 +145,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main Content */}
       <main className="flex-1 min-h-0 overflow-auto">
         {children}
       </main>

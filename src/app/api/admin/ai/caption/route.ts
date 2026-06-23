@@ -7,22 +7,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Topic or keywords are required" }, { status: 400 });
   }
 
-  const apiKey = process.env.XAI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
 
   if (!apiKey) {
-    return NextResponse.json({ error: "XAI_API_KEY not configured" }, { status: 500 });
+    return NextResponse.json({ error: "GROQ_API_KEY not configured" }, { status: 500 });
   }
 
   try {
-    const response = await fetch("https://api.x.ai/v1/responses", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "grok-build-0.1",
-        input: [
+        model: "llama-3.1-8b-instant",
+        messages: [
           {
             role: "user",
             content: prompt ||
@@ -35,14 +35,14 @@ TITLE: [An evocative, intriguing title - max 6 words]
 DESCRIPTION: [A compelling 1-2 sentence description of the work, atmospheric and poetic, max 40 words]`,
           },
         ],
-        max_output_tokens: 150,
+        max_tokens: 150,
         temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[ai title] xAI API error:", response.status, errorText);
+      console.error("[ai title] Groq API error:", response.status, errorText);
       return NextResponse.json({ error: "AI request failed" }, { status: 500 });
     }
 

@@ -28,7 +28,10 @@ export default function AdminDesign() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/design").then((r) => r.json()).then((d) => { setConfig(d); setLoaded(true); });
+    fetch("/api/admin/design")
+      .then((r) => r.json())
+      .then((d) => { setConfig(d); setLoaded(true); })
+      .catch(() => { setConfig(DEFAULT); setLoaded(true); });
   }, []);
 
   function setColor(key: keyof DesignConfig["colors"], value: string) {

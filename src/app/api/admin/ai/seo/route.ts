@@ -7,10 +7,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
   }
 
-  const apiKey = process.env.XAI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
 
   if (!apiKey) {
-    return NextResponse.json({ error: "XAI_API_KEY not configured" }, { status: 500 });
+    return NextResponse.json({ error: "GROQ_API_KEY not configured" }, { status: 500 });
   }
 
   const contextType = type === "work"
@@ -20,15 +20,15 @@ export async function POST(req: NextRequest) {
     : "a creative portfolio page";
 
   try {
-    const response = await fetch("https://api.x.ai/v1/responses", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "grok-build-0.1",
-        input: [
+        model: "llama-3.1-8b-instant",
+        messages: [
           {
             role: "user",
             content: `Generate SEO metadata for ${contextType} titled "${title}" ${description ? `with this description: "${description}"` : ""}.
@@ -41,14 +41,14 @@ OG_DESCRIPTION: [OpenGraph description, 60-100 chars, click-worthy]
 KEYWORDS: [5-7 relevant keywords, lowercase, comma-separated]`,
           },
         ],
-        max_output_tokens: 200,
+        max_tokens: 200,
         temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[ai seo] xAI API error:", response.status, errorText);
+      console.error("[ai seo] Groq API error:", response.status, errorText);
       return NextResponse.json({ error: "AI request failed" }, { status: 500 });
     }
 
