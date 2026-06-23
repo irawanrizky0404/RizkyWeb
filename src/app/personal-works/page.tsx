@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { getWorks } from "@/lib/store";
 import { buildMetadata } from "@/lib/store";
 import { PersonalWorkArchive } from "@/components/home/personal-work-archive";
@@ -18,22 +17,20 @@ export default async function PersonalWorksPage() {
   return (
     <>
       {/* PAGE HEADER */}
-      <div className="border-t-2 border-white/20 px-5 pt-24 pb-10 md:px-12 md:pt-32 md:pb-14">
-        <span className="fac">FAC.05 — Personal</span>
+      <div className="border-t-2 border-white/10 px-6 pt-24 pb-16 md:px-12 md:pt-36 md:pb-20">
+        <span className="fac text-white/20">FAC.05 — Personal</span>
         <MaskReveal delay={0.15}>
-          <h1 className="dis text-white mt-2" style={{ fontSize: "clamp(3.5rem, 12vw, 16rem)", lineHeight: 0.88 }}>
+          <h1 className="dis text-white mt-2" style={{ fontSize: "clamp(4rem, 14vw, 14rem)", lineHeight: 0.8, letterSpacing: "-0.03em" }}>
             Personal
           </h1>
         </MaskReveal>
-        <p className="lab text-white/30 mt-5 max-w-xl" style={{ fontSize: "0.7rem" }}>
-          Personal projects and visual explorations — separate from client work, these pieces define the artistic practice.
+        <p className="lab text-white/25 mt-6 max-w-lg" style={{ fontSize: "0.65rem", letterSpacing: "0.05em", lineHeight: 1.8 }}>
+          PERSONAL PRACTICE — SEPARATE FROM CLIENT WORK
         </p>
       </div>
 
       {/* ARCHIVE */}
-      <Suspense>
-        <PersonalWorkArchive projects={works} />
-      </Suspense>
+      <PersonalWorkArchive projects={works} />
     </>
   );
 }
