@@ -202,17 +202,31 @@ export default function AdminCV() {
   const [msg, setMsg] = useState("");
   const [mode, setMode] = useState<"list" | "add" | "edit">("list");
   const [editing, setEditing] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/cv")
       .then((r) => r.json())
-      .then((d) => { setCV(d); setLoaded(true); })
+      .then((d) => { setCV(d || EMPTY_CV); setLoaded(true); })
       .catch(() => { setCV(EMPTY_CV); setLoaded(true); });
   }, []);
 
   function notify(text: string) { setMsg(text); setTimeout(() => setMsg(""), 3000); }
 
-  if (!loaded || !cv) return <div className="p-8"><span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>Loading…</span></div>;
+  if (!loaded) return <div className="p-8"><span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>Loading…</span></div>;
+
+  if (error || !cv) {
+    return (
+      <div className="p-8">
+        <div className="border border-rule p-6 text-center">
+          <p className="lab text-white/50 mb-4" style={{ fontSize: "0.7rem" }}>Failed to load CV data</p>
+          <button onClick={() => window.location.reload()} className="border border-signal px-4 py-2">
+            <span className="lab text-white" style={{ fontSize: "0.6rem" }}>Reload</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // ── Experience ──────────────────────────────────────────────
   async function handleSaveExp(exp: Experience, key: string) {
