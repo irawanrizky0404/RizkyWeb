@@ -16,12 +16,12 @@ export function Clients({ clients: clientList }: ClientsProps) {
         {clientList.map((name) => (
           <span key={name} className="flex items-center">
             <span
-              className="dis text-signal transition-colors hover:text-white"
+              className="dis text-white transition-colors hover:text-signal"
               style={{ fontSize: "clamp(1.4rem, 3vw, 2.4rem)", whiteSpace: "nowrap", lineHeight: 1 }}
             >
               {name}
             </span>
-            <span className="mx-8 text-signal/50" style={{ fontSize: "0.5rem" }}>✦</span>
+            <span className="mx-8 text-white/30" style={{ fontSize: "0.5rem" }}>✦</span>
           </span>
         ))}
       </Marquee>

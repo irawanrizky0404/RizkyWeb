@@ -25,7 +25,7 @@ export function Marquee({ items = [], speed = 30, className = "", children }: Ma
       ));
 
   return (
-    <div className={`relative overflow-hidden bg-signal ${className}`}>
+    <div className={`relative overflow-hidden bg-black ${className}`}>
       <div
         ref={trackRef}
         className="flex whitespace-nowrap"
