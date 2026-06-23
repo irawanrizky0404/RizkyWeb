@@ -147,8 +147,9 @@ export async function toggleFeatured(slug: string) {
 export async function addPost(post: JournalPost) {
   try {
     const posts = await getJournal();
-    if (!post.slug) {
-      post.slug = post.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").slice(0, 60);
+    if (!post.slug || !post.slug.trim()) {
+      const generated = post.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").slice(0, 60);
+      post.slug = generated || `post-${Date.now()}`;
     }
     if (posts.find((p) => p.slug === post.slug)) {
       return { ok: false, error: "Slug already exists" };
@@ -156,7 +157,7 @@ export async function addPost(post: JournalPost) {
     await saveJournal([post, ...posts]);
     revalidatePath("/journal");
     await logActivity("journal.add", `Added post: "${post.title}"`);
-    return { ok: true };
+    return { ok: true, slug: post.slug };
   } catch (err) {
     console.error("[addPost]", err);
     return { ok: false, error: String(err) };

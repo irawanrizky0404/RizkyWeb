@@ -261,8 +261,7 @@ export default function AdminJournal() {
   }
 
   function handleAiApply(data: { title: string; excerpt: string; tags: string; content: string }) {
-    let slug = data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").slice(0, 60);
-    if (!slug) slug = `post-${Date.now()}`;
+    const slug = data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").slice(0, 60) || `post-${Date.now()}`;
     const newPost: JournalPost = {
       slug,
       title: data.title,
@@ -277,9 +276,7 @@ export default function AdminJournal() {
       if (result.ok) {
         notify("Post published!");
         setShowAi(false);
-        const res = await fetch(`/api/admin/journal?t=${Date.now()}`);
-        const d = await res.json();
-        setPosts(d);
+        setPosts((prev) => [newPost, ...prev]);
       } else {
         notify(`Error: ${result.error}`);
       }
