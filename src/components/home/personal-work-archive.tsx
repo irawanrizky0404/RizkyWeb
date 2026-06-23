@@ -34,7 +34,7 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black">
+    <div className="min-h-screen relative overflow-hidden bg-[#080808]">
       {/* FILM GRAIN */}
       <div
         ref={filmRef}
@@ -89,7 +89,7 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
               </div>
 
               {/* INFO - DARK SIDE */}
-              <div className="relative w-full md:w-2/5 flex flex-col justify-center px-10 py-16 md:px-16 md:py-0 bg-[#080808]">
+              <div className="relative w-full md:w-2/5 flex flex-col justify-center px-10 py-16 md:px-16 md:py-0">
                 {/* Large number */}
                 <span 
                   className="absolute top-8 right-8 md:top-auto md:bottom-4 md:right-6 text-white/[0.05] dis select-none pointer-events-none" 
