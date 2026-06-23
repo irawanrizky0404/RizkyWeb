@@ -110,8 +110,7 @@ export default function AdminServices() {
         notify(mode === "add" ? "Service added!" : "Service updated!");
         setMode("list");
         setEditing(null);
-        router.refresh();
-        fetch("/api/admin/services").then((r) => r.json()).then(setServices);
+        setTimeout(() => window.location.reload(), 500);
       } else {
         notify(`Error: ${result.error}`);
       }

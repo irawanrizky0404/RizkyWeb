@@ -165,8 +165,7 @@ export default function AdminWorks() {
         notify(mode === "add" ? "Work added!" : "Work updated!");
         setMode("list");
         setEditing(null);
-        router.refresh();
-        fetch("/api/admin/works").then((r) => r.json()).then(setWorks);
+        setTimeout(() => window.location.reload(), 500);
       } else {
         notify(`Error: ${result.error}`);
       }

@@ -255,8 +255,7 @@ export default function AdminJournal() {
         notify(mode === "add" ? "Post published!" : "Post updated!");
         setMode("list");
         setEditing(null);
-        router.refresh();
-        fetch("/api/admin/journal").then((r) => r.json()).then(setPosts);
+        setTimeout(() => window.location.reload(), 500);
       } else { notify(`Error: ${result.error}`); }
     });
   }

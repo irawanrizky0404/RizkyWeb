@@ -218,8 +218,7 @@ export default function AdminCV() {
       if (result.ok) {
         notify(mode === "add" ? "Experience added!" : "Experience updated!");
         setMode("list"); setEditing(null);
-        router.refresh();
-        fetch("/api/admin/cv").then((r) => r.json()).then(setCV);
+        setTimeout(() => window.location.reload(), 500);
       } else { notify(`Error: ${result.error}`); }
     });
   }
@@ -241,8 +240,7 @@ export default function AdminCV() {
       if (result.ok) {
         notify(mode === "add" ? "Skill added!" : "Skill updated!");
         setMode("list"); setEditing(null);
-        router.refresh();
-        fetch("/api/admin/cv").then((r) => r.json()).then(setCV);
+        setTimeout(() => window.location.reload(), 500);
       } else { notify(`Error: ${result.error}`); }
     });
   }
@@ -264,8 +262,7 @@ export default function AdminCV() {
       if (result.ok) {
         notify(mode === "add" ? "Tool group added!" : "Tool group updated!");
         setMode("list"); setEditing(null);
-        router.refresh();
-        fetch("/api/admin/cv").then((r) => r.json()).then(setCV);
+        setTimeout(() => window.location.reload(), 500);
       } else { notify(`Error: ${result.error}`); }
     });
   }
@@ -287,8 +284,7 @@ export default function AdminCV() {
       if (result.ok) {
         notify(mode === "add" ? "Education added!" : "Education updated!");
         setMode("list"); setEditing(null);
-        router.refresh();
-        fetch("/api/admin/cv").then((r) => r.json()).then(setCV);
+        setTimeout(() => window.location.reload(), 500);
       } else { notify(`Error: ${result.error}`); }
     });
   }
@@ -310,8 +306,7 @@ export default function AdminCV() {
       if (result.ok) {
         notify(mode === "add" ? "Award added!" : "Award updated!");
         setMode("list"); setEditing(null);
-        router.refresh();
-        fetch("/api/admin/cv").then((r) => r.json()).then(setCV);
+        setTimeout(() => window.location.reload(), 500);
       } else { notify(`Error: ${result.error}`); }
     });
   }
