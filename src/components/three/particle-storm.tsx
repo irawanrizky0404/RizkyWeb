@@ -5,6 +5,7 @@ import * as THREE from "three";
 
 export function ParticleStorm() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const mouseRef = useRef({ x: 0, y: 0, normalizedX: 0, normalizedY: 0 });
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -31,6 +32,7 @@ export function ParticleStorm() {
     const columns = 80;
     const rows = 40;
     const particleCount = columns * rows;
+    const originalPositions = new Float32Array(particleCount * 3);
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
     const sizes = new Float32Array(particleCount);
@@ -45,6 +47,9 @@ export function ParticleStorm() {
         const baseY = (j - rows / 2) * 0.8;
         const z = (Math.random() - 0.5) * 5;
 
+        originalPositions[i3] = x;
+        originalPositions[i3 + 1] = baseY;
+        originalPositions[i3 + 2] = z;
         positions[i3] = x;
         positions[i3 + 1] = baseY;
         positions[i3 + 2] = z;
@@ -52,20 +57,20 @@ export function ParticleStorm() {
         // Color - signal orange gradient
         const intensity = j / rows;
         if (intensity > 0.7) {
-          colors[i3] = 0.9 + Math.random() * 0.1;
-          colors[i3 + 1] = 0.9 + Math.random() * 0.1;
-          colors[i3 + 2] = 0.9 + Math.random() * 0.1;
+          colors[i3] = 0.95;
+          colors[i3 + 1] = 0.95;
+          colors[i3 + 2] = 0.95;
         } else if (intensity > 0.4) {
-          colors[i3] = 0.3 + Math.random() * 0.1;
-          colors[i3 + 1] = 0.1 + Math.random() * 0.05;
-          colors[i3 + 2] = 0;
+          colors[i3] = 1.0;
+          colors[i3 + 1] = 0.21;
+          colors[i3 + 2] = 0.0;
         } else {
-          colors[i3] = 0.2 + Math.random() * 0.1;
-          colors[i3 + 1] = 0.2 + Math.random() * 0.1;
-          colors[i3 + 2] = 0.3 + Math.random() * 0.1;
+          colors[i3] = 0.3;
+          colors[i3 + 1] = 0.4;
+          colors[i3 + 2] = 0.5;
         }
 
-        sizes[idx] = Math.random() * 2 + 1;
+        sizes[idx] = Math.random() * 2.5 + 1.5;
       }
     }
 
@@ -78,7 +83,8 @@ export function ParticleStorm() {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        pixelRatio: { value: renderer.getPixelRatio() },
+        mouseX: { value: 0 },
+        mouseY: { value: 0 },
       },
       vertexShader: `
         attribute float size;
@@ -86,6 +92,8 @@ export function ParticleStorm() {
         varying vec3 vColor;
         varying float vAlpha;
         uniform float time;
+        uniform float mouseX;
+        uniform float mouseY;
         
         void main() {
           vColor = color;
@@ -101,11 +109,20 @@ export function ParticleStorm() {
           // Add some chaos
           pos.y += sin(time * 2.0 + pos.x * 0.5) * 0.5;
           
+          // Mouse interaction - particles react to cursor
+          float distToMouse = distance(vec2(pos.x, pos.y), vec2(mouseX * 30.0, mouseY * 20.0));
+          float mouseInfluence = smoothstep(25.0, 0.0, distToMouse);
+          pos.x += mouseX * 8.0 * mouseInfluence;
+          pos.y += mouseY * 5.0 * mouseInfluence;
+          pos.z += 3.0 * mouseInfluence;
+          
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
           gl_PointSize = size * (150.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
           
-          vAlpha = smoothstep(80.0, 30.0, -mvPosition.z) * (0.5 + 0.5 * sin(time + pos.x));
+          float alphaMod = 0.5 + 0.5 * sin(time + pos.x);
+          float mouseGlow = mouseInfluence * 2.0;
+          vAlpha = smoothstep(80.0, 30.0, -mvPosition.z) * alphaMod + mouseGlow;
         }
       `,
       fragmentShader: `
@@ -117,8 +134,8 @@ export function ParticleStorm() {
           float dist = length(center);
           if (dist > 0.5) discard;
           
-          float alpha = smoothstep(0.5, 0.1, dist) * vAlpha;
-          gl_FragColor = vec4(vColor, alpha * 0.7);
+          float alpha = smoothstep(0.5, 0.1, dist) * vAlpha * 0.7;
+          gl_FragColor = vec4(vColor, alpha);
         }
       `,
       transparent: true,
@@ -132,11 +149,35 @@ export function ParticleStorm() {
     // Fog
     scene.fog = new THREE.FogExp2(0x080808, 0.012);
 
+    // Mouse move handler
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      mouseRef.current.x = e.clientX - rect.left;
+      mouseRef.current.y = e.clientY - rect.top;
+      mouseRef.current.normalizedX = (mouseRef.current.x / rect.width) * 2 - 1;
+      mouseRef.current.normalizedY = -((mouseRef.current.y / rect.height) * 2 - 1);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const rect = container.getBoundingClientRect();
+        mouseRef.current.x = e.touches[0].clientX - rect.left;
+        mouseRef.current.y = e.touches[0].clientY - rect.top;
+        mouseRef.current.normalizedX = (mouseRef.current.x / rect.width) * 2 - 1;
+        mouseRef.current.normalizedY = -((mouseRef.current.y / rect.height) * 2 - 1);
+      }
+    };
+
+    container.addEventListener("mousemove", handleMouseMove);
+    container.addEventListener("touchmove", handleTouchMove, { passive: true });
+
     // Animation
     let animationId: number;
     const animate = () => {
       animationId = requestAnimationFrame(animate);
       material.uniforms.time.value += 0.015;
+      material.uniforms.mouseX.value += (mouseRef.current.normalizedX - material.uniforms.mouseX.value) * 0.05;
+      material.uniforms.mouseY.value += (mouseRef.current.normalizedY - material.uniforms.mouseY.value) * 0.05;
       renderer.render(scene, camera);
     };
     animate();
@@ -155,6 +196,8 @@ export function ParticleStorm() {
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener("resize", handleResize);
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("touchmove", handleTouchMove);
       container.removeChild(renderer.domElement);
       geometry.dispose();
       material.dispose();
