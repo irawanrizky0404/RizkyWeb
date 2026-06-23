@@ -90,7 +90,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const design = await getDesign().catch(() => null);
+  const design = await getDesign();
   const cssVars = {
     "--signal": design?.colors?.signal ?? "#ff3500",
     "--black": design?.colors?.black ?? "#080808",

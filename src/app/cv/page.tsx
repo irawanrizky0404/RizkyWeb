@@ -14,15 +14,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CVPage() {
   const [cv, clientList] = await Promise.all([
-    getCV().catch(() => null),
+    getCV(),
     getClients().catch(() => [])
   ]);
 
-  if (!cv) {
-    return <div className="p-6 text-white/50">Loading...</div>;
-  }
-
-  const { experiences = [], skillGroups = [], tools = [], awards = [] } = cv;
+  const { experiences = [], skillGroups = [], tools = [], education = [], awards = [] } = cv;
   return (
     <>
       {/* ── PAGE HEADER ─────────────────────────────────────────────── */}

@@ -15,13 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AboutPage() {
   const [cv, services] = await Promise.all([
-    getCV().catch(() => null),
+    getCV(),
     getServices().catch(() => [])
   ]);
-
-  if (!cv) {
-    return <div className="p-6 text-white/50">Loading...</div>;
-  }
 
   const { experiences = [], awards = [], education = [] } = cv;
   return (
