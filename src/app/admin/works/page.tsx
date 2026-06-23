@@ -219,8 +219,9 @@ export default function AdminWorks() {
   }, [filter, search]);
 
   useEffect(() => {
-    fetch("/api/admin/works").then((r) => r.json()).then((data) => {
-      setWorks(data);
+    fetch("/api/admin/works?t=" + Date.now()).then((r) => r.json()).then((data) => {
+      const clientWorks = (data as Project[]).filter((w: Project) => w.type === "client" || !w.type);
+      setWorks(clientWorks);
       setLoaded(true);
     });
   }, []);

@@ -214,7 +214,7 @@ export default function AdminPersonalWorks() {
 
   useEffect(() => {
     fetch("/api/admin/works?t=" + Date.now()).then((r) => r.json()).then((data) => {
-      const personalWorks = (data as Project[]).filter((w: Project) => w.type === "personal" || !w.type);
+      const personalWorks = (data as Project[]).filter((w: Project) => w.type === "personal");
       setWorks(personalWorks);
       setLoaded(true);
     });
