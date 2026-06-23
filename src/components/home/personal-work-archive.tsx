@@ -3,97 +3,177 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "motion/react";
 import type { Project } from "@/lib/types";
 
 interface PersonalWorkArchiveProps {
   projects: Project[];
 }
 
-export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
-  const personalProjects = projects.filter((p) => p.type === "personal" || p.tags.includes("Personal"));
+const FILTERS = ["All", "3D", "Illustration", "Graphic Design", "Animation"] as const;
+type Filter = typeof FILTERS[number];
 
-  if (personalProjects.length === 0) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <p className="text-[#333]">NO WORKS</p>
-      </div>
-    );
+export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const personalProjects = projects.filter((p) => p.type === "personal" || p.tags.includes("Personal"));
+  const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const rawFilter = searchParams.get("category") ?? "All";
+  const filter: Filter = (FILTERS as readonly string[]).includes(rawFilter) ? rawFilter as Filter : "All";
+
+  function setFilter(f: Filter) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (f === "All") params.delete("category");
+    else params.set("category", f);
+    router.replace(`/personal-works${params.size ? `?${params}` : ""}`, { scroll: false });
   }
 
+  const filtered = filter === "All" ? personalProjects : personalProjects.filter((p) => p.category === filter);
+  const featured = filtered.filter((p) => p.featured);
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      {/* HEADER */}
-      <header className="border-b border-[#1a1a1a] px-6 py-8 md:px-12">
-        <div className="flex items-baseline justify-between">
-          <div>
-            <span className="text-[#333] text-[0.6rem] tracking-[0.3em]">FAC.05 — PERSONAL ARCHIVE</span>
-            <h1 className="text-white text-[clamp(3rem,12vw,10rem)] leading-[0.85] tracking-[-0.03em] mt-2">
-              Personal
-            </h1>
+    <div>
+      {/* FEATURED */}
+      {featured.length > 0 && (
+        <section className="border-t border-white/10">
+          <div className="flex items-center justify-between border-b border-white/5 px-5 py-3 md:px-12">
+            <span className="fac">Featured</span>
+            <span className="lab text-white/20" style={{ fontSize: "0.6rem" }}>Personal Selections</span>
           </div>
-          <div className="text-right">
-            <span className="text-[#333] text-[0.5rem] tracking-[0.2em]">{personalProjects.length} WORKS</span>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {featured.slice(0, 6).map((p, i) => (
+              <motion.div
+                key={p.slug}
+                initial={{ opacity: 0, filter: "blur(6px)" }}
+                whileInView={{ opacity: 1, filter: "blur(0px)" }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.08 }}
+              >
+                <Link
+                  href={`/personal-works/${p.slug}`}
+                  className="group relative flex flex-col overflow-hidden border-b border-r border-white/5"
+                  style={{ minHeight: "360px" }}
+                >
+                  {/* Image */}
+                  <div className="relative flex-1 overflow-hidden bg-black" style={{ minHeight: "260px" }}>
+                    <Image
+                      src={p.cover}
+                      alt={p.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="img-distort object-cover"
+                      style={{
+                        filter: "grayscale(0.5) contrast(1.1) brightness(0.75)",
+                        mixBlendMode: "normal",
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  </div>
+
+                  {/* Info */}
+                  <div className="relative z-10 border-t border-white/10 px-5 py-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <span className="fac block mb-1 text-white/30" style={{ fontSize: "0.45rem" }}>{p.category} · {p.year}</span>
+                        <h3
+                          className="dis text-white group-hover:text-white/80 transition-colors"
+                          style={{ fontSize: "clamp(1.1rem, 3vw, 2rem)", lineHeight: 0.9 }}
+                        >
+                          {p.title}
+                        </h3>
+                      </div>
+                      <span className="lab text-white/20 transition-all group-hover:translate-x-1 group-hover:text-white shrink-0 mt-1">→</span>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* INDEX */}
+      <div className="relative border-t border-white/10">
+
+        {/* Header: filter */}
+        <div className="border-b border-white/5 px-5 md:px-12">
+          <div className="flex items-center justify-between py-3">
+            <span className="fac">All Personal Works</span>
+            <span className="lab text-white/20" style={{ fontSize: "0.6rem" }}>{filtered.length} works</span>
+          </div>
+
+          {/* Filter tabs */}
+          <div className="flex items-center gap-1 pb-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+            {FILTERS.map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className="lab shrink-0 px-3 py-1 transition-colors"
+                style={{
+                  fontSize: "0.55rem",
+                  color: filter === f ? "#080808" : "rgba(255,255,255,0.3)",
+                  background: filter === f ? "#ffffff" : "transparent",
+                  border: `1px solid ${filter === f ? "#ffffff" : "rgba(255,255,255,0.1)"}`,
+                  borderRadius: "2px",
+                }}
+              >
+                {f}
+              </button>
+            ))}
           </div>
         </div>
-      </header>
 
-      {/* GRID LIST */}
-      <div className="px-6 py-12 md:px-12">
-        {personalProjects.map((project, i) => (
-          <article key={project.slug} className="group border-b border-[#1a1a1a] last:border-b-0">
-            <Link 
-              href={`/personal-works/${project.slug}`}
-              className="flex items-stretch gap-0"
+        {/* Empty state */}
+        {filtered.length === 0 && (
+          <div className="px-5 py-16 md:px-12 text-center">
+            <p className="dis text-white/10" style={{ fontSize: "clamp(1.5rem, 4vw, 3rem)" }}>No works in this category yet.</p>
+          </div>
+        )}
+
+        {/* LIST */}
+        {filtered.map((p, i) => (
+          <motion.div
+            key={p.slug}
+            initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, margin: "-2%" }}
+            transition={{ duration: 0.4, delay: Math.min(i * 0.04, 0.3), ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Link
+              href={`/personal-works/${p.slug}`}
+              onMouseEnter={() => setActiveSlug(p.slug)}
+              onMouseLeave={() => setActiveSlug(null)}
+              className="group flex items-center gap-4 border-b border-white/5 px-5 py-4 transition-colors hover:bg-white/[0.02] md:gap-8 md:px-12 md:py-5"
             >
-              {/* NUMBER */}
-              <div className="flex items-center justify-center w-12 md:w-20 shrink-0 border-r border-[#1a1a1a] py-6">
-                <span className="text-[#2a2a2a] group-hover:text-[#444] text-[0.6rem] md:text-[0.7rem] transition-colors duration-300">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-              </div>
-
-              {/* IMAGE */}
-              <div className="w-24 h-24 md:w-32 md:h-32 shrink-0 relative overflow-hidden ml-6 md:ml-8 my-4">
+              {/* Mobile thumbnail */}
+              <div className="relative shrink-0 overflow-hidden md:hidden" style={{ width: 40, height: 40 }}>
                 <Image
-                  src={project.cover}
-                  alt={project.title}
+                  src={p.cover}
+                  alt=""
                   fill
-                  sizes="128px"
-                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                  style={{ filter: "grayscale(1) contrast(1.1)" }}
+                  sizes="40px"
+                  className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                 />
               </div>
-
-              {/* INFO */}
-              <div className="flex-1 flex items-center justify-between border-l border-[#1a1a1a] pl-6 md:pl-10 pr-4 md:pr-8 py-4 md:py-0">
-                <div>
-                  <h2 className="text-white text-[clamp(1.2rem,4vw,2.5rem)] leading-[0.9] tracking-[-0.02em] group-hover:text-[#888] transition-colors duration-300">
-                    {project.title}
-                  </h2>
-                  <div className="flex items-center gap-4 mt-2 md:mt-3">
-                    <span className="text-[#333] text-[0.5rem] tracking-[0.15em]">{project.category}</span>
-                    <span className="text-[#222] text-[0.5rem]">—</span>
-                    <span className="text-[#333] text-[0.5rem] tracking-[0.1em]">{project.year}</span>
-                  </div>
-                </div>
-                <span className="text-[#222] group-hover:text-[#555] text-[0.7rem] md:text-[0.8rem] transition-colors duration-300 translate-x-0 group-hover:translate-x-2">
-                  →
-                </span>
-              </div>
+              <span className="lab w-7 shrink-0 text-white/25 transition-colors group-hover:text-white hidden md:block" style={{ fontSize: "0.58rem" }}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="dis flex-1 text-white/70 group-hover:text-white transition-colors" style={{ fontSize: "clamp(1rem, 4vw, 3.5rem)", lineHeight: 0.9 }}>
+                {p.title}
+              </span>
+              <span className="lab hidden shrink-0 text-white/15 md:block" style={{ fontSize: "0.6rem" }}>
+                {p.category}
+              </span>
+              <span className="lab shrink-0 text-white/20" style={{ fontSize: "0.6rem" }}>
+                {p.year}
+              </span>
+              <span className="lab shrink-0 text-transparent transition-all duration-150 group-hover:translate-x-1 group-hover:text-white">→</span>
             </Link>
-          </article>
+          </motion.div>
         ))}
       </div>
-
-      {/* FOOTER */}
-      <footer className="border-t border-[#1a1a1a] px-6 py-8 md:px-12">
-        <div className="flex items-center justify-between">
-          <span className="text-[#222] text-[0.5rem] tracking-[0.15em]">RIZKY IRAWAN — PERSONAL WORKS</span>
-          <Link href="/works" className="text-[#333] hover:text-white text-[0.5rem] tracking-[0.15em] transition-colors">
-            WORKS →
-          </Link>
-        </div>
-      </footer>
     </div>
   );
 }
