@@ -33,7 +33,15 @@ export default function AdminDesign() {
     fetch("/api/admin/design")
       .then((r) => { if (!r.ok) throw new Error("Failed"); return r.json(); })
       .then((d) => { 
-        if (d && typeof d === 'object' && 'colors' in d && 'hero' in d && 'site' in d) {
+        if (
+          d && 
+          typeof d === 'object' && 
+          'colors' in d && 
+          d.colors && 
+          typeof d.colors.signal === 'string' &&
+          'hero' in d && 
+          'site' in d
+        ) {
           setConfig(d as DesignConfig); 
         } else {
           setConfig(DEFAULT);
@@ -64,7 +72,7 @@ export default function AdminDesign() {
     });
   }
 
-  if (!loaded) return <div className="p-8"><span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>Loading…</span></div>;
+  if (!loaded || !config?.colors?.signal) return <div className="p-8"><span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>Loading…</span></div>;
 
   const inputCls = "w-full bg-transparent border-b border-rule py-2 lab text-white placeholder:text-white/15 focus:outline-none focus:border-signal transition-colors";
   const labelCls = "lab text-white/30 block mb-1";

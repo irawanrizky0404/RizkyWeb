@@ -220,7 +220,7 @@ export default function AdminCV() {
 
   function notify(text: string) { setMsg(text); setTimeout(() => setMsg(""), 3000); }
 
-  if (!loaded) return <div className="p-8"><span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>Loading…</span></div>;
+  if (!loaded || !cv) return <div className="p-8"><span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>Loading…</span></div>;
 
   if (error || !cv) {
     return (
