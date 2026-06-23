@@ -74,11 +74,11 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
                   sizes="(max-width: 768px) 100vw, 60vw"
                   className="object-cover"
                   style={{
-                    filter: "grayscale(0.8) contrast(1.2) brightness(0.75)",
+                    filter: "grayscale(1) contrast(1.1) brightness(1.1)",
                   }}
                 />
-                {/* Blue tint overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1a2a3a]/40 via-transparent to-[#0a0a10]/60" />
+                {/* Dark gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
               </div>
 
               {/* INFO - DARK SIDE */}
