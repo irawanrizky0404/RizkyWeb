@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import type { Project } from "@/lib/types";
 
 interface PersonalWorkArchiveProps {
@@ -12,42 +12,72 @@ interface PersonalWorkArchiveProps {
 export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
   const personalProjects = projects.filter((p) => p.type === "personal" || p.tags.includes("Personal"));
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
   const filmRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (personalProjects.length > 0) {
-      setIsLoaded(true);
-    }
-  }, [personalProjects.length]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (filmRef.current && Math.random() > 0.97) {
-        filmRef.current.style.opacity = String(Math.random() * 0.08 + 0.02);
-      } else if (filmRef.current) {
-        filmRef.current.style.opacity = "0.03";
+      if (filmRef.current) {
+        filmRef.current.style.opacity = Math.random() > 0.97 ? String(Math.random() * 0.1) : "0.035";
       }
-    }, 100);
+    }, 80);
     return () => clearInterval(interval);
   }, []);
 
+  const goNext = useCallback(() => {
+    setActiveIndex(i => (i + 1) % personalProjects.length);
+  }, [personalProjects.length]);
+
+  const goPrev = useCallback(() => {
+    setActiveIndex(i => (i - 1 + personalProjects.length) % personalProjects.length);
+  }, [personalProjects.length]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown" || e.key === "j") {
-        e.preventDefault();
-        setActiveIndex(i => Math.min(i + 1, personalProjects.length - 1));
-      } else if (e.key === "ArrowUp" || e.key === "k") {
-        e.preventDefault();
-        setActiveIndex(i => Math.max(i - 1, 0));
-      }
+      if (e.key === "ArrowRight" || e.key === "l") goNext();
+      else if (e.key === "ArrowLeft" || e.key === "h") goPrev();
+      else if (e.key === " " || e.key === "Enter") goNext();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [personalProjects.length]);
+  }, [goNext, goPrev]);
 
-  const goNext = () => setActiveIndex(i => Math.min(i + 1, personalProjects.length - 1));
-  const goPrev = () => setActiveIndex(i => Math.max(i - 1, 0));
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > 50) {
+        if (e.deltaY > 0) goNext();
+        else goPrev();
+      }
+    };
+    const el = containerRef.current;
+    if (el) {
+      el.addEventListener("wheel", handleWheel, { passive: true });
+      return () => el.removeEventListener("wheel", handleWheel);
+    }
+  }, [goNext, goPrev]);
+
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY.current = e.touches[0].clientY;
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      const diff = touchStartY.current - e.changedTouches[0].clientY;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) goNext();
+        else goPrev();
+      }
+    };
+    const el = containerRef.current;
+    if (el) {
+      el.addEventListener("touchstart", handleTouchStart, { passive: true });
+      el.addEventListener("touchend", handleTouchEnd, { passive: true });
+      return () => {
+        el.removeEventListener("touchstart", handleTouchStart);
+        el.removeEventListener("touchend", handleTouchEnd);
+      };
+    }
+  }, [goNext, goPrev]);
 
   if (personalProjects.length === 0) {
     return (
@@ -60,111 +90,118 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
   }
 
   const active = personalProjects[activeIndex];
+  const prev = personalProjects[(activeIndex - 1 + personalProjects.length) % personalProjects.length];
+  const next = personalProjects[(activeIndex + 1) % personalProjects.length];
 
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-screen bg-black overflow-hidden">
       {/* FILM GRAIN */}
       <div 
         ref={filmRef}
-        className="pointer-events-none absolute inset-0 z-30"
+        className="pointer-events-none absolute inset-0 z-40"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          opacity: 0.03,
+          opacity: 0.035,
           mixBlendMode: "overlay",
         }}
       />
 
+      {/* CINEMASCOPE BARS */}
+      <div className="absolute top-0 left-0 right-0 z-30 bg-gradient-to-b from-black/80 to-transparent" style={{ height: "80px" }} />
+      <div className="absolute bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-black/80 to-transparent" style={{ height: "80px" }} />
+
+      {/* FILM PERFORATIONS - LEFT */}
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 z-30 hidden lg:flex flex-col gap-3" style={{ padding: "20px 0" }}>
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="w-4 h-6 bg-black/60 border border-white/10" />
+        ))}
+      </div>
+
+      {/* FILM PERFORATIONS - RIGHT */}
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 z-30 hidden lg:flex flex-col gap-3" style={{ padding: "20px 0" }}>
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="w-4 h-6 bg-black/60 border border-white/10" />
+        ))}
+      </div>
+
       {/* MAIN IMAGE */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 flex items-center justify-center">
         <img
           key={active.slug}
           src={active.cover}
           alt={active.title}
-          className="w-full h-full object-cover transition-opacity duration-500"
+          className="w-full h-full object-cover"
           style={{
-            filter: "grayscale(1) contrast(1.3) brightness(0.65)",
+            filter: "grayscale(1) contrast(1.4) brightness(0.55)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
       </div>
 
-      {/* TITLE BLOCK */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 p-6 md:p-12">
-        <span className="lab text-white/30 tracking-[0.3em]" style={{ fontSize: "0.5rem" }}>
-          {active.category} — {active.year}
-        </span>
+      {/* VIGNETTE */}
+      <div className="absolute inset-0 z-10 pointer-events-none" 
+        style={{ background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)" }} 
+      />
+
+      {/* TITLE BLOCK - BOTTOM LEFT */}
+      <div className="absolute bottom-8 left-8 md:left-12 z-20 max-w-lg">
+        <div className="mb-2">
+          <span className="dis text-white/15" style={{ fontSize: "0.65rem", letterSpacing: "0.15em" }}>
+            {String(activeIndex + 1).padStart(2, "0")} — {active.category}
+          </span>
+        </div>
         <Link href={`/personal-works/${active.slug}`}>
-          <h2 className="dis text-white mt-3 cursor-pointer hover:text-white/70 transition-colors" style={{ fontSize: "clamp(2rem, 8vw, 6rem)", lineHeight: 0.85 }}>
+          <h2 className="dis text-white hover:text-white/70 transition-colors" style={{ fontSize: "clamp(1.8rem, 6vw, 5rem)", lineHeight: 0.9, letterSpacing: "-0.02em" }}>
             {active.title}
           </h2>
         </Link>
-        <p className="lab text-white/20 mt-3 max-w-md" style={{ fontSize: "0.55rem", letterSpacing: "0.05em" }}>
-          {active.tags.slice(0, 3).join(" · ")}
-        </p>
-      </div>
-
-      {/* ARROW NAVIGATION - BOTTOM RIGHT */}
-      <div className="absolute bottom-6 right-6 md:bottom-12 md:right-12 z-20 flex items-center gap-4">
-        <button
-          onClick={goPrev}
-          disabled={activeIndex === 0}
-          className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white/40 hover:text-white hover:border-white/60 transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed"
-          aria-label="Previous"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-        <button
-          onClick={goNext}
-          disabled={activeIndex === personalProjects.length - 1}
-          className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white/40 hover:text-white hover:border-white/60 transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed"
-          aria-label="Next"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </button>
-      </div>
-
-      {/* NAVIGATION DOTS - BOTTOM CENTER */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
-        <div className="flex justify-center gap-3">
-          {personalProjects.map((p, i) => (
-            <button
-              key={p.slug}
-              onClick={() => setActiveIndex(i)}
-              className="rounded-full transition-all duration-300"
-              style={{
-                width: i === activeIndex ? "24px" : "8px",
-                height: "8px",
-                background: i === activeIndex ? "#ffffff" : "rgba(255,255,255,0.25)",
-              }}
-              aria-label={`Go to ${p.title}`}
-            />
-          ))}
+        <div className="flex items-center gap-4 mt-4">
+          <span className="lab text-white/25" style={{ fontSize: "0.5rem", letterSpacing: "0.1em" }}>
+            {active.year}
+          </span>
+          <span className="w-8 h-[1px] bg-white/20" />
+          <span className="lab text-white/25" style={{ fontSize: "0.5rem", letterSpacing: "0.1em" }}>
+            {active.tags.slice(0, 2).join(" · ")}
+          </span>
         </div>
       </div>
 
-      {/* COUNTER - TOP LEFT */}
-      <div className="absolute top-4 left-4 z-20">
-        <span className="dis text-white/25" style={{ fontSize: "0.7rem", letterSpacing: "0.1em" }}>
-          {String(activeIndex + 1).padStart(2, "0")} / {String(personalProjects.length).padStart(2, "0")}
-        </span>
+      {/* FILM STRIP - BOTTOM */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 hidden md:flex items-center gap-2">
+        {[prev, active, next].map((p, i) => (
+          <div 
+            key={p.slug}
+            onClick={() => setActiveIndex((activeIndex - 1 + i + personalProjects.length) % personalProjects.length)}
+            className="relative overflow-hidden cursor-pointer transition-all duration-500"
+            style={{ 
+              width: i === 1 ? "80px" : "50px",
+              height: i === 1 ? "60px" : "40px",
+              opacity: i === 1 ? 1 : 0.4,
+            }}
+          >
+            <img src={p.cover} alt="" className="w-full h-full object-cover" style={{ filter: "grayscale(1) contrast(1.2)" }} />
+          </div>
+        ))}
       </div>
 
-      {/* KEYBOARD HINT - HIDDEN ON MOBILE */}
-      <div className="absolute top-4 right-4 z-20 hidden md:flex items-center gap-3">
-        <span className="lab text-white/15" style={{ fontSize: "0.4rem", letterSpacing: "0.15em" }}>
-          ← → OR J K
-        </span>
-      </div>
-
-      {/* BACK LINK - TOP LEFT CORNER */}
-      <div className="absolute top-4 left-20 z-20">
-        <Link href="/" className="lab text-white/20 hover:text-white/60 transition-colors" style={{ fontSize: "0.5rem", letterSpacing: "0.1em" }}>
-          ← HOME
+      {/* HOME LINK - TOP LEFT */}
+      <div className="absolute top-6 left-6 z-30">
+        <Link href="/" className="lab text-white/30 hover:text-white/70 transition-colors" style={{ fontSize: "0.5rem", letterSpacing: "0.15em" }}>
+          RIZKY IRAWAN
         </Link>
+      </div>
+
+      {/* WORKS LINK - TOP RIGHT */}
+      <div className="absolute top-6 right-6 z-30">
+        <Link href="/works" className="lab text-white/30 hover:text-white/70 transition-colors" style={{ fontSize: "0.5rem", letterSpacing: "0.15em" }}>
+          WORKS →
+        </Link>
+      </div>
+
+      {/* INSTRUCTIONS - BOTTOM RIGHT (subtle) */}
+      <div className="absolute bottom-6 right-6 z-20 hidden md:block">
+        <span className="lab text-white/10" style={{ fontSize: "0.4rem", letterSpacing: "0.12em" }}>
+          SCROLL · KEYS · SWIPE
+        </span>
       </div>
     </div>
   );
