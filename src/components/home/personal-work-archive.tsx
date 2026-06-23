@@ -74,8 +74,7 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
                   sizes="(max-width: 768px) 100vw, 60vw"
                   className="object-cover"
                   style={{
-                    filter: "grayscale(1) contrast(1.5) brightness(0.5) sepia(0.2)",
-                    mixBlendMode: "multiply",
+                    filter: "grayscale(0.8) contrast(1.2) brightness(0.75)",
                   }}
                 />
                 {/* Blue tint overlay */}
