@@ -5,10 +5,18 @@ import * as THREE from "three";
 
 export function ParticleStorm() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0, normalizedX: 0, normalizedY: 0, velocityX: 0, velocityY: 0, lastX: 0, lastY: 0 });
+  const mouseRef = useRef({ 
+    x: 0, y: 0, 
+    normalizedX: 0, normalizedY: 0, 
+    velocityX: 0, velocityY: 0, 
+    lastX: 0, lastY: 0,
+    isActive: false
+  });
   const audioRef = useRef<AudioContext | null>(null);
-  const oscillatorRef = useRef<OscillatorNode | null>(null);
-  const gainRef = useRef<GainNode | null>(null);
+  const droneOscRef = useRef<OscillatorNode | null>(null);
+  const droneGainRef = useRef<GainNode | null>(null);
+  const noiseGainRef = useRef<GainNode | null>(null);
+  const masterGainRef = useRef<GainNode | null>(null);
   const filterRef = useRef<BiquadFilterNode | null>(null);
 
   useEffect(() => {
@@ -32,47 +40,49 @@ export function ParticleStorm() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // Waveform particles
-    const columns = 80;
-    const rows = 40;
+    // Particles - more of them for more interactivity
+    const columns = 100;
+    const rows = 60;
     const particleCount = columns * rows;
     const originalPositions = new Float32Array(particleCount * 3);
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
     const sizes = new Float32Array(particleCount);
+    const velocities = new Float32Array(particleCount * 3); // For physics
 
     for (let i = 0; i < columns; i++) {
       for (let j = 0; j < rows; j++) {
         const idx = i * rows + j;
         const i3 = idx * 3;
         
-        // Position in grid with some randomness for surreal feel
-        const x = (i - columns / 2) * 1.5 + (Math.random() - 0.5) * 0.5;
-        const baseY = (j - rows / 2) * 1.0 + (Math.random() - 0.5) * 0.5;
-        const z = (Math.random() - 0.5) * 8;
+        const x = (i - columns / 2) * 1.5 + (Math.random() - 0.5) * 0.8;
+        const y = (j - rows / 2) * 1.2 + (Math.random() - 0.5) * 0.8;
+        const z = (Math.random() - 0.5) * 10;
 
         originalPositions[i3] = x;
-        originalPositions[i3 + 1] = baseY;
+        originalPositions[i3 + 1] = y;
         originalPositions[i3 + 2] = z;
         positions[i3] = x;
-        positions[i3 + 1] = baseY;
+        positions[i3 + 1] = y;
         positions[i3 + 2] = z;
 
-        // Color - orange and white only
-        const rand = Math.random();
-        if (rand > 0.5) {
-          // Signal orange
+        // Initialize velocities
+        velocities[i3] = 0;
+        velocities[i3 + 1] = 0;
+        velocities[i3 + 2] = 0;
+
+        // Color - orange and white
+        if (Math.random() > 0.45) {
           colors[i3] = 1.0;
           colors[i3 + 1] = 0.21;
           colors[i3 + 2] = 0.0;
         } else {
-          // Pure white
           colors[i3] = 0.95;
           colors[i3 + 1] = 0.95;
           colors[i3 + 2] = 0.95;
         }
 
-        sizes[idx] = Math.random() * 3 + 1;
+        sizes[idx] = Math.random() * 3 + 2;
       }
     }
 
@@ -81,12 +91,13 @@ export function ParticleStorm() {
     geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
 
-    // Shader material
+    // Shader material with physics-based interaction
     const material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
         mouseX: { value: 0 },
         mouseY: { value: 0 },
+        mouseVelocity: { value: 0 },
       },
       vertexShader: `
         attribute float size;
@@ -97,45 +108,62 @@ export function ParticleStorm() {
         uniform float time;
         uniform float mouseX;
         uniform float mouseY;
+        uniform float mouseVelocity;
         
         void main() {
           vColor = color;
           
           vec3 pos = position;
           
-          // Surreal wave effect - multiple layered waves
-          float wave1 = sin(pos.x * 0.4 + time * 0.6) * 4.0;
-          float wave2 = cos(pos.y * 0.3 + time * 0.4) * 3.0;
-          float wave3 = sin(pos.x * 0.2 + pos.y * 0.2 + time * 0.8) * 2.0;
-          float wave4 = cos(time * 0.3 + pos.x * pos.y * 0.01) * 1.5;
+          // Multi-layered surreal waves
+          float wave1 = sin(pos.x * 0.3 + time * 0.5) * 3.0;
+          float wave2 = cos(pos.y * 0.4 + time * 0.3) * 2.5;
+          float wave3 = sin((pos.x + pos.y) * 0.2 + time * 0.7) * 2.0;
+          float wave4 = cos(pos.x * pos.y * 0.005 + time * 0.4) * 1.5;
+          float wave5 = sin(time * 0.2 + pos.x * 0.1) * sin(time * 0.3 + pos.y * 0.1) * 2.0;
           
-          pos.y += wave1 + wave2 + wave3 + wave4;
-          pos.z += sin(pos.x * 0.3 + time * 0.5) * 4.0;
+          pos.y += wave1 + wave2 + wave3 + wave4 + wave5;
+          pos.z += sin(pos.x * 0.2 + time * 0.4) * 3.0;
           
-          // Surreal breathing/pulsing effect
-          float breath = sin(time * 0.5) * 0.5 + 0.5;
-          pos.x += sin(time * 0.3 + pos.y * 0.2) * 2.0 * breath;
+          // Breathing effect
+          float breath = sin(time * 0.4) * 0.5 + 0.5;
+          pos.x += sin(time * 0.2 + pos.y * 0.15) * 2.0 * breath;
           
-          // Mouse interaction - more dramatic
-          float distToMouse = distance(vec2(pos.x, pos.y), vec2(mouseX * 35.0, mouseY * 25.0));
-          float mouseInfluence = smoothstep(30.0, 0.0, distToMouse);
-          float mousePull = sin(time * 3.0 + distToMouse * 0.1) * 5.0 * mouseInfluence;
+          // Strong cursor interaction - particles flee/attract based on velocity
+          float distToMouse = distance(vec2(pos.x, pos.y), vec2(mouseX * 40.0, mouseY * 30.0));
           
-          pos.x += mouseX * 12.0 * mouseInfluence + mousePull * 0.5;
-          pos.y += mouseY * 8.0 * mouseInfluence + mousePull * 0.3;
-          pos.z += 5.0 * mouseInfluence + mousePull;
+          // High velocity = repel, low velocity = attract
+          float interactionStrength = smoothstep(35.0, 0.0, distToMouse) * (1.0 + mouseVelocity * 3.0);
           
-          // Pass distance for color variation
+          // Direction from mouse
+          vec2 dirFromMouse = normalize(vec2(pos.x, pos.y) - vec2(mouseX * 40.0, mouseY * 30.0));
+          
+          // Repel or attract based on velocity direction
+          float repelStrength = max(0.0, mouseVelocity) * 15.0;
+          float attractStrength = max(0.0, -mouseVelocity) * 8.0;
+          
+          pos.x += dirFromMouse.x * repelStrength * interactionStrength;
+          pos.y += dirFromMouse.y * repelStrength * interactionStrength;
+          pos.x -= dirFromMouse.x * attractStrength * interactionStrength;
+          pos.y -= dirFromMouse.y * attractStrength * interactionStrength;
+          
+          // Add some chaos
+          pos.x += sin(time * 2.0 + pos.y * 0.3) * 0.5 * interactionStrength;
+          pos.y += cos(time * 1.5 + pos.x * 0.3) * 0.5 * interactionStrength;
+          
+          // Z depth reaction
+          pos.z += interactionStrength * 5.0 * sin(time * 3.0 + distToMouse * 0.1);
+          
           vDist = distToMouse;
           
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = size * (180.0 / -mvPosition.z);
+          gl_PointSize = size * (200.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
           
-          // Alpha with surreal pulsing
-          float pulse = sin(time * 1.5 + pos.x * 0.2 + pos.y * 0.2) * 0.3 + 0.7;
-          float mouseGlow = mouseInfluence * 3.0;
-          vAlpha = smoothstep(90.0, 25.0, -mvPosition.z) * pulse + mouseGlow;
+          // Alpha with dramatic pulsing
+          float pulse = sin(time * 2.0 + pos.x * 0.3 + pos.y * 0.3) * 0.4 + 0.6;
+          float velocityBoost = interactionStrength * (1.0 + mouseVelocity * 2.0);
+          vAlpha = smoothstep(100.0, 20.0, -mvPosition.z) * pulse + velocityBoost;
           vAlpha = min(vAlpha, 1.0);
         }
       `,
@@ -149,14 +177,16 @@ export function ParticleStorm() {
           float dist = length(center);
           if (dist > 0.5) discard;
           
-          // Soft circular point
-          float alpha = smoothstep(0.5, 0.15, dist) * vAlpha * 0.8;
+          float alpha = smoothstep(0.5, 0.1, dist) * vAlpha * 0.85;
           
-          // Slight color shift near edges
+          // Color shifts near mouse
           vec3 finalColor = vColor;
-          if (vDist < 15.0) {
-            // Add glow near mouse
-            finalColor = mix(vColor, vec3(1.0, 0.5, 0.2), smoothstep(15.0, 0.0, vDist) * 0.3);
+          if (vDist < 20.0) {
+            float mouseGlow = smoothstep(20.0, 0.0, vDist);
+            // Orange glow near cursor
+            finalColor = mix(vColor, vec3(1.0, 0.4, 0.1), mouseGlow * 0.6);
+            // Add white core at very close range
+            finalColor = mix(finalColor, vec3(1.0, 1.0, 1.0), smoothstep(8.0, 0.0, vDist) * 0.5);
           }
           
           gl_FragColor = vec4(finalColor, alpha);
@@ -170,25 +200,76 @@ export function ParticleStorm() {
     const particles = new THREE.Points(geometry, material);
     scene.add(particles);
 
-    // Fog
-    scene.fog = new THREE.FogExp2(0x080808, 0.012);
+    scene.fog = new THREE.FogExp2(0x080808, 0.01);
 
-    // Mouse move handler
+    // Audio setup - more dramatic
+    const initAudio = () => {
+      if (audioRef.current) return;
+      
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      audioRef.current = new AudioContextClass();
+      
+      // Master gain - louder
+      masterGainRef.current = audioRef.current.createGain();
+      masterGainRef.current.gain.value = 0.4;
+      masterGainRef.current.connect(audioRef.current.destination);
+      
+      // Drone oscillator - deeper
+      droneOscRef.current = audioRef.current.createOscillator();
+      droneOscRef.current.type = "sawtooth";
+      droneOscRef.current.frequency.value = 40;
+      
+      droneGainRef.current = audioRef.current.createGain();
+      droneGainRef.current.gain.value = 0.3;
+      
+      // Lowpass filter for warmth
+      filterRef.current = audioRef.current.createBiquadFilter();
+      filterRef.current.type = "lowpass";
+      filterRef.current.frequency.value = 300;
+      filterRef.current.Q.value = 5;
+      
+      droneOscRef.current.connect(droneGainRef.current);
+      droneGainRef.current.connect(filterRef.current);
+      filterRef.current.connect(masterGainRef.current);
+      
+      droneOscRef.current.start();
+      
+      // Second harmonic
+      const osc2 = audioRef.current.createOscillator();
+      osc2.type = "sine";
+      osc2.frequency.value = 60;
+      const gain2 = audioRef.current.createGain();
+      gain2.gain.value = 0.15;
+      osc2.connect(gain2);
+      gain2.connect(filterRef.current);
+      osc2.start();
+    };
+
+    // Mouse handlers
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       const newX = e.clientX - rect.left;
       const newY = e.clientY - rect.top;
       
-      // Calculate velocity
-      mouseRef.current.velocityX = newX - mouseRef.current.lastX;
-      mouseRef.current.velocityY = newY - mouseRef.current.lastY;
+      const dx = newX - mouseRef.current.lastX;
+      const dy = newY - mouseRef.current.lastY;
+      
+      mouseRef.current.velocityX = mouseRef.current.velocityX * 0.8 + dx * 0.2;
+      mouseRef.current.velocityY = mouseRef.current.velocityY * 0.8 + dy * 0.2;
+      
       mouseRef.current.lastX = newX;
       mouseRef.current.lastY = newY;
-      
       mouseRef.current.x = newX;
       mouseRef.current.y = newY;
       mouseRef.current.normalizedX = (newX / rect.width) * 2 - 1;
       mouseRef.current.normalizedY = -((newY / rect.height) * 2 - 1);
+      mouseRef.current.isActive = true;
+    };
+
+    const handleMouseLeave = () => {
+      mouseRef.current.velocityX = 0;
+      mouseRef.current.velocityY = 0;
+      mouseRef.current.isActive = false;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -197,90 +278,67 @@ export function ParticleStorm() {
         const newX = e.touches[0].clientX - rect.left;
         const newY = e.touches[0].clientY - rect.top;
         
-        mouseRef.current.velocityX = newX - mouseRef.current.lastX;
-        mouseRef.current.velocityY = newY - mouseRef.current.lastY;
+        mouseRef.current.velocityX = mouseRef.current.velocityX * 0.8 + (newX - mouseRef.current.lastX) * 0.2;
+        mouseRef.current.velocityY = mouseRef.current.velocityY * 0.8 + (newY - mouseRef.current.lastY) * 0.2;
+        
         mouseRef.current.lastX = newX;
         mouseRef.current.lastY = newY;
-        
         mouseRef.current.x = newX;
         mouseRef.current.y = newY;
         mouseRef.current.normalizedX = (newX / rect.width) * 2 - 1;
         mouseRef.current.normalizedY = -((newY / rect.height) * 2 - 1);
+        mouseRef.current.isActive = true;
       }
+    };
+
+    const handleTouchEnd = () => {
+      mouseRef.current.velocityX = 0;
+      mouseRef.current.velocityY = 0;
+      mouseRef.current.isActive = false;
     };
 
     container.addEventListener("mousemove", handleMouseMove);
+    container.addEventListener("mouseleave", handleMouseLeave);
     container.addEventListener("touchmove", handleTouchMove, { passive: true });
-
-    // Audio setup
-    const initAudio = () => {
-      if (!audioRef.current) {
-        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-        audioRef.current = new AudioContextClass();
-        
-        // Create oscillator for ambient drone
-        oscillatorRef.current = audioRef.current.createOscillator();
-        oscillatorRef.current.type = "sine";
-        oscillatorRef.current.frequency.value = 55; // Low A note
-        
-        // Create gain for volume control
-        gainRef.current = audioRef.current.createGain();
-        gainRef.current.gain.value = 0.0; // Start silent
-        
-        // Create filter for warmer sound
-        filterRef.current = audioRef.current.createBiquadFilter();
-        filterRef.current.type = "lowpass";
-        filterRef.current.frequency.value = 200;
-        filterRef.current.Q.value = 1;
-        
-        // Connect nodes
-        oscillatorRef.current.connect(filterRef.current);
-        filterRef.current.connect(gainRef.current);
-        gainRef.current.connect(audioRef.current.destination);
-        
-        oscillatorRef.current.start();
-      }
-    };
-
-    container.addEventListener("mouseenter", initAudio, { once: true });
+    container.addEventListener("touchend", handleTouchEnd);
+    container.addEventListener("mouseenter", initAudio);
     container.addEventListener("touchstart", initAudio, { once: true });
 
     // Animation
     let animationId: number;
     const animate = () => {
       animationId = requestAnimationFrame(animate);
-      material.uniforms.time.value += 0.015;
+      material.uniforms.time.value += 0.012;
       
-      // Smooth mouse following
-      material.uniforms.mouseX.value += (mouseRef.current.normalizedX - material.uniforms.mouseX.value) * 0.05;
-      material.uniforms.mouseY.value += (mouseRef.current.normalizedY - material.uniforms.mouseY.value) * 0.05;
+      material.uniforms.mouseX.value += (mouseRef.current.normalizedX - material.uniforms.mouseX.value) * 0.08;
+      material.uniforms.mouseY.value += (mouseRef.current.normalizedY - material.uniforms.mouseY.value) * 0.08;
       
-      // Update audio based on cursor velocity
-      if (audioRef.current && gainRef.current && filterRef.current) {
-        const velocity = Math.sqrt(
-          mouseRef.current.velocityX * mouseRef.current.velocityX +
-          mouseRef.current.velocityY * mouseRef.current.velocityY
-        );
+      // Calculate velocity magnitude for audio
+      const velocity = Math.sqrt(
+        mouseRef.current.velocityX * mouseRef.current.velocityX +
+        mouseRef.current.velocityY * mouseRef.current.velocityY
+      ) / 15; // Normalize
+      const normalizedVelocity = Math.min(Math.max(velocity, 0), 1);
+      
+      material.uniforms.mouseVelocity.value += (normalizedVelocity - material.uniforms.mouseVelocity.value) * 0.15;
+      
+      // Audio updates - more responsive and louder
+      if (audioRef.current && masterGainRef.current && droneGainRef.current && filterRef.current && droneOscRef.current) {
+        const vol = 0.15 + normalizedVelocity * 0.5;
+        masterGainRef.current.gain.value = vol;
         
-        // Normalize velocity (rough estimate)
-        const normalizedVelocity = Math.min(velocity / 20, 1);
+        // Filter follows velocity - brighter when fast
+        filterRef.current.frequency.value = 200 + normalizedVelocity * 800;
+        filterRef.current.Q.value = 3 + normalizedVelocity * 8;
         
-        // Update gain and filter based on velocity
-        const targetGain = normalizedVelocity * 0.15;
-        const targetFreq = 150 + normalizedVelocity * 400;
-        const targetOscFreq = 55 + normalizedVelocity * 110;
-        
-        gainRef.current.gain.value += (targetGain - gainRef.current.gain.value) * 0.1;
-        filterRef.current.frequency.value += (targetFreq - filterRef.current.frequency.value) * 0.1;
-        
-        if (oscillatorRef.current) {
-          oscillatorRef.current.frequency.value += (targetOscFreq - oscillatorRef.current.frequency.value) * 0.1;
-        }
-        
-        // Decay velocity
-        mouseRef.current.velocityX *= 0.9;
-        mouseRef.current.velocityY *= 0.9;
+        // Pitch follows velocity
+        droneOscRef.current.frequency.value = 35 + normalizedVelocity * 80;
+        droneGainRef.current.gain.value = 0.2 + normalizedVelocity * 0.4;
       }
+      
+      // Decay velocity
+      mouseRef.current.velocityX *= 0.92;
+      mouseRef.current.velocityY *= 0.92;
       
       renderer.render(scene, camera);
     };
@@ -301,18 +359,20 @@ export function ParticleStorm() {
       cancelAnimationFrame(animationId);
       window.removeEventListener("resize", handleResize);
       container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("mouseleave", handleMouseLeave);
       container.removeEventListener("touchmove", handleTouchMove);
+      container.removeEventListener("touchend", handleTouchEnd);
       container.removeChild(renderer.domElement);
       geometry.dispose();
       material.dispose();
       renderer.dispose();
       
-      // Cleanup audio
-      if (oscillatorRef.current) {
-        oscillatorRef.current.stop();
-        oscillatorRef.current.disconnect();
+      if (droneOscRef.current) {
+        droneOscRef.current.stop();
+        droneOscRef.current.disconnect();
       }
-      if (gainRef.current) gainRef.current.disconnect();
+      if (masterGainRef.current) masterGainRef.current.disconnect();
+      if (droneGainRef.current) droneGainRef.current.disconnect();
       if (filterRef.current) filterRef.current.disconnect();
       if (audioRef.current) audioRef.current.close();
     };
@@ -321,7 +381,7 @@ export function ParticleStorm() {
   return (
     <div 
       ref={containerRef} 
-      className="w-full h-full"
+      className="w-full h-full cursor-none"
       style={{ background: "#080808" }}
     />
   );
