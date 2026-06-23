@@ -7,7 +7,7 @@ export const contentType = "image/png";
 
 export default async function OGImage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const works = getWorks();
+  const works = await getWorks();
   const project = works.find((p) => p.slug === slug);
 
   return new ImageResponse(

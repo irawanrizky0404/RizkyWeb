@@ -5,7 +5,7 @@ import { buildMetadata } from "@/lib/store";
 import { Reveal } from "@/components/ui/reveal";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
     title: "Journal",
     description: "Essays and notes on design, process, and visual culture.",
@@ -17,8 +17,8 @@ function readingTime(text: string) {
   return Math.max(1, Math.round(words / 200));
 }
 
-export default function JournalPage() {
-  const posts = getJournal(false);
+export default async function JournalPage() {
+  const posts = await getJournal(false);
   const [featured, ...rest] = posts;
 
   return (

@@ -52,106 +52,151 @@ async function logActivity(action: string, detail: string) {
 
 // ── Design ───────────────────────────────────────────────────────────────────
 export async function updateDesign(config: DesignConfig) {
-  saveDesign(config);
-  revalidatePath("/", "layout");
-  await logActivity("design.update", "Design settings updated");
-  return { ok: true };
+  try {
+    await saveDesign(config);
+    revalidatePath("/", "layout");
+    await logActivity("design.update", "Design settings updated");
+    return { ok: true };
+  } catch (err) {
+    console.error("[updateDesign]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 // ── SEO ─────────────────────────────────────────────────────────────────────
 export async function updateSEO(seo: SEOConfig) {
-  saveSEO(seo);
-  await logActivity("seo.update", "SEO settings updated");
-  return { ok: true };
+  try {
+    await saveSEO(seo);
+    await logActivity("seo.update", "SEO settings updated");
+    return { ok: true };
+  } catch (err) {
+    console.error("[updateSEO]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 // ── Works ────────────────────────────────────────────────────────────────────
 export async function addWork(work: Project) {
-  const works = getWorks();
-  if (works.find((w) => w.slug === work.slug)) {
-    return { ok: false, error: "Slug already exists" };
+  try {
+    const works = await getWorks();
+    if (works.find((w) => w.slug === work.slug)) {
+      return { ok: false, error: "Slug already exists" };
+    }
+    await saveWorks([work, ...works]);
+    revalidatePath("/works");
+    revalidatePath("/");
+    await logActivity("work.add", `Added work: "${work.title}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[addWork]", err);
+    return { ok: false, error: String(err) };
   }
-  saveWorks([work, ...works]);
-  revalidatePath("/works");
-  revalidatePath("/");
-  await logActivity("work.add", `Added work: "${work.title}"`);
-  return { ok: true };
 }
 
 export async function updateWork(slug: string, work: Project) {
-  const works = getWorks();
-  const idx = works.findIndex((w) => w.slug === slug);
-  if (idx === -1) return { ok: false, error: "Not found" };
-  works[idx] = work;
-  saveWorks(works);
-  revalidatePath("/works");
-  revalidatePath(`/works/${slug}`);
-  revalidatePath("/");
-  await logActivity("work.update", `Updated work: "${work.title}"`);
-  return { ok: true };
+  try {
+    const works = await getWorks();
+    const idx = works.findIndex((w) => w.slug === slug);
+    if (idx === -1) return { ok: false, error: "Not found" };
+    works[idx] = work;
+    await saveWorks(works);
+    revalidatePath("/works");
+    revalidatePath(`/works/${slug}`);
+    revalidatePath("/");
+    await logActivity("work.update", `Updated work: "${work.title}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[updateWork]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function deleteWork(slug: string) {
-  const works = getWorks().filter((w) => w.slug !== slug);
-  saveWorks(works);
-  revalidatePath("/works");
-  revalidatePath("/");
-  await logActivity("work.delete", `Deleted work: "${slug}"`);
-  return { ok: true };
+  try {
+    const works = (await getWorks()).filter((w) => w.slug !== slug);
+    await saveWorks(works);
+    revalidatePath("/works");
+    revalidatePath("/");
+    await logActivity("work.delete", `Deleted work: "${slug}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[deleteWork]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function toggleFeatured(slug: string) {
-  const works = getWorks();
-  const idx = works.findIndex((w) => w.slug === slug);
-  if (idx === -1) return { ok: false };
-  works[idx].featured = !works[idx].featured;
-  saveWorks(works);
-  revalidatePath("/works");
-  revalidatePath("/");
-  const action = works[idx].featured ? "Featured" : "Unfeatured";
-  await logActivity("work.update", `${action} work: "${slug}"`);
-  return { ok: true };
+  try {
+    const works = await getWorks();
+    const idx = works.findIndex((w) => w.slug === slug);
+    if (idx === -1) return { ok: false };
+    works[idx].featured = !works[idx].featured;
+    await saveWorks(works);
+    revalidatePath("/works");
+    revalidatePath("/");
+    const action = works[idx].featured ? "Featured" : "Unfeatured";
+    await logActivity("work.update", `${action} work: "${slug}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[toggleFeatured]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 // ── Journal ──────────────────────────────────────────────────────────────────
 export async function addPost(post: JournalPost) {
-  const posts = getJournal();
-  if (posts.find((p) => p.slug === post.slug)) {
-    return { ok: false, error: "Slug already exists" };
+  try {
+    const posts = await getJournal();
+    if (posts.find((p) => p.slug === post.slug)) {
+      return { ok: false, error: "Slug already exists" };
+    }
+    await saveJournal([post, ...posts]);
+    revalidatePath("/journal");
+    await logActivity("journal.add", `Added post: "${post.title}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[addPost]", err);
+    return { ok: false, error: String(err) };
   }
-  saveJournal([post, ...posts]);
-  revalidatePath("/journal");
-  await logActivity("journal.add", `Added post: "${post.title}"`);
-  return { ok: true };
 }
 
 export async function updatePost(slug: string, post: JournalPost) {
-  const posts = getJournal();
-  const idx = posts.findIndex((p) => p.slug === slug);
-  if (idx === -1) return { ok: false, error: "Not found" };
-  posts[idx] = post;
-  saveJournal(posts);
-  revalidatePath("/journal");
-  revalidatePath(`/journal/${slug}`);
-  await logActivity("journal.update", `Updated post: "${post.title}"`);
-  return { ok: true };
+  try {
+    const posts = await getJournal();
+    const idx = posts.findIndex((p) => p.slug === slug);
+    if (idx === -1) return { ok: false, error: "Not found" };
+    posts[idx] = post;
+    await saveJournal(posts);
+    revalidatePath("/journal");
+    revalidatePath(`/journal/${slug}`);
+    await logActivity("journal.update", `Updated post: "${post.title}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[updatePost]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function deletePost(slug: string) {
-  const posts = getJournal().filter((p) => p.slug !== slug);
-  saveJournal(posts);
-  revalidatePath("/journal");
-  await logActivity("journal.delete", `Deleted post: "${slug}"`);
-  return { ok: true };
+  try {
+    const posts = (await getJournal()).filter((p) => p.slug !== slug);
+    await saveJournal(posts);
+    revalidatePath("/journal");
+    await logActivity("journal.delete", `Deleted post: "${slug}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[deletePost]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 // ── Services ─────────────────────────────────────────────────────────────────
 export async function addService(service: Service) {
-  const services = getServices();
+  const services = await getServices();
   if (services.find((s) => s.category === service.category)) {
     return { ok: false, error: "Category already exists" };
   }
-  saveServices([service, ...services]);
+  await saveServices([service, ...services]);
   revalidatePath("/services");
   revalidatePath("/");
   await logActivity("service.add", `Added service: "${service.category}"`);
@@ -159,105 +204,150 @@ export async function addService(service: Service) {
 }
 
 export async function updateService(category: string, service: Service) {
-  const services = getServices();
-  const idx = services.findIndex((s) => s.category === category);
-  if (idx === -1) return { ok: false, error: "Not found" };
-  services[idx] = service;
-  saveServices(services);
-  revalidatePath("/services");
-  revalidatePath("/");
-  await logActivity("service.update", `Updated service: "${service.category}"`);
-  return { ok: true };
+  try {
+    const services = await getServices();
+    const idx = services.findIndex((s) => s.category === category);
+    if (idx === -1) return { ok: false, error: "Not found" };
+    services[idx] = service;
+    await saveServices(services);
+    revalidatePath("/services");
+    revalidatePath("/");
+    await logActivity("service.update", `Updated service: "${service.category}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[updateService]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function deleteService(category: string) {
-  const services = getServices().filter((s) => s.category !== category);
-  saveServices(services);
-  revalidatePath("/services");
-  revalidatePath("/");
-  await logActivity("service.delete", `Deleted service: "${category}"`);
-  return { ok: true };
+  try {
+    const services = (await getServices()).filter((s) => s.category !== category);
+    await saveServices(services);
+    revalidatePath("/services");
+    revalidatePath("/");
+    await logActivity("service.delete", `Deleted service: "${category}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[deleteService]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 // ── Clients ──────────────────────────────────────────────────────────────────
 export async function addClient(name: string) {
-  const clients = getClients();
-  if (clients.includes(name)) {
-    return { ok: false, error: "Client already exists" };
+  try {
+    const clients = await getClients();
+    if (clients.includes(name)) {
+      return { ok: false, error: "Client already exists" };
+    }
+    await saveClients([...clients, name]);
+    revalidatePath("/cv");
+    await logActivity("client.add", `Added client: "${name}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[addClient]", err);
+    return { ok: false, error: String(err) };
   }
-  saveClients([...clients, name]);
-  revalidatePath("/cv");
-  await logActivity("client.add", `Added client: "${name}"`);
-  return { ok: true };
 }
 
 export async function deleteClient(name: string) {
-  const clients = getClients().filter((c) => c !== name);
-  saveClients(clients);
-  revalidatePath("/cv");
-  await logActivity("client.delete", `Deleted client: "${name}"`);
-  return { ok: true };
+  try {
+    const clients = (await getClients()).filter((c) => c !== name);
+    await saveClients(clients);
+    revalidatePath("/cv");
+    await logActivity("client.delete", `Deleted client: "${name}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[deleteClient]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 // ── CV ────────────────────────────────────────────────────────────────────
 export async function saveCVData(data: CVData) {
-  saveCV(data);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  return { ok: true };
+  try {
+    await saveCV(data);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    return { ok: true };
+  } catch (err) {
+    console.error("[saveCVData]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function addExperience(exp: Experience) {
-  const cv = getCV();
-  cv.experiences = [exp, ...cv.experiences];
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.add", `Added experience: "${exp.role}"`);
-  return { ok: true };
+  try {
+    const cv = await getCV();
+    cv.experiences = [exp, ...cv.experiences];
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.add", `Added experience: "${exp.role}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[addExperience]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function updateExperience(role: string, exp: Experience) {
-  const cv = getCV();
-  const idx = cv.experiences.findIndex((e) => e.role === role);
-  if (idx === -1) return { ok: false, error: "Not found" };
-  cv.experiences[idx] = exp;
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.update", `Updated experience: "${exp.role}"`);
-  return { ok: true };
+  try {
+    const cv = await getCV();
+    const idx = cv.experiences.findIndex((e) => e.role === role);
+    if (idx === -1) return { ok: false, error: "Not found" };
+    cv.experiences[idx] = exp;
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.update", `Updated experience: "${exp.role}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[updateExperience]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function deleteExperience(role: string) {
-  const cv = getCV();
-  cv.experiences = cv.experiences.filter((e) => e.role !== role);
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.delete", `Deleted experience: "${role}"`);
-  return { ok: true };
+  try {
+    const cv = await getCV();
+    cv.experiences = cv.experiences.filter((e) => e.role !== role);
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.delete", `Deleted experience: "${role}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[deleteExperience]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function addSkillGroup(group: SkillGroup) {
-  const cv = getCV();
-  if (cv.skillGroups.find((g) => g.category === group.category)) {
-    return { ok: false, error: "Category already exists" };
+  try {
+    const cv = await getCV();
+    if (cv.skillGroups.find((g) => g.category === group.category)) {
+      return { ok: false, error: "Category already exists" };
+    }
+    cv.skillGroups = [group, ...cv.skillGroups];
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.add", `Added skill group: "${group.category}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[addSkillGroup]", err);
+    return { ok: false, error: String(err) };
   }
-  cv.skillGroups = [group, ...cv.skillGroups];
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.add", `Added skill group: "${group.category}"`);
-  return { ok: true };
 }
 
 export async function updateSkillGroup(category: string, group: SkillGroup) {
-  const cv = getCV();
+  const cv = await getCV();
   const idx = cv.skillGroups.findIndex((g) => g.category === category);
   if (idx === -1) return { ok: false, error: "Not found" };
   cv.skillGroups[idx] = group;
-  saveCV(cv);
+  await saveCV(cv);
   revalidatePath("/cv");
   revalidatePath("/about");
   await logActivity("cv.update", `Updated skill group: "${group.category}"`);
@@ -265,86 +355,121 @@ export async function updateSkillGroup(category: string, group: SkillGroup) {
 }
 
 export async function deleteSkillGroup(category: string) {
-  const cv = getCV();
-  cv.skillGroups = cv.skillGroups.filter((g) => g.category !== category);
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.delete", `Deleted skill group: "${category}"`);
-  return { ok: true };
+  try {
+    const cv = await getCV();
+    cv.skillGroups = cv.skillGroups.filter((g) => g.category !== category);
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.delete", `Deleted skill group: "${category}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[deleteSkillGroup]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function addToolGroup(group: SkillGroup) {
-  const cv = getCV();
-  if (cv.tools.find((g) => g.category === group.category)) {
-    return { ok: false, error: "Category already exists" };
+  try {
+    const cv = await getCV();
+    if (cv.tools.find((g) => g.category === group.category)) {
+      return { ok: false, error: "Category already exists" };
+    }
+    cv.tools = [group, ...cv.tools];
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.add", `Added tool group: "${group.category}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[addToolGroup]", err);
+    return { ok: false, error: String(err) };
   }
-  cv.tools = [group, ...cv.tools];
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.add", `Added tool group: "${group.category}"`);
-  return { ok: true };
 }
 
 export async function updateToolGroup(category: string, group: SkillGroup) {
-  const cv = getCV();
-  const idx = cv.tools.findIndex((g) => g.category === category);
-  if (idx === -1) return { ok: false, error: "Not found" };
-  cv.tools[idx] = group;
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.update", `Updated tool group: "${group.category}"`);
-  return { ok: true };
+  try {
+    const cv = await getCV();
+    const idx = cv.tools.findIndex((g) => g.category === category);
+    if (idx === -1) return { ok: false, error: "Not found" };
+    cv.tools[idx] = group;
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.update", `Updated tool group: "${group.category}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[updateToolGroup]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function deleteToolGroup(category: string) {
-  const cv = getCV();
-  cv.tools = cv.tools.filter((g) => g.category !== category);
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.delete", `Deleted tool group: "${category}"`);
-  return { ok: true };
+  try {
+    const cv = await getCV();
+    cv.tools = cv.tools.filter((g) => g.category !== category);
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.delete", `Deleted tool group: "${category}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[deleteToolGroup]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function addEducation(edu: Education) {
-  const cv = getCV();
-  cv.education = [edu, ...cv.education];
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.add", `Added education: "${edu.degree}"`);
-  return { ok: true };
+  try {
+    const cv = await getCV();
+    cv.education = [edu, ...cv.education];
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.add", `Added education: "${edu.degree}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[addEducation]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function updateEducation(degree: string, edu: Education) {
-  const cv = getCV();
-  const idx = cv.education.findIndex((e) => e.degree === degree);
-  if (idx === -1) return { ok: false, error: "Not found" };
-  cv.education[idx] = edu;
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.update", `Updated education: "${edu.degree}"`);
-  return { ok: true };
+  try {
+    const cv = await getCV();
+    const idx = cv.education.findIndex((e) => e.degree === degree);
+    if (idx === -1) return { ok: false, error: "Not found" };
+    cv.education[idx] = edu;
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.update", `Updated education: "${edu.degree}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[updateEducation]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function deleteEducation(degree: string) {
-  const cv = getCV();
-  cv.education = cv.education.filter((e) => e.degree !== degree);
-  saveCV(cv);
-  revalidatePath("/cv");
-  revalidatePath("/about");
-  await logActivity("cv.delete", `Deleted education: "${degree}"`);
-  return { ok: true };
+  try {
+    const cv = await getCV();
+    cv.education = cv.education.filter((e) => e.degree !== degree);
+    await saveCV(cv);
+    revalidatePath("/cv");
+    revalidatePath("/about");
+    await logActivity("cv.delete", `Deleted education: "${degree}"`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[deleteEducation]", err);
+    return { ok: false, error: String(err) };
+  }
 }
 
 export async function addAward(award: Award) {
-  const cv = getCV();
+  const cv = await getCV();
   cv.awards = [award, ...cv.awards];
-  saveCV(cv);
+  await saveCV(cv);
   revalidatePath("/cv");
   revalidatePath("/about");
   await logActivity("cv.add", `Added award: "${award.title}"`);
@@ -352,11 +477,11 @@ export async function addAward(award: Award) {
 }
 
 export async function updateAward(title: string, award: Award) {
-  const cv = getCV();
+  const cv = await getCV();
   const idx = cv.awards.findIndex((a) => a.title === title);
   if (idx === -1) return { ok: false, error: "Not found" };
   cv.awards[idx] = award;
-  saveCV(cv);
+  await saveCV(cv);
   revalidatePath("/cv");
   revalidatePath("/about");
   await logActivity("cv.update", `Updated award: "${award.title}"`);
@@ -364,9 +489,9 @@ export async function updateAward(title: string, award: Award) {
 }
 
 export async function deleteAward(title: string) {
-  const cv = getCV();
+  const cv = await getCV();
   cv.awards = cv.awards.filter((a) => a.title !== title);
-  saveCV(cv);
+  await saveCV(cv);
   revalidatePath("/cv");
   revalidatePath("/about");
   await logActivity("cv.delete", `Deleted award: "${title}"`);

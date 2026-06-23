@@ -9,7 +9,7 @@ import { Cta } from "@/components/home/cta";
 import { Reveal, RevealText } from "@/components/ui/reveal";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 import { siteConfig } from "@/lib/data";
-import { getSEO, getWorks, getServices, getClients } from "@/lib/store";
+import { getWorks, getServices, getClients } from "@/lib/store";
 
 export function generateMetadata(): Promise<Metadata> {
   return Promise.resolve({
@@ -25,7 +25,7 @@ const jsonLd = {
     "@type": "Person",
     name: siteConfig.name,
     description: siteConfig.description,
-    url: getSEO().canonicalBaseUrl || "https://rizkyirawan.com",
+    url: "https://rizkyirawan.com",
     sameAs: Object.values(siteConfig.social),
     knowsAbout: ["3D Visualization", "Motion Design", "Illustration", "Graphic Design"],
     alumniOf: [],
@@ -36,10 +36,12 @@ const jsonLd = {
   },
 };
 
-export default function Home() {
-  const works = getWorks();
-  const services = getServices();
-  const clients = getClients();
+export default async function Home() {
+  const [works, services, clients] = await Promise.all([
+    getWorks(),
+    getServices(),
+    getClients(),
+  ]);
 
   return (
     <>
