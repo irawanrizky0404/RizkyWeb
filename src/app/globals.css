@@ -1,146 +1,193 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-sodium: var(--sodium);
-  --color-phosphor: var(--phosphor);
-  --color-acid: var(--acid);
-  --color-oxblood: var(--oxblood);
-  --color-bone: var(--bone);
+  --color-black:  var(--black);
+  --color-white:  var(--white);
+  --color-dim:    var(--dim);
+  --color-grey:   var(--grey);
+  --color-rule:   var(--rule);
+  --color-signal: var(--signal);
 
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-space-grotesk);
-  --font-serif: var(--font-instrument);
-  --font-mono: var(--font-jetbrains-mono);
-
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-display: var(--font-display);
+  --font-body:    var(--font-body);
+  --font-mono:    var(--font-mono);
 }
 
 :root {
-  --background: #0b0a08;
-  --foreground: #e8e2d4;
-  --muted: #14130f;
-  --muted-foreground: #9a948a;
-  --border: #26241f;
-  --sodium: #ff4d1a;
-  --phosphor: #2d4dff;
-  --acid: #c8d800;
-  --oxblood: #7a1a14;
-  --bone: #d4cdb8;
+  --black:  #080808;
+  --white:  #f0f0ee;
+  --dim:    #111111;
+  --grey:   #7a7a76;
+  --rule:   #222220;
+  --signal: #ff3500;
 }
 
-* {
-  border-color: var(--border);
+*, *::before, *::after {
+  box-sizing: border-box;
+  border-color: var(--rule);
 }
 
 html {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  scroll-behavior: auto;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-weight: 300;
   overflow-x: hidden;
+  line-height: 1.6;
 }
 
 ::selection {
-  background: var(--sodium);
-  color: var(--background);
+  background: var(--signal);
+  color: #080808;
 }
 
-::-webkit-scrollbar {
-  width: 0px;
+::-webkit-scrollbar { width: 0; }
+a { color: inherit; text-decoration: none; }
+
+/* ─── TYPOGRAPHY ────────────────────────────────────────────────── */
+
+/* Bebas Neue — display, all caps, condensed */
+.dis {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
-@layer utilities {
-  .text-balance { text-wrap: balance; }
-  .text-pretty { text-wrap: pretty; }
-  .font-display { font-family: var(--font-display); }
-  .font-serif { font-family: var(--font-serif); }
-  .font-mono { font-family: var(--font-mono); }
-
-  .text-sodium { color: var(--sodium); }
-  .text-phosphor { color: var(--phosphor); }
-  .text-acid { color: var(--acid); }
-  .text-oxblood { color: var(--oxblood); }
-  .text-bone { color: var(--bone); }
-  .bg-sodium { background: var(--sodium); }
-  .bg-phosphor { background: var(--phosphor); }
-  .bg-acid { background: var(--acid); }
-  .bg-oxblood { background: var(--oxblood); }
-  .bg-bone { background: var(--bone); }
-  .border-sodium { border-color: var(--sodium); }
-
-  .grain::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.06;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  .halftone {
-    background-image: radial-gradient(circle, var(--bone) 0.5px, transparent 0.5px);
-    background-size: 3px 3px;
-  }
-
-  .halftone-lg {
-    background-image: radial-gradient(circle, var(--bone) 1px, transparent 1px);
-    background-size: 6px 6px;
-  }
-
-  .halftone-sodium {
-    background-image: radial-gradient(circle, var(--sodium) 0.8px, transparent 0.8px);
-    background-size: 4px 4px;
-  }
-
-  .paper {
-    background-color: var(--muted);
-    background-image:
-      radial-gradient(circle, rgba(232, 226, 212, 0.04) 0.5px, transparent 0.5px);
-    background-size: 3px 3px;
-  }
-
-  .text-stroke {
-    -webkit-text-stroke: 1px var(--foreground);
-    color: transparent;
-  }
-
-  .text-stroke-sodium {
-    -webkit-text-stroke: 1.5px var(--sodium);
-    color: transparent;
-  }
-
-  .mix-difference {
-    mix-blend-mode: difference;
-  }
-
-  .mix-screen {
-    mix-blend-mode: screen;
-  }
-
-  .blend-overlay {
-    mix-blend-mode: overlay;
-  }
+/* IBM Plex Mono — system labels, catalogue index */
+.lab {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1.7;
+  color: var(--white);
 }
 
-@keyframes grain-shift {
-  0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-2%, 1%); }
-  30% { transform: translate(1%, -2%); }
-  50% { transform: translate(-1%, 1%); }
-  70% { transform: translate(2%, -1%); }
-  90% { transform: translate(-2%, 2%); }
+/* Vertical text — Factory Records side label */
+.vert {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
 }
 
+/* ─── FAC CATALOGUE STAMP ───────────────────────────────────────── */
+.fac {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1.7;
+  color: var(--signal);
+  opacity: 0.7;
+}
+
+/* ─── RESPONSIVE UTILITIES ──────────────────────────────────────── */
+/* Desktop-only: hidden below md (768px) */
+@media (max-width: 767px) {
+  .desk-only { display: none !important; }
+}
+/* Mobile-only: hidden at md and above (768px) */
+@media (min-width: 768px) {
+  .mob-only { display: none !important; }
+}
+
+/* ─── CUSTOM CURSOR — hide native on mouse devices ─────────────── */
+@media (pointer: fine) {
+  body:not(.admin-page) *, body:not(.admin-page) *::before, body:not(.admin-page) *::after { cursor: none !important; }
+}
+
+/* ─── IMAGE HOVER EFFECTS ───────────────────────────────────────── */
+.img-distort {
+  transition: filter 0.5s ease, transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.img-distort:hover {
+  filter: grayscale(0) brightness(0.8) contrast(1.05);
+  transform: scale(1.025);
+}
+
+/* Smooth link underline animation */
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--signal);
+  transition: width 0.3s ease;
+}
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* Scale up on hover for cards */
+.hover-scale {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Smooth image reveal on load */
+.img-reveal {
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.img-reveal.loading {
+  opacity: 0;
+  transform: scale(1.02);
+}
+
+/* ─── GLITCH ────────────────────────────────────────────────────── */
+@keyframes glitch {
+  0%   { text-shadow: none; transform: translate(0, 0); }
+  10%  { text-shadow: 3px 0 0 rgba(255,53,0,0.8), -3px 0 0 rgba(0,160,255,0.5); transform: translate(-2px, 0); }
+  20%  { text-shadow: -2px 0 0 rgba(255,53,0,0.7),  2px 0 0 rgba(0,160,255,0.4); transform: translate(2px, 0); }
+  30%  { text-shadow: 4px 0 0 rgba(255,53,0,0.6), -1px 0 0 rgba(0,160,255,0.3); transform: translate(-1px, 0); }
+  40%  { text-shadow: none; transform: translate(1px, 0); }
+  50%  { text-shadow: 2px 0 0 rgba(255,53,0,0.5); transform: translate(0); }
+  60%  { text-shadow: none; transform: translate(0); }
+  100% { text-shadow: none; transform: translate(0, 0); }
+}
+
+.glitch {
+  animation: glitch 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+}
+
+/* ─── MARQUEE ───────────────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes marquee-rev {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+.marquee-track-rev {
+  animation-name: marquee-rev;
+}
+.marquee-pause:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ─── LENIS ─────────────────────────────────────────────────────── */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: hidden; }

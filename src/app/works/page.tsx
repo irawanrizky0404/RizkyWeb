@@ -1,29 +1,39 @@
 import type { Metadata } from "next";
-import { projects } from "@/lib/data";
-import { WorkGrid } from "@/components/home/work-grid";
-import { SectionHeader } from "@/components/ui/section-header";
-import { ColorBar } from "@/components/ui/color-bar";
+import { Suspense } from "react";
+import { getWorks } from "@/lib/store";
+import { buildMetadata } from "@/lib/store";
+import { WorkArchive } from "@/components/home/work-archive";
+import { MaskReveal } from "@/components/ui/mask-reveal";
 
-export const metadata: Metadata = {
-  title: "Work",
-  description:
-    "A curated visual archive of works in 3D, animation, illustration, and graphic design.",
-};
+export function generateMetadata(): Metadata {
+  return buildMetadata({
+    title: "Work",
+    description: "A curated visual archive of works in 3D, animation, illustration, and graphic design.",
+  });
+}
 
 export default function WorksPage() {
+  const works = getWorks();
+
   return (
-    <section className="px-6 pt-32 pb-16 md:px-10 md:pt-48 md:pb-24">
-      <div className="mx-auto max-w-[1800px]">
-        <SectionHeader
-          label="Archive"
-          title="Work"
-          description="A complete archive of visual works — illustrations, 3D visualizations, and animation. Each piece is part of a larger atmospheric practice."
-        />
-
-        <ColorBar className="my-16 md:my-24" />
-
-        <WorkGrid projects={projects} compact />
+    <>
+      {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
+      <div className="border-t-2 border-signal px-5 pt-24 pb-10 md:px-12 md:pt-32 md:pb-14">
+        <span className="fac">FAC.04 — Archive</span>
+        <MaskReveal delay={0.15}>
+          <h1 className="dis text-white mt-2" style={{ fontSize: "clamp(3.5rem, 12vw, 16rem)", lineHeight: 0.88 }}>
+            Work
+          </h1>
+        </MaskReveal>
+        <p className="lab text-white/40 mt-5 max-w-xl" style={{ fontSize: "0.7rem" }}>
+          A complete archive of visual works — illustrations, 3D visualizations, and animation. Each piece is part of a larger atmospheric practice.
+        </p>
       </div>
-    </section>
+
+      {/* ── ARCHIVE ─────────────────────────────────────────────────── */}
+      <Suspense>
+        <WorkArchive projects={works} />
+      </Suspense>
+    </>
   );
 }

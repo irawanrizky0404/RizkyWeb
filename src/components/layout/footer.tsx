@@ -1,61 +1,141 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { siteConfig } from "@/lib/data";
-import { ColorCode } from "@/components/ui/color-code";
+import { Magnetic } from "@/components/ui/magnetic";
+
+const socials = [
+  { label: "Instagram", href: siteConfig.social.instagram },
+  { label: "Behance",   href: siteConfig.social.behance   },
+  { label: "LinkedIn",  href: siteConfig.social.linkedin  },
+];
+
+const TICKER_ITEMS = [
+  "Available for Work",
+  "Indonesia",
+  "UTC +7",
+  "Multidisciplinary Visual Artist",
+  "Est. 2017",
+  "3D · Motion · Illustration",
+  "FAC.001",
+  "Open for Collaboration",
+];
+
+const TICKER_TEXT = Array(4).fill(TICKER_ITEMS).flat()
+  .map((t) => `${t} ·`).join("  ");
 
 export function Footer() {
+  const pathname = usePathname();
+  const year = new Date().getFullYear();
+
+  if (pathname.startsWith("/admin")) return null;
+
   return (
-    <footer className="relative mt-32">
-      <div className="h-[3px]">
-        <ColorCode />
+    <footer className="relative overflow-hidden border-t-2 border-signal bg-black">
+
+      {/* Ghost FAC */}
+      <span
+        className="dis pointer-events-none absolute -bottom-6 left-0 select-none leading-none text-white/[0.022]"
+        style={{ fontSize: "50vw" }}
+        aria-hidden
+      >
+        FAC
+      </span>
+
+      {/* ── Email ─────────────────────────────────────────────────── */}
+      <div className="relative px-5 pt-14 pb-0 md:px-8 md:pt-20">
+        <div className="flex items-center justify-between mb-6">
+          <p className="lab text-white/25" style={{ fontSize: "0.55rem" }}>Open for transmission</p>
+          <span className="lab flex items-center gap-2 text-signal" style={{ fontSize: "0.55rem" }}>
+            <span className="inline-block h-[5px] w-[5px] rounded-full bg-signal" style={{ animation: "pulse-dot 1.6s ease-in-out infinite" }} />
+            Available for Work
+          </span>
+          <style>{`@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}`}</style>
+        </div>
+        <Magnetic strength={0.18}>
+          <a href={`mailto:${siteConfig.email}`} className="group block">
+            <span
+              className="dis block text-white transition-colors duration-200 group-hover:text-signal"
+              style={{ fontSize: "clamp(1.8rem, 5.5vw, 9rem)", lineHeight: 0.88 }}
+            >
+              rizkyirawan0404
+            </span>
+            <span
+              className="dis block text-white/30 transition-colors duration-200 group-hover:text-white/50"
+              style={{ fontSize: "clamp(1.8rem, 5.5vw, 9rem)", lineHeight: 0.88 }}
+            >
+              @gmail.com
+            </span>
+          </a>
+        </Magnetic>
+        <div className="mt-8 flex items-center gap-6 pb-10">
+          <Link
+            href="/works"
+            className="group lab inline-flex items-center gap-3 border border-rule px-5 py-3 text-white/50 transition-colors hover:border-signal hover:text-signal"
+            style={{ fontSize: "0.6rem" }}
+          >
+            View All Works
+            <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+          </Link>
+          <Link
+            href="/contact"
+            className="lab text-white/30 hover:text-white transition-colors"
+            style={{ fontSize: "0.6rem" }}
+          >
+            Start a project →
+          </Link>
+        </div>
       </div>
 
-      <div className="px-6 pb-10 pt-16 md:px-10 md:pt-20">
-        <div className="mx-auto max-w-[1800px]">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-8">
-            <div className="md:col-span-7">
-              <p className="font-serif text-xl italic leading-snug text-bone md:text-3xl">
-                &ldquo;Designing immersive digital experiences through 3D,
-                motion, illustration, and graphic design.&rdquo;
-              </p>
-              <a
-                href={`mailto:${siteConfig.email}`}
-                className="mt-6 inline-block break-all font-display text-2xl font-medium tracking-tighter transition-colors hover:text-sodium md:mt-8 md:text-5xl md:break-normal"
-              >
-                {siteConfig.email}
-              </a>
-            </div>
-
-            <div className="grid grid-cols-2 gap-8 md:col-span-5 md:grid-cols-2 md:gap-8">
-              <div>
-                <p className="font-mono text-xs uppercase tracking-[0.25em] text-sodium">
-                  [ Index ]
-                </p>
-                <ul className="mt-4 space-y-2 font-mono text-xs text-muted-foreground">
-                  <li><Link href="/works" className="transition-colors hover:text-sodium">Work</Link></li>
-                  <li><Link href="/about" className="transition-colors hover:text-sodium">About</Link></li>
-                  <li><Link href="/services" className="transition-colors hover:text-sodium">Services</Link></li>
-                  <li><Link href="/contact" className="transition-colors hover:text-sodium">Contact</Link></li>
-                </ul>
-              </div>
-
-              <div>
-                <p className="font-mono text-xs uppercase tracking-[0.25em] text-sodium">
-                  [ Social ]
-                </p>
-                <ul className="mt-4 space-y-2 font-mono text-xs text-muted-foreground">
-                  <li><a href={siteConfig.social.instagram} className="transition-colors hover:text-sodium">Instagram</a></li>
-                  <li><a href={siteConfig.social.behance} className="transition-colors hover:text-sodium">Behance</a></li>
-                  <li><a href={siteConfig.social.linkedin} className="transition-colors hover:text-sodium">LinkedIn</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-16 flex flex-col gap-2 font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground md:mt-20 md:flex-row md:justify-between">
-            <span>© {new Date().getFullYear()} {siteConfig.name}</span>
-            <span>Visual Archive — Vol. 01</span>
-          </div>
+      {/* ── Bottom strip: socials + copyright ─────────────────────── */}
+      <div className="relative border-t border-rule px-5 py-4 flex items-center justify-between gap-6 md:px-8">
+        {/* Socials — 3 max, never wraps */}
+        <div className="flex items-center gap-5 shrink-0">
+          {socials.map((s) => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="lab text-white/30 transition-colors hover:text-white"
+              style={{ fontSize: "0.58rem" }}
+            >
+              {s.label}
+            </a>
+          ))}
         </div>
+        {/* Status */}
+        <span className="lab text-signal shrink-0" style={{ fontSize: "0.58rem" }}>Open for Work</span>
+      </div>
+
+      {/* ── Ticker ────────────────────────────────────────────────── */}
+      <div className="relative border-t border-rule overflow-hidden py-2" style={{ borderColor: "rgba(34,34,32,1)" }}>
+        <div
+          className="whitespace-nowrap"
+          style={{
+            display: "inline-block",
+            animation: "ticker 28s linear infinite",
+            willChange: "transform",
+          }}
+        >
+          <span className="lab text-white/15" style={{ fontSize: "0.52rem", letterSpacing: "0.18em" }}>
+            {TICKER_TEXT}
+          </span>
+        </div>
+        <style>{`
+          @keyframes ticker {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+          }
+        `}</style>
+      </div>
+
+      {/* ── Copyright ─────────────────────────────────────────────── */}
+      <div className="relative border-t border-rule px-5 py-3 md:px-8">
+        <span className="lab text-white/15" style={{ fontSize: "0.55rem" }}>
+          © {year} Rizky Irawan · Indonesia · Est. 2017
+        </span>
       </div>
     </footer>
   );

@@ -1,0 +1,27 @@
+{
+  "colors": {
+    "signal": "#ff3500",
+    "black": "#080808",
+    "white": "#f0f0ee",
+    "grey": "#7a7a76"
+  },
+  "hero": {
+    "statement": "Working at the frequency between signal and silence.",
+    "bio": "5 years across 3D, motion, illustration, and identity. Every project begins with a feeling, not a brief. Aesthetic leads. Technique follows. Indonesia-based, globally distributed.",
+    "availableText": "Available for Work"
+  },
+  "site": {
+    "name": "Rizky Irawan",
+    "role": "Multidisciplinary Visual Artist",
+    "tagline": "Visual Archive",
+    "email": "rizkyirawan0404@gmail.com",
+    "location": "Indonesia",
+    "timezone": "UTC +7",
+    "established": "2017"
+  },
+  "social": {
+    "instagram": "https://www.instagram.com/rizkyirawan44/",
+    "behance": "https://behance.net/rizkyirawan",
+    "linkedin": "https://www.linkedin.com/in/rizky-irawan-b340363aa/"
+  }
+}

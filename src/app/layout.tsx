@@ -1,68 +1,117 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { headers } from "next/headers";
+import { Bebas_Neue, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { LenisProvider } from "@/components/providers/lenis-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { siteConfig } from "@/lib/data";
+import { Cursor } from "@/components/ui/cursor";
+import { AmbientSound } from "@/components/ui/ambient-sound";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { getDesign, getSEO } from "@/lib/store";
+import { PageTransition } from "@/components/ui/page-transition";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
+export const dynamic = "force-dynamic";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument",
+const bebas = Bebas_Neue({
+  variable: "--font-display",
   subsets: ["latin"],
   weight: "400",
-  style: ["normal", "italic"],
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
+const ibm = IBM_Plex_Sans({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["300", "400", "500"],
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://rizkyirawan.com"),
-  title: {
-    default: siteConfig.title,
-    template: `%s — ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  authors: [{ name: siteConfig.name }],
-  creator: siteConfig.name,
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    title: siteConfig.title,
-    description: siteConfig.description,
-    siteName: siteConfig.name,
-  },
-  robots: { index: true, follow: true },
-};
+const ibmMono = IBM_Plex_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+});
 
-export default function RootLayout({
+export function generateMetadata(): Metadata {
+  const seo = getSEO();
+  const canonicalBase = seo.canonicalBaseUrl || "https://rizkyirawan.com";
+  return {
+    metadataBase: new URL(canonicalBase),
+    title: {
+      default: seo.siteName,
+      template: seo.titleTemplate || `%s — ${seo.siteName}`,
+    },
+    description: seo.defaultDescription,
+    authors: [{ name: seo.siteName }],
+    creator: seo.siteName,
+    keywords: ["visual artist", "3D design", "motion graphics", "illustration", "portfolio", "Indonesia"],
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: canonicalBase,
+      title: seo.siteName,
+      description: seo.defaultDescription,
+      siteName: seo.siteName,
+      images: seo.ogImage ? [{ url: seo.ogImage, width: 1200, height: 630 }] : [],
+    },
+    twitter: seo.twitterHandle ? {
+      card: "summary_large_image",
+      site: seo.twitterHandle,
+      creator: seo.twitterHandle,
+    } : { card: "summary_large_image" },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    icons: {
+      icon: "/favicon.ico",
+      apple: "/apple-touch-icon.png",
+    },
+    manifest: "/manifest.json",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "black-translucent",
+      title: seo.siteName,
+    },
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const design = getDesign();
+  const cssVars = {
+    "--signal": design.colors.signal,
+    "--black": design.colors.black,
+    "--white": design.colors.white,
+    "--grey": design.colors.grey,
+  } as React.CSSProperties;
+
+  const headersList = await headers();
+  const pathname = headersList.get("x-invoke-pathname") || headersList.get("x-matched-path") || "/";
+  const isAdmin = pathname.startsWith("/admin");
+
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} antialiased`}
+      className={`${bebas.variable} ${ibm.variable} ${ibmMono.variable}`}
     >
-      <body className="grain min-h-screen bg-background text-foreground">
+      <body className="bg-black text-white antialiased min-h-screen" style={cssVars} suppressHydrationWarning>
         <LenisProvider>
+          <ProgressBar />
+          {!isAdmin && <Cursor />}
+          {!isAdmin && <AmbientSound />}
           <Header />
-          <main className="flex min-h-screen flex-col">{children}</main>
+          <main><PageTransition>{children}</PageTransition></main>
           <Footer />
         </LenisProvider>
       </body>

@@ -1,249 +1,182 @@
 import type { Metadata } from "next";
-import {
-  siteConfig,
-  experiences,
-  skillGroups,
-  tools,
-  awards,
-  clientList,
-} from "@/lib/data";
-import { SectionHeader } from "@/components/ui/section-header";
-import { ColorBar } from "@/components/ui/color-bar";
+import Link from "next/link";
+import { siteConfig } from "@/lib/data";
+import { buildMetadata, getCV, getClients } from "@/lib/store";
 import { Reveal } from "@/components/ui/reveal";
+import { MaskReveal } from "@/components/ui/mask-reveal";
 
-export const metadata: Metadata = {
-  title: "CV",
-  description: `Curriculum vitae of ${siteConfig.name} — multidisciplinary visual artist.`,
-};
+export function generateMetadata(): Metadata {
+  return buildMetadata({
+    title: "CV",
+    description: `Curriculum vitae of ${siteConfig.name} — multidisciplinary visual artist.`,
+  });
+}
 
 export default function CVPage() {
+  const { experiences, skillGroups, tools, awards } = getCV();
+  const clientList = getClients();
   return (
-    <section className="px-6 pt-32 pb-16 md:px-10 md:pt-48 md:pb-24">
-      <div className="mx-auto max-w-[1800px]">
-        <SectionHeader
-          label="Curriculum Vitae"
-          title="CV"
-          description={`${siteConfig.role} based in Indonesia. Working across 3D, animation, illustration, and graphic design.`}
-        />
-
-        <ColorBar className="my-12 md:my-24" />
-
-        {/* Experience */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-8">
-          <div className="md:col-span-3">
-            <Reveal>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-sodium">
-                [ Experience ]
-              </p>
-            </Reveal>
-          </div>
-          <div className="md:col-span-9">
-            <div className="border-t border-border">
-              {experiences.map((exp, i) => (
-                <Reveal key={exp.role} delay={i * 0.05}>
-                  <div className="border-b border-border py-6 md:py-10">
-                    <div className="flex flex-col gap-1 md:flex-row md:items-baseline md:justify-between md:gap-8">
-                      <h3 className="font-display text-lg font-medium tracking-tight md:text-2xl">
-                        {exp.role}
-                      </h3>
-                      <span className="font-mono text-xs text-sodium">
-                        {exp.period}
-                      </span>
-                    </div>
-                    <p className="mt-1 font-mono text-xs text-muted-foreground">
-                      {exp.organization}
-                    </p>
-                    <p className="mt-3 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground md:mt-4 md:text-base">
-                      {exp.description}
-                    </p>
-                    <ul className="mt-3 space-y-1.5 md:mt-4">
-                      {exp.highlights.map((highlight) => (
-                        <li
-                          key={highlight}
-                          className="flex gap-3 text-sm text-muted-foreground"
-                        >
-                          <span className="mt-2 h-1 w-1 shrink-0 bg-sodium" />
-                          {highlight}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <ColorBar className="my-12 md:my-24" />
-
-        {/* Skills */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-8">
-          <div className="md:col-span-3">
-            <Reveal>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-sodium">
-                [ Skills ]
-              </p>
-            </Reveal>
-          </div>
-          <div className="md:col-span-9">
-            <div className="border-t border-border">
-              {skillGroups.map((group, i) => (
-                <Reveal key={group.category} delay={i * 0.05}>
-                  <div className="flex flex-col gap-3 border-b border-border py-5 md:flex-row md:items-baseline md:gap-8 md:py-8">
-                    <h3 className="font-display text-base font-medium tracking-tight md:text-lg md:w-48 md:shrink-0">
-                      {group.category}
-                    </h3>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1">
-                      {group.items.map((item) => (
-                        <span
-                          key={item}
-                          className="font-mono text-xs text-muted-foreground"
-                        >
-                          {item}
-                          {item !== group.items[group.items.length - 1] ? " ·" : ""}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <ColorBar className="my-12 md:my-24" />
-
-        {/* Tools */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-8">
-          <div className="md:col-span-3">
-            <Reveal>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-sodium">
-                [ Tools ]
-              </p>
-            </Reveal>
-          </div>
-          <div className="md:col-span-9">
-            <div className="border-t border-border">
-              {tools.map((group, i) => (
-                <Reveal key={group.category} delay={i * 0.05}>
-                  <div className="flex flex-col gap-3 border-b border-border py-5 md:flex-row md:items-baseline md:gap-8 md:py-8">
-                    <h3 className="font-display text-base font-medium tracking-tight md:text-lg md:w-48 md:shrink-0">
-                      {group.category}
-                    </h3>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1">
-                      {group.items.map((item) => (
-                        <span
-                          key={item}
-                          className="font-mono text-xs text-muted-foreground"
-                        >
-                          {item}
-                          {item !== group.items[group.items.length - 1] ? " ·" : ""}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <ColorBar className="my-12 md:my-24" />
-
-        {/* Awards */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-8">
-          <div className="md:col-span-3">
-            <Reveal>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-sodium">
-                [ Awards ]
-              </p>
-            </Reveal>
-          </div>
-          <div className="md:col-span-9">
-            <div className="border-t border-border">
-              {awards.map((award) => (
-                <Reveal key={award.title}>
-                  <div className="flex flex-col gap-2 border-b border-border py-5 md:flex-row md:items-baseline md:gap-8 md:py-8">
-                    <span className="font-mono text-xs text-sodium md:w-20 md:shrink-0">
-                      {award.year}
-                    </span>
-                    <div className="flex-1">
-                      <h3 className="font-display text-base font-medium tracking-tight md:text-lg">
-                        {award.title}
-                      </h3>
-                      <p className="mt-1 max-w-md text-pretty text-sm text-muted-foreground">
-                        {award.description}
-                      </p>
-                    </div>
-                    <span className="font-mono text-xs text-muted-foreground">
-                      {award.organization}
-                    </span>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <ColorBar className="my-12 md:my-24" />
-
-        {/* Clients */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-8">
-          <div className="md:col-span-3">
-            <Reveal>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-sodium">
-                [ Clients ]
-              </p>
-            </Reveal>
-          </div>
-          <div className="md:col-span-9">
-            <Reveal delay={0.1}>
-              <div className="flex flex-wrap gap-x-4 gap-y-2">
-                {clientList.map((client) => (
-                  <span
-                    key={client}
-                    className="font-mono text-sm text-muted-foreground"
-                  >
-                    {client}
-                    {client !== clientList[clientList.length - 1] ? " ·" : ""}
-                  </span>
-                ))}
-              </div>
-            </Reveal>
-          </div>
-        </div>
-
-        <ColorBar className="my-12 md:my-24" />
-
-        {/* Contact */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-8">
-          <div className="md:col-span-3">
-            <Reveal>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-sodium">
-                [ Contact ]
-              </p>
-            </Reveal>
-          </div>
-          <div className="md:col-span-9">
-            <Reveal delay={0.1}>
-              <a
-                href={`mailto:${siteConfig.email}`}
-                className="font-display text-lg font-medium tracking-tight transition-colors hover:text-sodium md:text-2xl"
-              >
-                {siteConfig.email}
-              </a>
-              <div className="mt-4 flex flex-wrap gap-6 font-mono text-xs text-muted-foreground">
-                <a href={siteConfig.social.instagram} className="transition-colors hover:text-sodium">Instagram</a>
-                <a href={siteConfig.social.behance} className="transition-colors hover:text-sodium">Behance</a>
-                <a href={siteConfig.social.linkedin} className="transition-colors hover:text-sodium">LinkedIn</a>
-              </div>
-              <p className="mt-4 font-mono text-xs text-sodium">
-                ● Available — 2025
-              </p>
-            </Reveal>
-          </div>
+    <>
+      {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
+      <div className="border-t-2 border-signal px-5 pt-24 pb-10 md:px-12 md:pt-32 md:pb-14">
+        <span className="fac">FAC.CV — Curriculum Vitae</span>
+        <MaskReveal delay={0.15}>
+          <h1 className="dis text-white mt-2" style={{ fontSize: "clamp(3.5rem, 12vw, 16rem)", lineHeight: 0.88 }}>
+            CV
+          </h1>
+        </MaskReveal>
+        <div className="mt-5 flex items-center gap-6 flex-wrap">
+          <p className="lab text-white/40" style={{ fontSize: "0.7rem" }}>
+            {siteConfig.role} · Indonesia · Est. 2017
+          </p>
+          <a
+            href="/api/cv/download"
+            className="group inline-flex items-center gap-3 border border-signal px-4 py-2 transition-colors hover:bg-signal"
+          >
+            <span className="lab text-white transition-colors group-hover:text-black" style={{ fontSize: "0.6rem" }}>Download PDF</span>
+            <span className="lab text-signal transition-colors group-hover:text-black">↓</span>
+          </a>
         </div>
       </div>
-    </section>
+
+      {/* ── EXPERIENCE ──────────────────────────────────────────────── */}
+      <section className="border-t border-rule">
+        <div className="flex items-center justify-between border-b border-rule px-5 py-3 md:px-12">
+          <span className="fac">Experience</span>
+          <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>{experiences.length} positions</span>
+        </div>
+        {experiences.map((exp, i) => (
+          <Reveal key={exp.role} delay={i * 0.04}>
+            <div className="border-b border-rule px-5 py-8 md:px-12 md:py-10">
+              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between md:gap-8">
+                <div className="flex-1">
+                  <h2 className="dis text-white mb-1" style={{ fontSize: "clamp(1.4rem, 5vw, 4rem)", lineHeight: 0.9 }}>
+                    {exp.role}
+                  </h2>
+                  <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>{exp.organization}</span>
+                </div>
+                <span className="lab text-signal shrink-0" style={{ fontSize: "0.6rem" }}>{exp.period}</span>
+              </div>
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/50">{exp.description}</p>
+              {exp.highlights.length > 0 && (
+                <ul className="mt-4 space-y-2">
+                  {exp.highlights.map((h) => (
+                    <li key={h} className="flex items-start gap-3">
+                      <span className="h-px w-4 bg-signal/60 shrink-0 mt-2" />
+                      <span className="lab text-white/50" style={{ fontSize: "0.65rem" }}>{h}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </Reveal>
+        ))}
+      </section>
+
+      {/* ── SKILLS + TOOLS (side by side on desktop) ────────────────── */}
+      <section className="border-t border-rule">
+        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-rule">
+          {/* Skills */}
+          <div>
+            <div className="border-b border-rule px-5 py-3 md:px-12">
+              <span className="fac">Skills</span>
+            </div>
+            {skillGroups.map((group, i) => (
+              <Reveal key={group.category} delay={i * 0.04}>
+                <div className="border-b border-rule px-5 py-5 md:px-12 md:py-6">
+                  <h3 className="lab text-white/50 mb-3" style={{ fontSize: "0.6rem" }}>{group.category}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map((item) => (
+                      <span key={item} className="lab text-white/60 border border-rule px-2 py-1 hover:border-signal/40 hover:text-signal transition-colors" style={{ fontSize: "0.55rem" }}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Tools */}
+          <div>
+            <div className="border-b border-rule px-5 py-3 md:px-12">
+              <span className="fac">Tools</span>
+            </div>
+            {tools.map((group, i) => (
+              <Reveal key={group.category} delay={i * 0.04}>
+                <div className="border-b border-rule px-5 py-5 md:px-12 md:py-6">
+                  <h3 className="lab text-white/50 mb-3" style={{ fontSize: "0.6rem" }}>{group.category}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map((item) => (
+                      <span key={item} className="lab text-white/60 border border-rule px-2 py-1 hover:border-signal/40 hover:text-signal transition-colors" style={{ fontSize: "0.55rem" }}>
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── AWARDS ──────────────────────────────────────────────────── */}
+      {awards.length > 0 && (
+        <section className="border-t border-rule">
+          <div className="border-b border-rule px-5 py-3 md:px-12">
+            <span className="fac">Recognition</span>
+          </div>
+          {awards.map((award, i) => (
+            <Reveal key={award.title} delay={i * 0.04}>
+              <div className="border-b border-rule px-5 py-6 md:px-12 md:py-8">
+                <div className="flex flex-col gap-3 md:flex-row md:items-baseline md:gap-8">
+                  <span className="lab text-signal shrink-0" style={{ fontSize: "0.6rem" }}>{award.year}</span>
+                  <div className="flex-1">
+                    <h3 className="dis text-white mb-1" style={{ fontSize: "clamp(1rem, 3vw, 2.2rem)", lineHeight: 0.9 }}>
+                      {award.title}
+                    </h3>
+                    <p className="text-sm text-white/50 leading-relaxed mt-2">{award.description}</p>
+                  </div>
+                  <span className="lab text-white/30 shrink-0" style={{ fontSize: "0.58rem" }}>{award.organization}</span>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </section>
+      )}
+
+      {/* ── CLIENTS ─────────────────────────────────────────────────── */}
+      <section className="border-t border-rule">
+        <div className="flex items-center justify-between border-b border-rule px-5 py-3 md:px-12">
+          <span className="fac">Clients</span>
+          <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>{clientList.length} worked with</span>
+        </div>
+        <Reveal>
+          <div className="px-5 py-8 md:px-12">
+            <div className="flex flex-wrap gap-2">
+              {clientList.map((client) => (
+                <span key={client} className="lab text-white/50 border border-rule px-3 py-1 hover:border-signal/30 hover:text-white/70 transition-colors" style={{ fontSize: "0.6rem" }}>
+                  {client}
+                </span>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ── CTA ─────────────────────────────────────────────────────── */}
+      <Reveal>
+        <section className="border-t-2 border-signal px-5 py-12 md:px-12 md:py-16">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <p className="dis text-white" style={{ fontSize: "clamp(2rem, 6vw, 8rem)", lineHeight: 0.88, maxWidth: "16ch" }}>
+              Let&apos;s work together.
+            </p>
+            <Link href="/contact" className="lab self-start border-b-2 border-signal pb-1 text-white hover:text-signal transition-colors">
+              Start the transmission →
+            </Link>
+          </div>
+        </section>
+      </Reveal>
+    </>
   );
 }

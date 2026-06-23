@@ -1,0 +1,144 @@
+{
+  "experiences": [
+    {
+      "role": "Freelance Visual Artist & Designer",
+      "organization": "Independent",
+      "period": "2022 — Present",
+      "description": "Working independently with creative agencies, architecture studios, product companies, music labels, and publishers across 3D, animation, illustration, and graphic design.",
+      "highlights": [
+        "Won the NASA Space Tech Art Challenge: Imagine Tomorrow — 2024",
+        "Delivered 20+ client projects across branding, animation, 3D, and illustration",
+        "Collaborated with brands including Cooldown, Engelsen Frame, Roombase, Maya Labs, Tredoxa, and Zero Sweet",
+        "Produced a body of personal visual works exploring atmospheric, cinematic, and surreal aesthetics"
+      ]
+    },
+    {
+      "role": "3D Visualization Specialist",
+      "organization": "Various Studios",
+      "period": "2021 — 2022",
+      "description": "Focused on architectural and product visualization — rendering interior and exterior spaces with photorealistic quality.",
+      "highlights": [
+        "Interior and exterior visualizations for architecture studios",
+        "Product rendering pipelines for consumer brands",
+        "Environment design and concept art for pre-production workflows"
+      ]
+    },
+    {
+      "role": "Graphic Designer & Illustrator",
+      "organization": "Studio Work",
+      "period": "2019 — 2021",
+      "description": "Began professional practice in graphic design and illustration — brand identities, editorial layouts, and custom illustrations.",
+      "highlights": [
+        "Brand identities, logos, and visual systems for startups and SMEs",
+        "Editorial illustrations for print and digital publications",
+        "Apparel graphics, book covers, album covers, and poster designs"
+      ]
+    }
+  ],
+  "skillGroups": [
+    {
+      "category": "3D",
+      "items": [
+        "Archviz Interior",
+        "Archviz Exterior",
+        "Product Rendering",
+        "Environment Design",
+        "Concept Art"
+      ]
+    },
+    {
+      "category": "Animation",
+      "items": [
+        "2D Animation",
+        "3D Animation",
+        "Product Animation",
+        "Explainer Animation",
+        "Logo Animation",
+        "Character Animation"
+      ]
+    },
+    {
+      "category": "Graphic Design",
+      "items": [
+        "UI/UX",
+        "Branding",
+        "Logo Design",
+        "Posters",
+        "Album Covers",
+        "Book Covers",
+        "Templates",
+        "Apparel Graphics"
+      ]
+    },
+    {
+      "category": "Illustration",
+      "items": [
+        "Editorial",
+        "Portrait",
+        "Landscape",
+        "Apparel",
+        "Book",
+        "Custom Illustration"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "category": "Illustration & GRAPHICS DESIGN",
+      "items": [
+        "ADOBE ILLUSTRATOR",
+        "PHOTOSHOP",
+        "PROCREATE",
+        "ADOBE SUBSTANCE"
+      ]
+    },
+    {
+      "category": "3D & Motion",
+      "items": [
+        "Blender",
+        "Cinema 4D",
+        "Octane Render",
+        "After Effects",
+        "GSAP",
+        "Framer Motion"
+      ]
+    },
+    {
+      "category": "Design & UI",
+      "items": [
+        "Figma",
+        "Adobe Photoshop",
+        "Adobe Illustrator",
+        "Adobe InDesign",
+        "Procreate"
+      ]
+    },
+    {
+      "category": "Web & Development",
+      "items": [
+        "Next.js",
+        "TypeScript",
+        "Tailwind CSS",
+        "Radix UI",
+        "Lenis",
+        "Vercel"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Multidisciplinary Visual Arts",
+      "institution": "Self-directed Practice",
+      "period": "2019 — Present",
+      "description": "Ongoing independent study across 3D visualization, animation, illustration, and graphic design — driven by atmosphere, cinematic composition, and the desire to make images that feel like they carry weight."
+    }
+  ],
+  "awards": [
+    {
+      "title": "Winner — Space Tech Art Challenge: Imagine Tomorrow",
+      "organization": "NASA",
+      "year": "2024",
+      "description": "Selected as a winning entry in the NASA Space Tech Art Challenge for an illustration series visualizing emerging space technologies through atmospheric, painterly technique."
+    }
+  ]
+}

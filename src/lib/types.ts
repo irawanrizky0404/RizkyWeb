@@ -39,6 +39,8 @@ export interface JournalPost {
   excerpt: string;
   content: string;
   tags: string[];
+  status?: "draft" | "published" | "scheduled";
+  scheduledAt?: string;
 }
 
 export interface NavLink {

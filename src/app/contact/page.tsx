@@ -1,109 +1,35 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/data";
-import { Reveal } from "@/components/ui/reveal";
+import { buildMetadata } from "@/lib/store";
+import { ContactLinks } from "@/components/contact/contact-links";
+import { MaskReveal } from "@/components/ui/mask-reveal";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: `Get in touch with ${siteConfig.name}.`,
-};
+export function generateMetadata(): Metadata {
+  return buildMetadata({
+    title: "Contact",
+    description: `Get in touch with ${siteConfig.name}.`,
+  });
+}
 
 export default function ContactPage() {
   return (
-    <section className="px-6 pt-24 pb-16 md:px-10 md:pt-36 md:pb-24">
-      <div className="mx-auto max-w-[1800px]">
-        <Reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-sodium">
-            [ Contact ]
-          </p>
-        </Reveal>
-
-        <div className="mt-8 grid grid-cols-1 gap-12 md:mt-12 md:grid-cols-12 md:gap-16">
-          {/* Left — heading */}
-          <div className="md:col-span-7">
-            <Reveal delay={0.1}>
-              <h1 className="font-display text-[clamp(2.5rem,8vw,6rem)] font-bold leading-[0.82] tracking-tighter">
-                Get in
-                <br />
-                <span className="font-serif font-normal italic text-bone">
-                  touch
-                </span>
-                <span className="text-sodium">.</span>
-              </h1>
-            </Reveal>
-
-            <Reveal delay={0.2}>
-              <p className="mt-8 max-w-md font-serif text-lg italic leading-relaxed text-bone/80 md:text-xl">
-                Whether you have a fully formed brief or just the seed of an
-                idea, I&apos;m here to help it grow into something real.
-              </p>
-            </Reveal>
-
-            <Reveal delay={0.3}>
-              <div className="mt-8 flex items-center gap-3">
-                <span className="h-2.5 w-2.5 bg-sodium" />
-                <span className="font-mono text-sm text-sodium">
-                  Available for work — 2025
-                </span>
-              </div>
-            </Reveal>
-          </div>
-
-          {/* Right — contact list */}
-          <div className="md:col-span-5">
-            <Reveal delay={0.15}>
-              <div className="border-t border-border">
-                <a
-                  href={`mailto:${siteConfig.email}`}
-                  className="block border-b border-border py-5 transition-colors hover:text-sodium md:py-6"
-                >
-                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                    Email
-                  </p>
-                  <p className="mt-1.5 break-all font-display text-base font-medium tracking-tight md:text-xl">
-                    {siteConfig.email}
-                  </p>
-                </a>
-
-                <a
-                  href={siteConfig.social.instagram}
-                  className="block border-b border-border py-5 transition-colors hover:text-sodium md:py-6"
-                >
-                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                    Instagram
-                  </p>
-                  <p className="mt-1.5 font-display text-base font-medium tracking-tight md:text-xl">
-                    @rizkyirawan
-                  </p>
-                </a>
-
-                <a
-                  href={siteConfig.social.behance}
-                  className="block border-b border-border py-5 transition-colors hover:text-sodium md:py-6"
-                >
-                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                    Behance
-                  </p>
-                  <p className="mt-1.5 font-display text-base font-medium tracking-tight md:text-xl">
-                    /rizkyirawan
-                  </p>
-                </a>
-
-                <a
-                  href={siteConfig.social.linkedin}
-                  className="block border-b border-border py-5 transition-colors hover:text-sodium md:py-6"
-                >
-                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                    LinkedIn
-                  </p>
-                  <p className="mt-1.5 font-display text-base font-medium tracking-tight md:text-xl">
-                    /in/rizkyirawan
-                  </p>
-                </a>
-              </div>
-            </Reveal>
-          </div>
+    <>
+      {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
+      <div className="border-t-2 border-signal px-5 pt-24 pb-10 md:px-12 md:pt-32 md:pb-14">
+        <span className="fac">FAC.C — Contact</span>
+        <MaskReveal delay={0.15}>
+          <h1 className="dis text-white mt-2" style={{ fontSize: "clamp(3.5rem, 12vw, 16rem)", lineHeight: 0.88 }}>
+            Get in<br />touch.
+          </h1>
+        </MaskReveal>
+        <div className="mt-5 flex items-center gap-3">
+          <span className="h-2 w-2 bg-signal" style={{ animation: "pulse 2s ease-in-out infinite" }} />
+          <span className="lab text-signal" style={{ fontSize: "0.7rem" }}>Available for work — 2025</span>
         </div>
       </div>
-    </section>
+
+      {/* ── MAIN GRID ───────────────────────────────────────────────── */}
+      <ContactLinks email={siteConfig.email} social={siteConfig.social} />
+    </>
   );
 }

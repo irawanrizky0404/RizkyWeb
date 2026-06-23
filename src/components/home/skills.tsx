@@ -1,10 +1,14 @@
-import { services } from "@/lib/data";
+import type { Service } from "@/lib/types";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Reveal } from "@/components/ui/reveal";
 import { cn } from "@/lib/utils";
 import { categoryColors } from "@/lib/category-colors";
 
-export function Skills() {
+interface SkillsProps {
+  services: Service[];
+}
+
+export function Skills({ services }: SkillsProps) {
   return (
     <section className="px-6 py-20 md:px-10 md:py-32">
       <div className="mx-auto max-w-[1800px]">

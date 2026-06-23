@@ -1,128 +1,91 @@
+import type { Metadata } from "next";
 import { Hero } from "@/components/home/hero";
-import { WorkGrid } from "@/components/home/work-grid";
-import { Skills } from "@/components/home/skills";
+import { WorksCatalogue } from "@/components/home/works-catalogue";
+import { FilmStrip } from "@/components/home/film-strip";
+import { Capabilities } from "@/components/home/capabilities";
 import { Clients } from "@/components/home/clients";
-import { SectionHeader } from "@/components/ui/section-header";
-import { ColorBar } from "@/components/ui/color-bar";
-import { Reveal } from "@/components/ui/reveal";
-import Link from "next/link";
-import { projects, awards } from "@/lib/data";
+import { Recognition } from "@/components/home/recognition";
+import { Cta } from "@/components/home/cta";
+import { Reveal, RevealText } from "@/components/ui/reveal";
+import { MaskReveal } from "@/components/ui/mask-reveal";
+import { siteConfig } from "@/lib/data";
+import { getSEO, getWorks, getServices, getClients } from "@/lib/store";
+
+export function generateMetadata(): Promise<Metadata> {
+  return Promise.resolve({
+    title: "Visual Archive",
+    description: siteConfig.description,
+  });
+}
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  mainEntity: {
+    "@type": "Person",
+    name: siteConfig.name,
+    description: siteConfig.description,
+    url: getSEO().canonicalBaseUrl || "https://rizkyirawan.com",
+    sameAs: Object.values(siteConfig.social),
+    knowsAbout: ["3D Visualization", "Motion Design", "Illustration", "Graphic Design"],
+    alumniOf: [],
+    birthPlace: {
+      "@type": "Place",
+      name: "Indonesia",
+    },
+  },
+};
 
 export default function Home() {
-  const selected = projects.slice(0, 4);
+  const works = getWorks();
+  const services = getServices();
+  const clients = getClients();
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Hero />
 
-      <ColorBar />
-
-      {/* Manifesto */}
-      <section className="px-6 py-20 md:px-10 md:py-32">
-        <div className="mx-auto max-w-[1800px]">
-          <SectionHeader label="Manifesto" />
-          <Reveal delay={0.1}>
-            <p className="mt-10 max-w-4xl font-serif text-[clamp(1.5rem,4vw,3rem)] italic leading-[1.15] tracking-tight text-bone">
-              I work in the space between{" "}
-              <span className="text-sodium not-italic font-display font-bold">
-                shadow
-              </span>{" "}
-              and structure — where silence carries more weight than noise, and
-              every frame is a decision to show or to withhold.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      <ColorBar />
-
-      {/* Selected Work */}
-      <section className="px-6 py-20 md:px-10 md:py-32">
-        <div className="mx-auto max-w-[1800px]">
-          <div className="mb-16 flex items-end justify-between md:mb-24">
-            <SectionHeader label="Selected Work" title="Work" />
-            <Reveal delay={0.1}>
-              <Link
-                href="/works"
-                className="font-mono text-xs text-muted-foreground transition-colors hover:text-sodium"
-              >
-                View All →
-              </Link>
-            </Reveal>
+      {/* ── Statement ── FAC.02 ─────────────────────────────────── */}
+      <section className="border-t-2 border-signal px-5 py-14 md:px-8 md:py-20">
+        <div className="flex items-start gap-5 md:gap-8">
+          <RevealText delay={0.05}>
+            <span className="fac shrink-0 mt-2">FAC.02</span>
+          </RevealText>
+          <div className="flex-1">
+            <MaskReveal delay={0.08}>
+              <p className="dis text-white" style={{ fontSize: "clamp(2.4rem, 9vw, 13rem)", lineHeight: 0.85 }}>
+                Working at the frequency between signal and silence.
+              </p>
+            </MaskReveal>
           </div>
-
-          <WorkGrid projects={selected} />
+        </div>
+        <div className="mt-10 grid grid-cols-1 gap-6 border-t border-rule pt-8 md:grid-cols-[auto_1fr_auto]">
+          <RevealText delay={0.18}>
+            <span className="lab text-signal/50 hidden md:block" style={{ fontSize: "0.52rem" }}>01</span>
+          </RevealText>
+          <RevealText delay={0.22}>
+            <p className="text-sm leading-loose text-white/50 max-w-xl">
+              5 years across 3D, motion, illustration, and identity.
+              Every project begins with a feeling, not a brief.
+              Aesthetic leads. Technique follows. Indonesia-based, globally distributed.
+            </p>
+          </RevealText>
+          <RevealText delay={0.28}>
+            <span className="lab text-white/15 hidden md:block" style={{ fontSize: "0.52rem" }}>Indonesia · Est. 2017</span>
+          </RevealText>
         </div>
       </section>
 
-      <ColorBar />
-
-      {/* Skills */}
-      <Skills />
-
-      <ColorBar />
-
-      <Clients />
-
-      <ColorBar />
-
-      {/* Recognition */}
-      <section className="px-6 py-20 md:px-10 md:py-32">
-        <div className="mx-auto max-w-[1800px]">
-          <SectionHeader label="Recognition" title="Awards" />
-
-          {awards.map((award) => (
-            <Reveal key={award.title} delay={0.1}>
-              <div className="mt-12 border border-border bg-muted md:mt-16">
-                {/* Top bar — year + org */}
-                <div className="flex flex-col gap-4 border-b border-border p-6 sm:flex-row sm:items-center sm:justify-between md:p-10">
-                  <div className="flex items-center gap-3">
-                    <span className="h-3 w-3 bg-sodium" />
-                    <span className="font-mono text-xs uppercase tracking-[0.25em] text-sodium">
-                      {award.year}
-                    </span>
-                  </div>
-                  <span className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                    {award.organization}
-                  </span>
-                </div>
-
-                {/* Content */}
-                <div className="p-6 md:p-10">
-                  <h3 className="font-display text-[clamp(1.5rem,5vw,3.5rem)] font-bold leading-[0.9] tracking-tighter">
-                    {award.title}
-                  </h3>
-                  <p className="mt-6 max-w-2xl font-serif text-base italic leading-relaxed text-bone md:mt-8 md:text-lg">
-                    {award.description}
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      <ColorBar />
-
-      {/* Contact */}
-      <section className="px-6 py-20 md:px-10 md:py-32">
-        <div className="mx-auto max-w-[1800px]">
-          <SectionHeader label="Contact" />
-          <Reveal delay={0.1}>
-            <Link
-              href="/contact"
-              className="group mt-8 block font-display text-[clamp(2rem,8vw,7rem)] font-bold leading-[0.85] tracking-tighter"
-            >
-              Let&apos;s make
-              <br />
-              <span className="font-serif font-normal italic text-bone">
-                something
-              </span>
-              <span className="text-sodium"> →</span>
-            </Link>
-          </Reveal>
-        </div>
-      </section>
+      <FilmStrip projects={works} />
+      <WorksCatalogue projects={works} />
+      <Capabilities services={services} />
+      <Clients clients={clients} />
+      <Recognition />
+      <Reveal><Cta /></Reveal>
     </>
   );
 }

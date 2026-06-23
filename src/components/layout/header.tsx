@@ -2,110 +2,231 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { navLinks, siteConfig } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { ColorCode } from "@/components/ui/color-code";
+import { Magnetic } from "@/components/ui/magnetic";
+
+const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789·—";
+
+function useScramble(text: string) {
+  const [display, setDisplay] = useState(text);
+  const rafId = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scramble = useCallback(() => {
+    let iteration = 0;
+    const run = () => {
+      setDisplay(
+        text.split("").map((char, i) => {
+          if (char === " ") return " ";
+          if (i < iteration) return text[i];
+          return CHARS[Math.floor(Math.random() * CHARS.length)];
+        }).join("")
+      );
+      iteration += 0.6;
+      if (iteration < text.length + 1) {
+        rafId.current = setTimeout(run, 28);
+      } else {
+        setDisplay(text);
+      }
+    };
+    if (rafId.current) clearTimeout(rafId.current);
+    iteration = 0;
+    run();
+  }, [text]);
+
+  const reset = useCallback(() => {
+    if (rafId.current) clearTimeout(rafId.current);
+    setDisplay(text);
+  }, [text]);
+
+  return { display, scramble, reset };
+}
+
+const navItems = navLinks.filter((l) => l.href !== "/");
+
+function ScrambleLink({ href, label, active }: { href: string; label: string; active: boolean }) {
+  const { display, scramble, reset } = useScramble(label);
+  return (
+    <Link
+      href={href}
+      onMouseEnter={scramble}
+      onMouseLeave={reset}
+      className={cn(
+        "lab transition-colors",
+        active ? "text-signal" : "text-white/35 hover:text-white"
+      )}
+    >
+      {display}
+    </Link>
+  );
+}
 
 export function Header() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
 
-  const closeMenu = () => setIsOpen(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
+    if (Math.abs(deltaX) > 80 && deltaY < 60) {
+      if (deltaX > 0) setOpen(false);
+    }
+  };
+
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-50 h-[3px]">
-        <ColorCode />
-      </div>
+      <header
+        className={cn(
+          "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+          scrolled
+            ? "bg-black/95 backdrop-blur-sm border-b border-rule"
+            : "bg-transparent"
+        )}
+      >
+        <div className="flex items-center justify-between px-5 py-4 md:px-8 md:py-5">
 
-      <header className="fixed inset-x-0 top-[3px] z-40">
-        <div className="mx-auto flex max-w-[1800px] items-center justify-between px-6 py-5 md:px-10 md:py-6">
-          <Link
-            href="/"
-            className="font-display text-base font-medium tracking-tight"
-          >
-            {siteConfig.name.split(" ")[0]}
-            <span className="text-sodium">.</span>
-            <span className="font-serif italic text-muted-foreground">
-              {siteConfig.name.split(" ")[1]}
-            </span>
-          </Link>
+          <Magnetic strength={0.3}>
+            <Link href="/" className="group">
+              <span
+                className="lab text-white transition-colors group-hover:text-signal"
+                style={{ letterSpacing: "0.15em", fontSize: "0.7rem" }}
+              >
+                Rizky Irawan
+              </span>
+            </Link>
+          </Magnetic>
 
-          <nav className="hidden items-center gap-6 md:flex">
-            {navLinks
-              .filter((l) => l.href !== "/")
-              .map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "font-mono text-xs tracking-wide transition-colors duration-300",
-                    pathname === link.href
-                      ? "text-sodium"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-8 md:flex">
+            {navItems.map((link) => (
+              <ScrambleLink
+                key={link.href}
+                href={link.href}
+                label={link.label}
+                active={pathname === link.href || pathname.startsWith(link.href + "/")}
+              />
+            ))}
           </nav>
 
           <button
-            onClick={() => setIsOpen(true)}
-            className="font-mono text-xs text-foreground md:hidden"
+            onClick={() => setOpen(true)}
+            className="lab text-white/40 hover:text-white transition-colors md:hidden"
             aria-label="Open menu"
           >
             Menu
           </button>
         </div>
+
+        {/* Signal underline only when scrolled */}
+        {scrolled && (
+          <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-signal/20" />
+        )}
       </header>
 
+      {/* Mobile fullscreen overlay */}
       <AnimatePresence>
-        {isOpen && (
+        {open && (
           <motion.div
+            ref={menuRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[60] flex flex-col bg-background md:hidden"
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[60] flex flex-col bg-black"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
-            <div className="h-[3px]">
-              <ColorCode />
-            </div>
-            <div className="flex items-center justify-between px-6 py-5">
-              <span className="font-display text-base font-medium">
-                {siteConfig.name}
+            <div className="flex items-center justify-between border-b border-rule px-5 py-4">
+              <span className="lab text-white/40" style={{ letterSpacing: "0.15em", fontSize: "0.7rem" }}>
+                Rizky Irawan
               </span>
               <button
-                onClick={() => setIsOpen(false)}
-                className="font-mono text-xs text-sodium"
+                onClick={() => setOpen(false)}
+                className="lab text-white/40 hover:text-white transition-colors"
+                aria-label="Close menu"
               >
-                Close
+                Close ×
               </button>
             </div>
-            <nav className="flex flex-1 flex-col justify-center gap-2 px-6">
+
+            <nav className="flex flex-1 flex-col justify-center px-5">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.href}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.05 * i }}
+                  transition={{ delay: i * 0.05 }}
                 >
                   <Link
                     href={link.href}
-                    onClick={closeMenu}
-                    className={cn(
-                      "font-display text-5xl font-medium tracking-tighter",
-                      pathname === link.href ? "text-sodium" : "text-foreground"
-                    )}
+                    onClick={() => setOpen(false)}
+                    className="group flex items-baseline gap-5 border-b border-rule py-5"
                   >
-                    {link.label}
+                    <span className="lab w-7 text-signal/40">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      className={cn(
+                        "dis flex-1 transition-colors",
+                        pathname === link.href
+                          ? "text-signal"
+                          : "text-white group-hover:text-signal"
+                      )}
+                      style={{ fontSize: "clamp(2.5rem, 12vw, 5.5rem)" }}
+                    >
+                      {link.label}
+                    </span>
                   </Link>
                 </motion.div>
               ))}
             </nav>
+
+            <div className="shrink-0 border-t border-rule px-5 py-4">
+              <a
+                href={`mailto:${siteConfig.email}`}
+                className="lab text-white/25 hover:text-signal transition-colors"
+              >
+                {siteConfig.email}
+              </a>
+            </div>
+
+            {/* Swipe hint */}
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-30">
+              <span className="lab text-white" style={{ fontSize: "0.45rem" }}>Swipe right to close</span>
+              <div className="flex gap-1">
+                <div className="w-8 h-px bg-white/50" />
+                <div className="w-2 h-px bg-white/50" />
+                <div className="w-2 h-px bg-white/50" />
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
