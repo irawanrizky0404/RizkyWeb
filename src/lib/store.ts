@@ -210,35 +210,36 @@ export async function buildMetadata(overrides: {
   authors?: string[];
   tags?: string[];
 } = {}): Promise<import("next").Metadata> {
-  const seo = await getSEO();
-  const base = seo.canonicalBaseUrl || "https://rizkyirawan.com";
+  const seo = await getSEO().catch(() => null);
+  const siteName = seo?.siteName || "Rizky Irawan";
+  const base = seo?.canonicalBaseUrl || "https://rizkyirawan.com";
 
   const metadataBase = overrides.canonical ? undefined : new URL(base);
 
   return {
     metadataBase,
-    title: overrides.title || seo.siteName,
-    description: overrides.description || seo.defaultDescription,
-    authors: overrides.authors ? [{ name: overrides.authors[0] }] : [{ name: seo.siteName }],
+    title: overrides.title || siteName,
+    description: overrides.description || seo?.defaultDescription || "",
+    authors: overrides.authors ? [{ name: overrides.authors[0] }] : [{ name: siteName }],
     openGraph: {
       type: overrides.type || "website",
       locale: "en_US",
-      title: overrides.title ? `${overrides.title} — ${seo.siteName}` : seo.siteName,
-      description: overrides.description || seo.defaultDescription,
-      siteName: seo.siteName,
-      images: overrides.image ? [{ url: overrides.image }] : seo.ogImage ? [{ url: seo.ogImage }] : [],
+      title: overrides.title ? `${overrides.title} — ${siteName}` : siteName,
+      description: overrides.description || seo?.defaultDescription || "",
+      siteName: siteName,
+      images: overrides.image ? [{ url: overrides.image }] : seo?.ogImage ? [{ url: seo.ogImage }] : [],
       ...(overrides.publishedTime ? { publishedTime: overrides.publishedTime } : {}),
       ...(overrides.authors ? { authors: overrides.authors } : {}),
       ...(overrides.tags ? { tags: overrides.tags } : {}),
     },
     twitter: {
       card: "summary_large_image",
-      site: seo.twitterHandle || undefined,
-      title: overrides.title || seo.siteName,
-      description: overrides.description || seo.defaultDescription,
-      images: overrides.image ? [overrides.image] : seo.ogImage ? [seo.ogImage] : [],
+      site: seo?.twitterHandle || undefined,
+      title: overrides.title || siteName,
+      description: overrides.description || seo?.defaultDescription || "",
+      images: overrides.image ? [overrides.image] : seo?.ogImage ? [seo.ogImage] : [],
     },
-    robots: seo.robots ? { index: seo.robots.includes("index"), follow: seo.robots.includes("follow") } : { index: true, follow: true },
+    robots: seo?.robots ? { index: seo.robots.includes("index"), follow: seo.robots.includes("follow") } : { index: true, follow: true },
     alternates: overrides.canonical ? { canonical: overrides.canonical } : undefined,
   };
 }

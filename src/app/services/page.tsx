@@ -20,7 +20,7 @@ const serviceImages: Record<string, string> = {
 };
 
 export default async function ServicesPage() {
-  const services = await getServices();
+  const services = await getServices().catch(() => []);
 
   return (
     <>

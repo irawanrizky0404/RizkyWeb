@@ -37,9 +37,9 @@ const jsonLd = {
 };
 
 export default async function Home() {
-  const works = await getWorks();
-  const services = await getServices();
-  const clients = await getClients();
+  const works = await getWorks().catch(() => []);
+  const services = await getServices().catch(() => []);
+  const clients = await getClients().catch(() => []);
 
   return (
     <>
