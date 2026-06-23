@@ -90,16 +90,21 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const design = await getDesign();
+  const design = await getDesign().catch(() => null);
   const cssVars = {
-    "--signal": design.colors.signal,
-    "--black": design.colors.black,
-    "--white": design.colors.white,
-    "--grey": design.colors.grey,
+    "--signal": design?.colors?.signal ?? "#ff3500",
+    "--black": design?.colors?.black ?? "#080808",
+    "--white": design?.colors?.white ?? "#f0f0ee",
+    "--grey": design?.colors?.grey ?? "#7a7a76",
   } as React.CSSProperties;
 
-  const headersList = await headers();
-  const pathname = headersList.get("x-invoke-pathname") || headersList.get("x-matched-path") || "/";
+  let pathname = "/";
+  try {
+    const headersList = await headers();
+    pathname = headersList.get("x-invoke-pathname") || headersList.get("x-matched-path") || "/";
+  } catch {
+    pathname = "/";
+  }
   const isAdmin = pathname.startsWith("/admin");
 
   return (
