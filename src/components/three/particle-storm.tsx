@@ -115,55 +115,35 @@ export function ParticleStorm() {
           
           vec3 pos = position;
           
-          // Multi-layered surreal waves
-          float wave1 = sin(pos.x * 0.3 + time * 0.5) * 3.0;
-          float wave2 = cos(pos.y * 0.4 + time * 0.3) * 2.5;
-          float wave3 = sin((pos.x + pos.y) * 0.2 + time * 0.7) * 2.0;
-          float wave4 = cos(pos.x * pos.y * 0.005 + time * 0.4) * 1.5;
-          float wave5 = sin(time * 0.2 + pos.x * 0.1) * sin(time * 0.3 + pos.y * 0.1) * 2.0;
+          // Clean sine wave base
+          float wave = sin(pos.x * 0.15 + time * 0.8) * 5.0;
+          float wave2 = sin(pos.x * 0.08 + time * 0.5) * 3.0;
+          pos.y += wave + wave2;
           
-          pos.y += wave1 + wave2 + wave3 + wave4 + wave5;
-          pos.z += sin(pos.x * 0.2 + time * 0.4) * 3.0;
+          // Subtle depth wave
+          pos.z += sin(pos.x * 0.1 + time * 0.6) * 2.0;
           
-          // Breathing effect
-          float breath = sin(time * 0.4) * 0.5 + 0.5;
-          pos.x += sin(time * 0.2 + pos.y * 0.15) * 2.0 * breath;
+          // Mouse interaction - gentle push
+          float distToMouse = distance(vec2(pos.x, pos.y), vec2(mouseX * 35.0, mouseY * 25.0));
+          float interaction = smoothstep(30.0, 0.0, distToMouse);
           
-          // Strong cursor interaction - particles flee/attract based on velocity
-          float distToMouse = distance(vec2(pos.x, pos.y), vec2(mouseX * 40.0, mouseY * 30.0));
+          vec2 dirFromMouse = normalize(vec2(pos.x, pos.y) - vec2(mouseX * 35.0, mouseY * 25.0));
+          float pushStrength = interaction * (1.0 + mouseVelocity * 5.0);
           
-          // High velocity = repel, low velocity = attract
-          float interactionStrength = smoothstep(35.0, 0.0, distToMouse) * (1.0 + mouseVelocity * 3.0);
-          
-          // Direction from mouse
-          vec2 dirFromMouse = normalize(vec2(pos.x, pos.y) - vec2(mouseX * 40.0, mouseY * 30.0));
-          
-          // Repel or attract based on velocity direction
-          float repelStrength = max(0.0, mouseVelocity) * 15.0;
-          float attractStrength = max(0.0, -mouseVelocity) * 8.0;
-          
-          pos.x += dirFromMouse.x * repelStrength * interactionStrength;
-          pos.y += dirFromMouse.y * repelStrength * interactionStrength;
-          pos.x -= dirFromMouse.x * attractStrength * interactionStrength;
-          pos.y -= dirFromMouse.y * attractStrength * interactionStrength;
-          
-          // Add some chaos
-          pos.x += sin(time * 2.0 + pos.y * 0.3) * 0.5 * interactionStrength;
-          pos.y += cos(time * 1.5 + pos.x * 0.3) * 0.5 * interactionStrength;
-          
-          // Z depth reaction
-          pos.z += interactionStrength * 5.0 * sin(time * 3.0 + distToMouse * 0.1);
+          pos.x += dirFromMouse.x * pushStrength * 3.0;
+          pos.y += dirFromMouse.y * pushStrength * 3.0;
+          pos.z += pushStrength * 2.0;
           
           vDist = distToMouse;
           
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = size * (200.0 / -mvPosition.z);
+          gl_PointSize = size * (180.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
           
-          // Alpha with dramatic pulsing
-          float pulse = sin(time * 2.0 + pos.x * 0.3 + pos.y * 0.3) * 0.4 + 0.6;
-          float velocityBoost = interactionStrength * (1.0 + mouseVelocity * 2.0);
-          vAlpha = smoothstep(100.0, 20.0, -mvPosition.z) * pulse + velocityBoost;
+          // Soft pulsing alpha
+          float pulse = sin(time * 1.5 + pos.x * 0.15) * 0.3 + 0.7;
+          float mouseBoost = interaction * (0.5 + mouseVelocity * 1.5);
+          vAlpha = smoothstep(90.0, 20.0, -mvPosition.z) * pulse + mouseBoost;
           vAlpha = min(vAlpha, 1.0);
         }
       `,
@@ -209,24 +189,24 @@ export function ParticleStorm() {
       const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       audioRef.current = new AudioContextClass();
       
-      // Master gain - louder
+      // Master gain - MUCH louder
       masterGainRef.current = audioRef.current.createGain();
-      masterGainRef.current.gain.value = 0.4;
+      masterGainRef.current.gain.value = 0.7;
       masterGainRef.current.connect(audioRef.current.destination);
       
       // Drone oscillator - deeper
       droneOscRef.current = audioRef.current.createOscillator();
       droneOscRef.current.type = "sawtooth";
-      droneOscRef.current.frequency.value = 40;
+      droneOscRef.current.frequency.value = 45;
       
       droneGainRef.current = audioRef.current.createGain();
-      droneGainRef.current.gain.value = 0.3;
+      droneGainRef.current.gain.value = 0.5;
       
       // Lowpass filter for warmth
       filterRef.current = audioRef.current.createBiquadFilter();
       filterRef.current.type = "lowpass";
-      filterRef.current.frequency.value = 300;
-      filterRef.current.Q.value = 5;
+      filterRef.current.frequency.value = 400;
+      filterRef.current.Q.value = 3;
       
       droneOscRef.current.connect(droneGainRef.current);
       droneGainRef.current.connect(filterRef.current);
@@ -237,9 +217,9 @@ export function ParticleStorm() {
       // Second harmonic
       const osc2 = audioRef.current.createOscillator();
       osc2.type = "sine";
-      osc2.frequency.value = 60;
+      osc2.frequency.value = 90;
       const gain2 = audioRef.current.createGain();
-      gain2.gain.value = 0.15;
+      gain2.gain.value = 0.3;
       osc2.connect(gain2);
       gain2.connect(filterRef.current);
       osc2.start();
@@ -322,18 +302,18 @@ export function ParticleStorm() {
       
       material.uniforms.mouseVelocity.value += (normalizedVelocity - material.uniforms.mouseVelocity.value) * 0.15;
       
-      // Audio updates - more responsive and louder
+      // Audio updates - MUCH louder
       if (audioRef.current && masterGainRef.current && droneGainRef.current && filterRef.current && droneOscRef.current) {
-        const vol = 0.15 + normalizedVelocity * 0.5;
+        const vol = 0.4 + normalizedVelocity * 0.6;
         masterGainRef.current.gain.value = vol;
         
         // Filter follows velocity - brighter when fast
-        filterRef.current.frequency.value = 200 + normalizedVelocity * 800;
-        filterRef.current.Q.value = 3 + normalizedVelocity * 8;
+        filterRef.current.frequency.value = 400 + normalizedVelocity * 1200;
+        filterRef.current.Q.value = 2 + normalizedVelocity * 5;
         
         // Pitch follows velocity
-        droneOscRef.current.frequency.value = 35 + normalizedVelocity * 80;
-        droneGainRef.current.gain.value = 0.2 + normalizedVelocity * 0.4;
+        droneOscRef.current.frequency.value = 50 + normalizedVelocity * 100;
+        droneGainRef.current.gain.value = 0.4 + normalizedVelocity * 0.5;
       }
       
       // Decay velocity
