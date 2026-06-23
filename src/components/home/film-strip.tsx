@@ -14,7 +14,7 @@ export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
   const filteredProjects = typeFilter ? projects.filter((p) => p.type === typeFilter) : projects;
   const featured = filteredProjects.filter((p) => p.featured);
   const rest = filteredProjects.filter((p) => !p.featured);
-  const FRAMES = [...featured, ...rest].slice(0, 6);
+  const FRAMES = [...featured, ...rest];
   const trackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);

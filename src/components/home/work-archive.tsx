@@ -29,7 +29,8 @@ export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
     const params = new URLSearchParams(searchParams.toString());
     if (f === "All") params.delete("category");
     else params.set("category", f);
-    router.replace(`/works${params.size ? `?${params}` : ""}`, { scroll: false });
+    const basePath = typeFilter === "personal" ? "/personal-works" : "/works";
+    router.replace(`${basePath}${params.size ? `?${params}` : ""}`, { scroll: false });
   }
   const containerRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -72,7 +73,7 @@ export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {featured.slice(0, 6).map((p, i) => (
+            {featured.map((p, i) => (
               <motion.div
                 key={p.slug}
                 initial={{ opacity: 0, filter: "blur(6px)" }}
