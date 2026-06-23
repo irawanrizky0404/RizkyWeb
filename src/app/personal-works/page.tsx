@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getWorks } from "@/lib/store";
 import { buildMetadata } from "@/lib/store";
 import { PersonalWorkArchive } from "@/components/home/personal-work-archive";
+import { MaskReveal } from "@/components/ui/mask-reveal";
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
@@ -15,28 +16,20 @@ export default async function PersonalWorksPage() {
 
   return (
     <>
-      {/* PAGE HEADER */}
-      <div className="border-t border-white/[0.05] px-8 pt-28 pb-20 md:px-16 md:pt-40 md:pb-28 bg-[#050508]">
-        <div className="flex items-baseline gap-8">
-          <span className="lab text-white/30" style={{ fontSize: "0.55rem", letterSpacing: "0.3em" }}>
-            FAC.05 — PERSONAL
-          </span>
-          <span className="lab text-white/15" style={{ fontSize: "0.5rem", letterSpacing: "0.15em" }}>
-            2017—PRESENT
-          </span>
-        </div>
-        <h1 className="dis text-white mt-6" style={{ fontSize: "clamp(4rem, 15vw, 12rem)", lineHeight: 0.75, letterSpacing: "-0.04em", fontWeight: 300 }}>
-          Personal
-        </h1>
-        <div className="flex items-center gap-6 mt-8">
-          <span className="w-16 h-[1px] bg-white/20" />
-          <p className="lab text-white/20" style={{ fontSize: "0.6rem", letterSpacing: "0.1em", lineHeight: 1.8 }}>
-            SEPARATE FROM CLIENT WORK
-          </p>
-        </div>
+      {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
+      <div className="border-t-2 border-signal px-5 pt-24 pb-10 md:px-12 md:pt-32 md:pb-14">
+        <span className="fac">FAC.05 — Personal</span>
+        <MaskReveal delay={0.15}>
+          <h1 className="dis text-white mt-2" style={{ fontSize: "clamp(3.5rem, 12vw, 16rem)", lineHeight: 0.88 }}>
+            Personal
+          </h1>
+        </MaskReveal>
+        <p className="lab text-white/40 mt-5 max-w-xl" style={{ fontSize: "0.7rem" }}>
+          Personal projects and visual explorations — separate from client work, these pieces define the artistic practice.
+        </p>
       </div>
 
-      {/* ARCHIVE */}
+      {/* ── ARCHIVE ─────────────────────────────────────────────────── */}
       <PersonalWorkArchive projects={works} />
     </>
   );

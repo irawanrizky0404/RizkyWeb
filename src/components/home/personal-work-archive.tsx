@@ -34,7 +34,7 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#050508]">
+    <div className="min-h-screen relative overflow-hidden bg-black">
       {/* FILM GRAIN */}
       <div
         ref={filmRef}
@@ -50,25 +50,6 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
       <div className="pointer-events-none absolute inset-0 z-30" 
         style={{ background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%)" }} 
       />
-
-      {/* Progress indicator - top */}
-      <div className="absolute top-0 left-0 right-0 z-40 h-[2px] bg-white/[0.02]">
-        <div 
-          className="h-full bg-white/10 transition-all duration-700"
-          style={{ width: `${(100 / personalProjects.length)}%` }}
-        />
-      </div>
-
-      {/* Film counter - top right */}
-      <div className="absolute top-6 right-8 z-40 flex items-center gap-3">
-        <span className="lab text-white/20" style={{ fontSize: "0.5rem", letterSpacing: "0.15em" }}>
-          {personalProjects.length} FRAMES
-        </span>
-        <span className="w-px h-3 bg-white/10" />
-        <span className="lab text-white/15" style={{ fontSize: "0.45rem", letterSpacing: "0.1em" }}>
-          35MM
-        </span>
-      </div>
 
       {personalProjects.map((project, i) => (
         <motion.section
@@ -108,7 +89,7 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
               </div>
 
               {/* INFO - DARK SIDE */}
-              <div className="relative w-full md:w-2/5 flex flex-col justify-center px-10 py-16 md:px-16 md:py-0 bg-[#050508]">
+              <div className="relative w-full md:w-2/5 flex flex-col justify-center px-10 py-16 md:px-16 md:py-0 bg-[#080808]">
                 {/* Large number */}
                 <span 
                   className="absolute top-8 right-8 md:top-auto md:bottom-4 md:right-6 text-white/[0.05] dis select-none pointer-events-none" 
