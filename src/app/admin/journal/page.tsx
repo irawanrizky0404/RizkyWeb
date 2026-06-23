@@ -261,7 +261,8 @@ export default function AdminJournal() {
   }
 
   function handleAiApply(data: { title: string; excerpt: string; tags: string; content: string }) {
-    const slug = data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").slice(0, 60);
+    let slug = data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").slice(0, 60);
+    if (!slug) slug = `post-${Date.now()}`;
     const newPost: JournalPost = {
       slug,
       title: data.title,
