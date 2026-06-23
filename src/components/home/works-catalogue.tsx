@@ -13,9 +13,9 @@ interface WorksCatalogueProps {
 export function WorksCatalogue({ projects, typeFilter }: WorksCatalogueProps) {
   const [hovered, setHovered] = useState<string | null>(null);
   const filteredProjects = typeFilter === "personal" ? projects.filter((p) => p.type === "personal") :
-                           typeFilter === "client" ? projects.filter((p) => p.type === "client" || !p.type) :
+                           typeFilter === "client" ? projects.filter((p) => p.type === "client") :
                            projects;
-  const personalSeries = filteredProjects.filter((p) => p.type === "personal" || p.tags.includes("Personal"));
+  const personalSeries = typeFilter !== "client" ? projects.filter((p) => p.type === "personal" || p.tags.includes("Personal")) : [];
   const active = personalSeries.find((p) => p.slug === hovered);
 
   return (
