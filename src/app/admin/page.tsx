@@ -58,7 +58,7 @@ export default function AdminDashboard() {
   const featured = works.filter((p) => p.featured);
   const recent = works.slice(0, 5);
   const categories = [...new Set(works.map((p) => p.category))];
-  const years = [...new Set(works.map((p) => p.year))].sort((a, b) => b - a);
+  const years = [...new Set(works.map((p) => p.year))].sort((a, b) => Number(b) - Number(a));
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return "0 B";
