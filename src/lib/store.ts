@@ -61,8 +61,7 @@ async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
 async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
   const binId = BIN_IDS[key];
   if (!binId) {
-    console.warn(`[store] No bin ID for ${key}`);
-    return;
+    throw new Error(`No bin ID configured for ${key}. Set ${key.toUpperCase()}_ID in environment variables.`);
   }
 
   const json = JSON.stringify(data, null, 2);
@@ -78,7 +77,8 @@ async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
   });
 
   if (!response.ok) {
-    console.error(`[store] Failed to save ${key}:`, response.status);
+    const errorText = await response.text();
+    throw new Error(`Failed to save ${key}: ${response.status} - ${errorText}`);
   }
 }
 
