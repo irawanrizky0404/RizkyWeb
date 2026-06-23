@@ -76,7 +76,7 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
                   alt={project.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 60vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                  className="object-cover transition-transform duration-1000 group-hover:scale-[1.05]"
                   style={{
                     filter: "grayscale(1) contrast(1.1) brightness(1.1)",
                   }}
