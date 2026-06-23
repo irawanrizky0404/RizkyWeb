@@ -30,7 +30,7 @@ export default function AdminDesign() {
   useEffect(() => {
     fetch("/api/admin/design")
       .then((r) => r.json())
-      .then((d) => { setConfig(d); setLoaded(true); })
+      .then((d) => { setConfig(d || DEFAULT); setLoaded(true); })
       .catch(() => { setConfig(DEFAULT); setLoaded(true); });
   }, []);
 
