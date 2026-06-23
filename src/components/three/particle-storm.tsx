@@ -55,23 +55,23 @@ export function ParticleStorm() {
       positions[i3 + 1] = y;
       positions[i3 + 2] = z;
       
-      // Color - cream/white with orange accents
+      // Orange gradient - no white, all variations of orange
       const rand = Math.random();
-      if (rand > 0.85) {
-        // Orange
+      if (rand > 0.7) {
+        // Bright orange
+        colors[i3] = 1.0;
+        colors[i3 + 1] = 0.35;
+        colors[i3 + 2] = 0.05;
+      } else if (rand > 0.4) {
+        // Warm orange
         colors[i3] = 1.0;
         colors[i3 + 1] = 0.25;
-        colors[i3 + 2] = 0.05;
-      } else if (rand > 0.7) {
-        // Warm white
-        colors[i3] = 0.98;
-        colors[i3 + 1] = 0.95;
-        colors[i3 + 2] = 0.92;
+        colors[i3 + 2] = 0.02;
       } else {
-        // Bright white
-        colors[i3] = 0.95;
-        colors[i3 + 1] = 0.95;
-        colors[i3 + 2] = 0.97;
+        // Deep orange
+        colors[i3] = 0.9;
+        colors[i3 + 1] = 0.15;
+        colors[i3 + 2] = 0.0;
       }
       
       sizes[i] = Math.random() * 2.5 + 0.8;
@@ -105,17 +105,20 @@ export function ParticleStorm() {
           
           vec3 pos = position;
           
-          // Flowing wave motion
-          float flow = sin(pos.x * 0.08 + time * 0.6) * 3.0;
-          float flow2 = cos(pos.y * 0.06 + time * 0.4) * 2.5;
-          float flow3 = sin(pos.z * 0.05 + time * 0.5) * 1.5;
+          // Flowing wave motion - always moving, even without hover
+          float flow = sin(pos.x * 0.06 + time * 0.4) * 4.0;
+          float flow2 = cos(pos.y * 0.05 + time * 0.3) * 3.0;
+          float flow3 = sin(pos.z * 0.04 + time * 0.5) * 2.0;
+          float flow4 = cos(pos.x * 0.03 + pos.y * 0.03 + time * 0.25) * 2.0;
           pos.y += flow;
-          pos.x += flow2 * 0.5;
+          pos.x += flow2 * 0.6;
           pos.z += flow3;
           
-          // Organic swirl
-          float swirl = sin(time * 0.3 + pos.x * 0.1) * 1.5;
-          pos.x += swirl * (pos.y / 30.0);
+          // More organic swirl - constant motion
+          float swirl = sin(time * 0.2 + pos.x * 0.08) * 2.0;
+          float swirl2 = cos(time * 0.15 + pos.y * 0.06) * 1.5;
+          pos.x += swirl * (pos.y / 25.0);
+          pos.y += swirl2 * (pos.x / 30.0);
           
           // Mouse influence
           float distToMouse = distance(vec2(pos.x, pos.y), vec2(mouseX * 50.0, mouseY * 30.0));
@@ -152,7 +155,7 @@ export function ParticleStorm() {
           
           vec3 finalColor = vColor;
           if (vDist < 20.0) {
-            finalColor = mix(vColor, vec3(1.0, 0.5, 0.15), smoothstep(20.0, 0.0, vDist) * 0.3);
+            finalColor = mix(vColor, vec3(1.0, 0.6, 0.2), smoothstep(20.0, 0.0, vDist) * 0.4);
           }
           
           gl_FragColor = vec4(finalColor, alpha);
