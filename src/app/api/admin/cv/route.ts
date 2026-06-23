@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCV } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const cv = await getCV();
