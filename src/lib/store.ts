@@ -112,7 +112,8 @@ export async function saveDesign(config: DesignConfig): Promise<void> {
 
 // ── Works ────────────────────────────────────────────────────────────────────
 export async function getWorks(): Promise<Project[]> {
-  return fetchJSONBin("works", defaultProjects);
+  const result = await fetchJSONBin<Project[]>("works", defaultProjects);
+  return Array.isArray(result) ? result : defaultProjects;
 }
 
 export async function saveWorks(works: Project[]): Promise<void> {
@@ -121,7 +122,8 @@ export async function saveWorks(works: Project[]): Promise<void> {
 
 // ── Journal ──────────────────────────────────────────────────────────────────
 export async function getJournal(includeUnpublished = false): Promise<JournalPost[]> {
-  const posts = await fetchJSONBin<JournalPost[]>("journal", defaultPosts);
+  const result = await fetchJSONBin<JournalPost[]>("journal", defaultPosts);
+  const posts = Array.isArray(result) ? result : defaultPosts;
   if (includeUnpublished) return posts;
 
   const now = new Date();
