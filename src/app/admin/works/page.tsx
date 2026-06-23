@@ -24,16 +24,68 @@ function WorkForm({ initial, onSave, onCancel, isNew }: {
   const [form, setForm] = useState<Project>(initial);
   const [tagsStr, setTagsStr] = useState(initial.tags.join(", "));
   const [galleryStr, setGalleryStr] = useState(initial.gallery.join("\n"));
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [generatingTags, setGeneratingTags] = useState(false);
 
   const set = (k: keyof Project) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((prev) => ({ ...prev, [k]: e.target.value }));
 
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCover(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("category", "works");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.ok) {
+        setForm((p) => ({ ...p, cover: data.path }));
+      } else {
+        alert(data.error || "Upload failed");
+      }
+    } catch {
+      alert("Upload failed");
+    } finally {
+      setUploadingCover(false);
+    }
+  }
+
+  async function handleGenerateTags() {
+    if (!form.title.trim()) {
+      alert("Enter a title first");
+      return;
+    }
+    setGeneratingTags(true);
+    try {
+      const res = await fetch("/api/admin/ai/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: form.title, description: form.description, category: form.category }),
+      });
+      const data = await res.json();
+      if (data.tags) {
+        setTagsStr(data.tags);
+      } else {
+        alert(data.error || "Failed to generate tags");
+      }
+    } catch {
+      alert("Failed to generate tags");
+    } finally {
+      setGeneratingTags(false);
+    }
+  }
+
   function submit(e: React.FormEvent) {
     e.preventDefault();
+    const tags = tagsStr.trim() 
+      ? tagsStr.split(",").map((t) => t.trim()).filter(Boolean)
+      : [form.category];
     const work: Project = {
       ...form,
       slug: form.slug || form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
-      tags: tagsStr.split(",").map((t) => t.trim()).filter(Boolean),
+      tags,
       gallery: galleryStr.split("\n").map((t) => t.trim()).filter(Boolean),
     };
     onSave(work);
@@ -82,8 +134,19 @@ function WorkForm({ initial, onSave, onCancel, isNew }: {
               </select>
             </div>
             <div>
-              <label className={labelCls} style={fs}>Cover image path</label>
-              <input value={form.cover} onChange={set("cover")} className={inputCls} style={fs} placeholder="/images/works/project/cover.jpg" />
+              <label className={labelCls} style={fs}>Cover image</label>
+              <div className="flex items-center gap-2">
+                <input value={form.cover} onChange={set("cover")} className={inputCls} style={fs} placeholder="/images/works/project/cover.jpg" />
+                <label className="border border-rule px-3 py-2 hover:border-signal transition-colors cursor-pointer">
+                  <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{uploadingCover ? "..." : "Upload"}</span>
+                  <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
+                </label>
+              </div>
+              {form.cover && (
+                <div className="mt-2 relative w-20 h-14 bg-rule overflow-hidden">
+                  <img src={form.cover} alt="" className="object-cover w-full h-full" />
+                </div>
+              )}
             </div>
             <div className="md:col-span-2">
               <label className={labelCls} style={fs}>Summary (1 sentence) *</label>
@@ -95,7 +158,14 @@ function WorkForm({ initial, onSave, onCancel, isNew }: {
             </div>
             <div>
               <label className={labelCls} style={fs}>Tags (comma separated)</label>
-              <input value={tagsStr} onChange={(e) => setTagsStr(e.target.value)} className={inputCls} style={fs} placeholder="3D, Interior, Archviz" />
+              <div className="flex items-center gap-2">
+                <input value={tagsStr} onChange={(e) => setTagsStr(e.target.value)} className={inputCls} style={fs} placeholder="Leave empty for auto-generate" />
+                <button type="button" onClick={handleGenerateTags} disabled={generatingTags}
+                  className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40">
+                  <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingTags ? "..." : "✨ AI"}</span>
+                </button>
+              </div>
+              <span className="lab text-white/20" style={{ fontSize: "0.45rem" }}>Leave empty and AI will generate tags automatically</span>
             </div>
             <div>
               <label className={labelCls} style={fs}>Gallery (one path per line)</label>
