@@ -70,7 +70,7 @@ export function WorkArchive({ projects }: WorkArchiveProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((p, i) => (
+            {featured.slice(0, 6).map((p, i) => (
               <motion.div
                 key={p.slug}
                 initial={{ opacity: 0, filter: "blur(6px)" }}
