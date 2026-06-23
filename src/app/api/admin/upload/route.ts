@@ -73,38 +73,50 @@ export async function DELETE(request: Request) {
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File | null;
+    const files = formData.getAll("files") as File[];
     const category = (formData.get("category") as string || "general").replace(/[^a-z0-9-]/gi, "-");
 
-    if (!file) {
+    if (files.length === 0) {
       return Response.json({ ok: false, error: "No file provided" }, { status: 400 });
     }
-
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return Response.json({ ok: false, error: `File type "${file.type}" not allowed` }, { status: 400 });
-    }
-
-    if (file.size > MAX_SIZE) {
-      return Response.json({ ok: false, error: "File too large (max 10MB)" }, { status: 400 });
-    }
-
-    const ext = file.name.split(".").pop() || "jpg";
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).slice(2, 7);
-    const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "-").replace(/-+/g, "-");
-    const baseName = safeName.replace(`.${ext}`, "");
-    const filename = `${timestamp}-${random}-${baseName}.${ext}`;
 
     const uploadDir = path.join(process.cwd(), "public", "images", category);
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(uploadDir, filename), buffer);
+    const results: { path: string; filename: string; error?: string }[] = [];
 
-    const publicPath = `/images/${category}/${filename}`;
-    return Response.json({ ok: true, path: publicPath, filename });
+    for (const file of files) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        results.push({ path: "", filename: file.name, error: `File type "${file.type}" not allowed` });
+        continue;
+      }
+
+      if (file.size > MAX_SIZE) {
+        results.push({ path: "", filename: file.name, error: "File too large (max 10MB)" });
+        continue;
+      }
+
+      const ext = file.name.split(".").pop() || "jpg";
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).slice(2, 7);
+      const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "-").replace(/-+/g, "-");
+      const baseName = safeName.replace(`.${ext}`, "");
+      const filename = `${timestamp}-${random}-${baseName}.${ext}`;
+
+      try {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        await writeFile(path.join(uploadDir, filename), buffer);
+        const publicPath = `/images/${category}/${filename}`;
+        results.push({ path: publicPath, filename });
+      } catch {
+        results.push({ path: "", filename, error: "Upload failed" });
+      }
+    }
+
+    const allOk = results.every((r) => r.error === undefined);
+    return Response.json({ ok: allOk, results });
   } catch (err) {
     console.error("[upload]", err);
     return Response.json({ ok: false, error: "Upload failed" }, { status: 500 });

@@ -14,6 +14,15 @@ const EMPTY: Project = {
   tags: [], cover: "", gallery: [], featured: false, type: "client",
 };
 
+type SortKey = "newest" | "oldest" | "az" | "za" | "category";
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  { value: "newest", label: "Newest" },
+  { value: "oldest", label: "Oldest" },
+  { value: "az", label: "A → Z" },
+  { value: "za", label: "Z → A" },
+  { value: "category", label: "Category" },
+];
+
 export default function AdminWorks() {
   const [isPending, startTransition] = useTransition();
   const [works, setWorks] = useState<Project[]>([]);
@@ -22,15 +31,16 @@ export default function AdminWorks() {
   const [editing, setEditing] = useState<Project | null>(null);
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<SortKey>("newest");
   const [page, setPage] = useState(1);
   const [msg, setMsg] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [bulkAction, setBulkAction] = useState<"type-client" | "type-personal" | "">("");
+  const [bulkAction, setBulkAction] = useState<"type-client" | "type-personal" | "delete" | "">("");
 
   useEffect(() => {
     setPage(1);
     setSelected(new Set());
-  }, [filter, search]);
+  }, [filter, search, sort]);
 
   useEffect(() => {
     fetch("/api/admin/works?t=" + Date.now()).then((r) => r.json()).then((data) => {
@@ -51,8 +61,19 @@ export default function AdminWorks() {
     return matchCat && matchSearch;
   });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const sorted = [...filtered].sort((a, b) => {
+    switch (sort) {
+      case "newest": return Number(b.year) - Number(a.year);
+      case "oldest": return Number(a.year) - Number(b.year);
+      case "az": return a.title.localeCompare(b.title);
+      case "za": return b.title.localeCompare(a.title);
+      case "category": return a.category.localeCompare(b.category);
+      default: return 0;
+    }
+  });
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function handleSave(work: Project) {
     startTransition(async () => {
@@ -103,16 +124,25 @@ export default function AdminWorks() {
 
   async function handleBulkUpdate() {
     if (!bulkAction || selected.size === 0) return;
-    const newType = bulkAction === "type-client" ? "client" : "personal";
     startTransition(async () => {
-      for (const slug of selected) {
-        const work = works.find((w) => w.slug === slug);
-        if (work) await updateWork(slug, { ...work, type: newType });
+      if (bulkAction === "delete") {
+        if (!confirm(`Delete ${selected.size} works? This cannot be undone.`)) return;
+        for (const slug of selected) {
+          await deleteWork(slug);
+        }
+        setWorks((prev) => prev.filter((w) => !selected.has(w.slug)));
+        notify(`Deleted ${selected.size} works`);
+      } else {
+        const newType = bulkAction === "type-client" ? "client" : "personal";
+        for (const slug of selected) {
+          const work = works.find((w) => w.slug === slug);
+          if (work) await updateWork(slug, { ...work, type: newType });
+        }
+        setWorks((prev) => prev.map((w) => selected.has(w.slug) ? { ...w, type: newType } : w));
+        notify(`Updated ${selected.size} works`);
       }
-      setWorks((prev) => prev.map((w) => selected.has(w.slug) ? { ...w, type: newType } : w));
       setSelected(new Set());
       setBulkAction("");
-      notify(`Updated ${selected.size} works`);
     });
   }
 
@@ -186,6 +216,16 @@ export default function AdminWorks() {
                 </button>
               ))}
             </div>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              className="bg-black border border-rule px-2 py-1.5 lab text-white"
+              style={{ fontSize: "0.5rem" }}
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
             <button onClick={startAdd} className="border border-signal px-3 py-1.5 hover:bg-signal transition-colors">
               <span className="lab text-white hover:text-black" style={{ fontSize: "0.55rem" }}>+ Add Work</span>
             </button>
@@ -195,32 +235,37 @@ export default function AdminWorks() {
 
       {/* Bulk Actions */}
       {selected.size > 0 && (
-        <div className="shrink-0 bg-signal/10 border-b border-rule px-5 py-2 flex items-center gap-3">
-          <span className="lab text-white" style={{ fontSize: "0.55rem" }}>{selected.size} selected</span>
+        <div className="shrink-0 bg-signal/10 border-b border-rule px-5 py-3 flex items-center gap-4">
+          <span className="lab text-white" style={{ fontSize: "0.6rem" }}>{selected.size} selected</span>
           <select
             value={bulkAction}
             onChange={(e) => setBulkAction(e.target.value as typeof bulkAction)}
-            className="bg-black border border-rule px-2 py-1 lab text-white"
-            style={{ fontSize: "0.5rem" }}
+            className="bg-black border border-rule px-3 py-1.5 lab text-white"
+            style={{ fontSize: "0.55rem" }}
           >
             <option value="">Bulk actions…</option>
             <option value="type-client">Set as Client Work</option>
             <option value="type-personal">Set as Personal Work</option>
+            <option value="delete">Delete Selected</option>
           </select>
-          <button onClick={handleBulkUpdate} disabled={!bulkAction || isPending} className="border border-signal px-3 py-1 hover:bg-signal transition-colors disabled:opacity-40">
-            <span className="lab text-white" style={{ fontSize: "0.5rem" }}>Apply</span>
+          <button onClick={handleBulkUpdate} disabled={!bulkAction || isPending} className="border border-signal px-4 py-1.5 hover:bg-signal transition-colors disabled:opacity-40">
+            <span className="lab text-white" style={{ fontSize: "0.55rem" }}>Apply</span>
           </button>
-          <button onClick={() => setSelected(new Set())} className="lab text-white/50 hover:text-white" style={{ fontSize: "0.5rem" }}>Clear</button>
+          <button onClick={() => setSelected(new Set())} className="lab text-white/50 hover:text-white" style={{ fontSize: "0.55rem" }}>Clear</button>
         </div>
       )}
 
       {/* Table */}
       <div className="flex-1 overflow-auto">
-        <div className="grid border-b border-rule px-5 py-2 sticky top-0 bg-black z-10" style={{ gridTemplateColumns: "32px 32px 1fr 100px 64px 40px 88px" }}>
-          <input type="checkbox" checked={selected.size === paginated.length && paginated.length > 0} onChange={toggleSelectAll} className="accent-signal" />
-          {["#", "Title / Client", "Category", "Year", "★", "Actions"].map((h) => (
-            <span key={h} className="lab text-white/25" style={{ fontSize: "0.48rem" }}>{h}</span>
-          ))}
+        {/* Table header */}
+        <div className="flex items-center gap-4 border-b border-rule px-5 py-3 sticky top-0 bg-black z-10">
+          <div className="w-8"><input type="checkbox" checked={selected.size === paginated.length && paginated.length > 0} onChange={toggleSelectAll} className="accent-signal" /></div>
+          <span className="lab text-white/25" style={{ fontSize: "0.48rem", width: "64px", flexShrink: 0 }}>Image</span>
+          <span className="lab text-white/25" style={{ fontSize: "0.48rem", flex: 1, minWidth: 0 }}>Title / Client</span>
+          <span className="lab text-white/25" style={{ fontSize: "0.48rem", width: "100px", flexShrink: 0 }}>Category</span>
+          <span className="lab text-white/25" style={{ fontSize: "0.48rem", width: "60px", flexShrink: 0 }}>Year</span>
+          <span className="lab text-white/25" style={{ fontSize: "0.48rem", width: "32px", flexShrink: 0 }}>★</span>
+          <span className="lab text-white/25" style={{ fontSize: "0.48rem", width: "120px", flexShrink: 0 }}>Actions</span>
         </div>
 
         {paginated.length === 0 ? (
@@ -229,32 +274,28 @@ export default function AdminWorks() {
           </div>
         ) : (
           paginated.map((p) => (
-            <div
-              key={p.slug}
-              className="grid items-center border-b border-rule px-5 py-2.5 hover:bg-white/[0.02] transition-colors"
-              style={{ gridTemplateColumns: "32px 32px 1fr 100px 64px 40px 88px" }}
-            >
-              <input type="checkbox" checked={selected.has(p.slug)} onChange={() => toggleSelect(p.slug)} className="accent-signal" />
-              <div className="relative w-10 h-7 bg-rule overflow-hidden shrink-0 mr-2">
+            <div key={p.slug} className="flex items-center gap-4 border-b border-rule px-5 py-3 hover:bg-white/[0.02] transition-colors">
+              <div className="w-8"><input type="checkbox" checked={selected.has(p.slug)} onChange={() => toggleSelect(p.slug)} className="accent-signal" /></div>
+              <div className="relative w-16 h-12 bg-rule overflow-hidden shrink-0 rounded-sm">
                 {p.cover ? <Image src={p.cover} alt="" fill className="object-cover" unoptimized /> : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <span className="lab text-white/15" style={{ fontSize: "0.4rem" }}>—</span>
+                    <span className="lab text-white/15" style={{ fontSize: "0.5rem" }}>—</span>
                   </div>
                 )}
               </div>
-              <div className="min-w-0 mr-3">
-                <p className="lab text-white truncate" style={{ fontSize: "0.6rem" }}>{p.title}</p>
-                <p className="lab text-white/30 truncate" style={{ fontSize: "0.48rem" }}>{p.client}</p>
+              <div className="flex-1 min-w-0">
+                <p className="lab text-white truncate" style={{ fontSize: "0.65rem" }}>{p.title}</p>
+                <p className="lab text-white/40 truncate" style={{ fontSize: "0.55rem", marginTop: "2px" }}>{p.client}</p>
               </div>
-              <span className="lab text-white/40" style={{ fontSize: "0.52rem" }}>{p.category}</span>
-              <span className="lab text-white/40" style={{ fontSize: "0.52rem" }}>{p.year}</span>
-              <button onClick={() => handleToggleFeatured(p.slug)} disabled={isPending} className="lab text-left" style={{ fontSize: "0.7rem", color: p.featured ? "#ff3500" : "rgba(240,240,238,0.15)" }}>
+              <span className="lab text-white/50" style={{ fontSize: "0.55rem", width: "100px", flexShrink: 0 }}>{p.category}</span>
+              <span className="lab text-white/50" style={{ fontSize: "0.55rem", width: "60px", flexShrink: 0 }}>{p.year}</span>
+              <button onClick={() => handleToggleFeatured(p.slug)} disabled={isPending} style={{ fontSize: "1rem", width: "32px", flexShrink: 0, color: p.featured ? "#ff3500" : "rgba(240,240,238,0.15)" }}>
                 {p.featured ? "★" : "☆"}
               </button>
-              <div className="flex items-center gap-2">
-                <button onClick={() => startEdit(p)} className="lab text-white/30 hover:text-signal transition-colors" style={{ fontSize: "0.5rem" }}>Edit</button>
-                <Link href={`/works/${p.slug}`} target="_blank" className="lab text-white/20 hover:text-white transition-colors" style={{ fontSize: "0.5rem" }}>↗</Link>
-                <button onClick={() => handleDelete(p.slug, p.title)} disabled={isPending} className="lab text-white/20 hover:text-red-400 transition-colors" style={{ fontSize: "0.5rem" }}>Del</button>
+              <div className="flex items-center gap-3" style={{ width: "120px", flexShrink: 0 }}>
+                <button onClick={() => startEdit(p)} className="lab text-white/40 hover:text-signal transition-colors" style={{ fontSize: "0.55rem" }}>Edit</button>
+                <Link href={`/works/${p.slug}`} target="_blank" className="lab text-white/30 hover:text-white transition-colors" style={{ fontSize: "0.55rem" }}>↗</Link>
+                <button onClick={() => handleDelete(p.slug, p.title)} disabled={isPending} className="lab text-white/30 hover:text-red-400 transition-colors" style={{ fontSize: "0.55rem" }}>Del</button>
               </div>
             </div>
           ))
@@ -299,9 +340,11 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
 }) {
   const [form, setForm] = useState<Project>(initial);
   const [tagsStr, setTagsStr] = useState(initial.tags.join(", "));
-  const [galleryStr, setGalleryStr] = useState(initial.gallery.join("\n"));
+  const [gallery, setGallery] = useState<string[]>(initial.gallery || []);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
   const [generatingTags, setGeneratingTags] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const set = (k: keyof Project) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((prev) => ({ ...prev, [k]: e.target.value }));
@@ -312,14 +355,58 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
     setUploadingCover(true);
     try {
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("files", file);
       fd.append("category", "works");
       const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
       const data = await res.json();
-      if (data.ok) setForm((p) => ({ ...p, cover: data.path }));
+      if (data.ok && data.results?.[0]?.path) setForm((p) => ({ ...p, cover: data.results[0].path }));
       else alert(data.error || "Upload failed");
     } catch { alert("Upload failed"); }
     finally { setUploadingCover(false); }
+  }
+
+  async function handleGalleryUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploadingGallery(true);
+    try {
+      const fd = new FormData();
+      files.forEach((f) => fd.append("files", f));
+      fd.append("category", "works");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.ok && data.results) {
+        const newPaths = data.results.filter((r: any) => r.path && !r.error).map((r: any) => r.path);
+        setGallery((prev) => [...prev, ...newPaths]);
+      } else {
+        alert(data.error || "Upload failed");
+      }
+    } catch { alert("Upload failed"); }
+    finally { setUploadingGallery(false); }
+  }
+
+  async function handleGalleryDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/"));
+    if (!files.length) return;
+    setUploadingGallery(true);
+    try {
+      const fd = new FormData();
+      files.forEach((f) => fd.append("files", f));
+      fd.append("category", "works");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.ok && data.results) {
+        const newPaths = data.results.filter((r: any) => r.path && !r.error).map((r: any) => r.path);
+        setGallery((prev) => [...prev, ...newPaths]);
+      }
+    } catch { alert("Upload failed"); }
+    finally { setUploadingGallery(false); }
+  }
+
+  function removeFromGallery(path: string) {
+    setGallery((prev) => prev.filter((p) => p !== path));
   }
 
   async function handleGenerateTags() {
@@ -345,7 +432,7 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
       ...form,
       slug: form.slug || form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
       tags,
-      gallery: galleryStr.split("\n").map((t) => t.trim()).filter(Boolean),
+      gallery,
     };
     onSave(work);
   }
@@ -405,21 +492,24 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
               <option value="personal">Personal Work</option>
             </select>
           </div>
+
+          {/* Cover Image */}
           <div>
             <label className={labelCls} style={fs}>Cover image</label>
             <div className="flex items-center gap-2">
               <input value={form.cover} onChange={set("cover")} className={inputCls} style={fs} placeholder="/images/works/project.jpg" />
-              <label className="border border-rule px-3 py-2 hover:border-signal transition-colors cursor-pointer">
-                <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{uploadingCover ? "..." : "Upload"}</span>
+              <label className="border border-rule px-4 py-2 hover:border-signal transition-colors cursor-pointer whitespace-nowrap">
+                <span className="lab text-white/70" style={{ fontSize: "0.55rem" }}>{uploadingCover ? "Uploading..." : "Upload Cover"}</span>
                 <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
               </label>
             </div>
             {form.cover && (
-              <div className="mt-2 relative w-20 h-14 bg-rule overflow-hidden">
+              <div className="mt-2 relative w-32 h-20 bg-rule overflow-hidden rounded">
                 <img src={form.cover} alt="" className="object-cover w-full h-full" />
               </div>
             )}
           </div>
+
           <div className="md:col-span-2">
             <label className={labelCls} style={fs}>Summary (1 sentence) *</label>
             <input required value={form.summary} onChange={set("summary")} className={inputCls} style={fs} placeholder="Brief summary" />
@@ -432,15 +522,59 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
             <label className={labelCls} style={fs}>Tags (comma separated)</label>
             <div className="flex items-center gap-2">
               <input value={tagsStr} onChange={(e) => setTagsStr(e.target.value)} className={inputCls} style={fs} placeholder="Leave empty for AI generate" />
-              <button type="button" onClick={handleGenerateTags} disabled={generatingTags} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40">
+              <button type="button" onClick={handleGenerateTags} disabled={generatingTags} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap">
                 <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingTags ? "..." : "✨ AI"}</span>
               </button>
             </div>
           </div>
-          <div>
-            <label className={labelCls} style={fs}>Gallery (one path per line)</label>
-            <textarea rows={3} value={galleryStr} onChange={(e) => setGalleryStr(e.target.value)} className={inputCls} style={{ ...fs, resize: "none" }} placeholder="/images/works/project/01.jpg" />
+
+          {/* Gallery */}
+          <div className="md:col-span-2">
+            <label className={labelCls} style={fs}>Gallery ({gallery.length} images)</label>
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleGalleryDrop}
+              className={`border-2 border-dashed p-6 text-center transition-colors ${dragOver ? "border-signal bg-signal/5" : "border-rule hover:border-white/30"}`}
+              style={{ borderRadius: "4px" }}
+            >
+              <input
+                type="file"
+                id="gallery-upload"
+                accept="image/*"
+                multiple
+                onChange={handleGalleryUpload}
+                className="hidden"
+              />
+              <label htmlFor="gallery-upload" className="cursor-pointer">
+                <span className="lab text-white/50" style={{ fontSize: "0.65rem" }}>
+                  {uploadingGallery ? "Uploading..." : "Drop images here or click to upload"}
+                </span>
+              </label>
+            </div>
+
+            {/* Gallery Thumbnails */}
+            {gallery.length > 0 && (
+              <div className="grid grid-cols-4 gap-3 mt-4">
+                {gallery.map((img, i) => (
+                  <div key={i} className="relative group">
+                    <div className="relative w-full h-24 bg-rule overflow-hidden rounded">
+                      <img src={img} alt="" className="object-cover w-full h-full" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeFromGallery(img)}
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ fontSize: "0.65rem" }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+
           <div className="md:col-span-2 flex items-center gap-3">
             <input type="checkbox" id="featured" checked={form.featured} onChange={(e) => setForm((p) => ({ ...p, featured: e.target.checked }))} className="accent-signal" />
             <label htmlFor="featured" className="lab text-white/50 cursor-pointer" style={fs}>Featured on homepage</label>
