@@ -261,8 +261,9 @@ export default function AdminJournal() {
   }
 
   function handleAiApply(data: { title: string; excerpt: string; tags: string; content: string }) {
+    const slug = data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").slice(0, 60);
     const newPost: JournalPost = {
-      slug: "",
+      slug,
       title: data.title,
       date: new Date().toISOString().split("T")[0],
       excerpt: data.excerpt,
