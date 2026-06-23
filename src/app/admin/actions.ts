@@ -4,14 +4,47 @@ import { revalidatePath } from "next/cache";
 import { saveDesign, getWorks, saveWorks, getJournal, saveJournal, getServices, saveServices, getClients, saveClients, getCV, saveCV, saveSEO } from "@/lib/store";
 import type { DesignConfig, CVData, SEOConfig } from "@/lib/store";
 import type { Project, JournalPost, Service, Experience, SkillGroup, Education, Award } from "@/lib/types";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import path from "path";
+
+const ACTIVITY_FILE = path.join(process.cwd(), "src", "data", "activity.json");
+
+type ActivityEntry = {
+  id: string;
+  timestamp: string;
+  action: string;
+  detail: string;
+  user?: string;
+};
+
+function readActivity(): ActivityEntry[] {
+  try {
+    if (!existsSync(ACTIVITY_FILE)) return [];
+    return JSON.parse(readFileSync(ACTIVITY_FILE, "utf-8"));
+  } catch {
+    return [];
+  }
+}
+
+function writeActivity(entries: ActivityEntry[]) {
+  const dir = path.dirname(ACTIVITY_FILE);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+  writeFileSync(ACTIVITY_FILE, JSON.stringify(entries, null, 2), "utf-8");
+}
 
 async function logActivity(action: string, detail: string) {
   try {
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/admin/activity`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, detail }),
-    });
+    const entry: ActivityEntry = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      timestamp: new Date().toISOString(),
+      action,
+      detail,
+    };
+    const entries = readActivity();
+    entries.push(entry);
+    writeActivity(entries);
   } catch {
     // silently fail — activity logging should never break main actions
   }

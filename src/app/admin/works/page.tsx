@@ -260,7 +260,7 @@ export default function AdminWorks() {
               style={{ gridTemplateColumns: "48px 1fr 100px 64px 40px 88px" }}
             >
               {/* Thumb */}
-              <div className="w-10 h-7 bg-rule overflow-hidden shrink-0 mr-2">
+              <div className="relative w-10 h-7 bg-rule overflow-hidden shrink-0 mr-2">
                 {p.cover ? (
                   <Image src={p.cover} alt="" fill className="object-cover" unoptimized />
                 ) : (
