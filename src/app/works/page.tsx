@@ -32,7 +32,7 @@ export default async function WorksPage() {
 
       {/* ── ARCHIVE ─────────────────────────────────────────────────── */}
       <Suspense>
-        <WorkArchive projects={works} />
+        <WorkArchive projects={works} typeFilter="client" />
       </Suspense>
     </>
   );
