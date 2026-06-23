@@ -69,11 +69,11 @@ export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
         <section className="border-t border-rule">
           <div className="flex items-center justify-between border-b border-rule px-5 py-3 md:px-12">
             <span className="fac">Featured</span>
-            <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>{featured.length} selected</span>
+            <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>Selected Works</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((p, i) => (
+            {featured.slice(0, 6).map((p, i) => (
               <motion.div
                 key={p.slug}
                 initial={{ opacity: 0, filter: "blur(6px)" }}
