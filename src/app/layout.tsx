@@ -9,6 +9,8 @@ import { AmbientSound } from "@/components/ui/ambient-sound";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { getDesign, getSEO } from "@/lib/store";
 import { PageTransition } from "@/components/ui/page-transition";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -113,6 +115,8 @@ export default async function RootLayout({
           <Header />
           <main><PageTransition>{children}</PageTransition></main>
           <Footer />
+          <Analytics />
+          <SpeedInsights />
         </LenisProvider>
       </body>
     </html>

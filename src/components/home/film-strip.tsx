@@ -99,7 +99,6 @@ export function FilmStrip({ projects }: FilmStripProps) {
     };
     track.addEventListener("scroll", onScroll, { passive: true });
     return () => track.removeEventListener("scroll", onScroll);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

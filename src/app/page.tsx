@@ -6,6 +6,7 @@ import { Capabilities } from "@/components/home/capabilities";
 import { Clients } from "@/components/home/clients";
 import { Recognition } from "@/components/home/recognition";
 import { Cta } from "@/components/home/cta";
+import { Showreel } from "@/components/home/showreel";
 import { Reveal, RevealText } from "@/components/ui/reveal";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 import { siteConfig } from "@/lib/data";
@@ -81,6 +82,7 @@ export default function Home() {
       </section>
 
       <FilmStrip projects={works} />
+      <Showreel />
       <WorksCatalogue projects={works} />
       <Capabilities services={services} />
       <Clients clients={clients} />
