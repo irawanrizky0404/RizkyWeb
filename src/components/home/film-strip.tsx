@@ -12,7 +12,7 @@ interface FilmStripProps {
 export function FilmStrip({ projects }: FilmStripProps) {
   const featured = projects.filter((p) => p.featured);
   const rest = projects.filter((p) => !p.featured);
-  const FRAMES = [...featured, ...rest];
+  const FRAMES = [...featured, ...rest].slice(0, 6);
   const trackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
