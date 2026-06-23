@@ -11,7 +11,9 @@ interface FilmStripProps {
 }
 
 export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
-  const filteredProjects = typeFilter ? projects.filter((p) => p.type === typeFilter || (!p.type && typeFilter === "personal")) : projects;
+  const filteredProjects = typeFilter === "personal" ? projects.filter((p) => p.type === "personal") :
+                           typeFilter === "client" ? projects.filter((p) => p.type === "client" || !p.type) :
+                           projects;
   const featured = filteredProjects.filter((p) => p.featured);
   const rest = filteredProjects.filter((p) => !p.featured);
   const FRAMES = [...featured, ...rest].slice(0, 6);

@@ -18,7 +18,9 @@ type Filter = typeof FILTERS[number];
 export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const filteredProjects = typeFilter ? projects.filter((p) => p.type === typeFilter || (!p.type && typeFilter === "client")) : projects;
+  const filteredProjects = typeFilter === "personal" ? projects.filter((p) => p.type === "personal") :
+                           typeFilter === "client" ? projects.filter((p) => p.type === "client" || !p.type) :
+                           projects;
   const featured = filteredProjects.filter((p) => p.featured);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const rawFilter = searchParams.get("category") ?? "All";
