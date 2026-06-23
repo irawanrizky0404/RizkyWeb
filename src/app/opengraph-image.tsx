@@ -5,9 +5,9 @@ export const dynamic = "force-dynamic";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OGImage({ params }: { params: { slug: string } }) {
+export default async function OGImage({ params }: { params: { slug: string } }) {
   const { slug } = params;
-  const works = getWorks();
+  const works = await getWorks();
   const project = works.find((p) => p.slug === slug);
 
   return new ImageResponse(

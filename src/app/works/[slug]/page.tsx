@@ -12,9 +12,9 @@ const ParallaxHero = dynamic(() => import("@/components/works/parallax-hero").th
 
 type PageProps = { params: Promise<{ slug: string }> };
 
-export function generateMetadata(props: PageProps): Metadata {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { slug } = props.params;
-  const works = getWorks();
+  const works = await getWorks();
   const project = works.find((p) => p.slug === slug);
   if (!project) return { title: "Not Found" };
   return buildMetadata({
@@ -25,9 +25,9 @@ export function generateMetadata(props: PageProps): Metadata {
   });
 }
 
-export default function ProjectDetailPage(props: PageProps) {
+export default async function ProjectDetailPage(props: PageProps) {
   const { slug } = props.params;
-  const works = getWorks();
+  const works = await getWorks();
   const project = works.find((p) => p.slug === slug);
   if (!project) notFound();
 

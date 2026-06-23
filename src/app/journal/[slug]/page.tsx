@@ -8,9 +8,9 @@ import { ReadingProgress } from "@/components/ui/reading-progress";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
-export function generateMetadata(props: PageProps): Metadata {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { slug } = props.params;
-  const posts = getJournal();
+  const posts = await getJournal();
   const post = posts.find((p) => p.slug === slug);
   if (!post) return { title: "Not Found" };
   return buildMetadata({
@@ -27,9 +27,9 @@ function readingTime(text: string) {
   return Math.max(1, Math.round(words / 200));
 }
 
-export default function JournalPostPage(props: PageProps) {
+export default async function JournalPostPage(props: PageProps) {
   const { slug } = props.params;
-  const posts = getJournal();
+  const posts = await getJournal();
   const post = posts.find((p) => p.slug === slug);
   if (!post) notFound();
 

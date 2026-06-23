@@ -5,7 +5,7 @@ import { getServices, buildMetadata } from "@/lib/store";
 import { Reveal } from "@/components/ui/reveal";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 
-export function generateMetadata(): Metadata {
+export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
     title: "Services",
     description: "Services across 3D, animation, graphic design, and illustration.",
@@ -19,8 +19,8 @@ const serviceImages: Record<string, string> = {
   "Illustration":   "/images/services/4.jpg",
 };
 
-export default function ServicesPage() {
-  const services = getServices();
+export default async function ServicesPage() {
+  const services = await getServices();
 
   return (
     <>

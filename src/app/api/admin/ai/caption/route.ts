@@ -13,6 +13,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "OPENCODE_API_KEY not configured" }, { status: 500 });
   }
 
+  if (imageUrl.startsWith("data:")) {
+    return NextResponse.json({ error: "Clipboard paste not supported. Please upload image as file instead." }, { status: 400 });
+  }
+
   try {
     const response = await fetch("https://opencode.ai/api/v1/chat/completions", {
       method: "POST",
@@ -47,7 +51,7 @@ DESCRIPTION: [your description here]`,
     if (!response.ok) {
       const errorText = await response.text();
       console.error("[ai caption] OpenCode API error:", response.status, errorText);
-      return NextResponse.json({ error: `AI request failed: ${response.status} - ${errorText}` }, { status: 500 });
+      return NextResponse.json({ error: `AI request failed: ${response.status}` }, { status: 500 });
     }
 
     const data = await response.json();

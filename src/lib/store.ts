@@ -1,21 +1,20 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
-import { join } from "path";
 import type { Project, JournalPost, Service, Experience, SkillGroup, Education, Award } from "@/lib/types";
 import { projects as defaultProjects, journalPosts as defaultPosts, services as defaultServices, clientList as defaultClients, experiences as defaultExperiences, skillGroups as defaultSkillGroups, tools as defaultTools, education as defaultEducation, awards as defaultAwards } from "@/lib/data";
 
-const DATA_DIR = join(process.cwd(), "src", "data");
-
-const FILES = {
-  design: "design.json",
-  works: "works.json",
-  journal: "journal.json",
-  services: "services.json",
-  clients: "clients.json",
-  cv: "cv.json",
-  seo: "seo.json",
+const JSONBIN_BASE = "https://api.jsonbin.io/v3";
+const BIN_IDS = {
+  design: process.env.JSONBIN_DESIGN_ID || "",
+  works: process.env.JSONBIN_WORKS_ID || "",
+  journal: process.env.JSONBIN_JOURNAL_ID || "",
+  services: process.env.JSONBIN_SERVICES_ID || "",
+  clients: process.env.JSONBIN_CLIENTS_ID || "",
+  cv: process.env.JSONBIN_CV_ID || "",
+  seo: process.env.JSONBIN_SEO_ID || "",
 } as const;
 
-type FileKey = keyof typeof FILES;
+type BlobKey = keyof typeof BIN_IDS;
+
+const memoryCache: Record<string, string> = {};
 
 export type CVData = {
   experiences: Experience[];
@@ -25,26 +24,62 @@ export type CVData = {
   awards: Award[];
 };
 
-function ensureDataDir() {
-  if (!existsSync(DATA_DIR)) {
-    mkdirSync(DATA_DIR, { recursive: true });
+async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
+  if (memoryCache[key]) {
+    try {
+      return JSON.parse(memoryCache[key]) as T;
+    } catch {
+      delete memoryCache[key];
+    }
   }
-}
 
-function readJSON<T>(key: FileKey, fallback: T): T {
-  const file = join(DATA_DIR, FILES[key]);
+  const binId = BIN_IDS[key];
+  if (!binId) {
+    return fallback;
+  }
+
   try {
-    if (!existsSync(file)) return fallback;
-    return JSON.parse(readFileSync(file, "utf-8")) as T;
+    const response = await fetch(`${JSONBIN_BASE}/b/${binId}/latest`, {
+      headers: {
+        "X-Access-Key": process.env.JSONBIN_ACCESS_KEY || "",
+      },
+    });
+
+    if (!response.ok) {
+      return fallback;
+    }
+
+    const data = await response.json();
+    const value = data.record || data;
+    memoryCache[key] = JSON.stringify(value);
+    return value as T;
   } catch {
     return fallback;
   }
 }
 
-function writeJSON(key: FileKey, data: unknown): void {
-  ensureDataDir();
-  const file = join(DATA_DIR, FILES[key]);
-  writeFileSync(file, JSON.stringify(data, null, 2), "utf-8");
+async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
+  const binId = BIN_IDS[key];
+  if (!binId) {
+    console.warn(`[store] No bin ID for ${key}`);
+    return;
+  }
+
+  const json = JSON.stringify(data, null, 2);
+  memoryCache[key] = json;
+
+  const response = await fetch(`${JSONBIN_BASE}/b/${binId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Access-Key": process.env.JSONBIN_ACCESS_KEY || "",
+    },
+    body: json,
+  });
+
+  if (!response.ok) {
+    console.error(`[store] Failed to save ${key}:`, response.status);
+  }
 }
 
 export type DesignConfig = {
@@ -61,27 +96,27 @@ const defaultDesign: DesignConfig = {
   social: { instagram: "", behance: "", linkedin: "" },
 };
 
-export function getDesign(): DesignConfig {
-  return readJSON("design", defaultDesign);
+export async function getDesign(): Promise<DesignConfig> {
+  return fetchJSONBin("design", defaultDesign);
 }
 
-export function saveDesign(config: DesignConfig): void {
-  writeJSON("design", config);
+export async function saveDesign(config: DesignConfig): Promise<void> {
+  await saveJSONBin("design", config);
 }
 
 // ── Works ────────────────────────────────────────────────────────────────────
-export function getWorks(): Project[] {
-  const result = readJSON<Project[]>("works", defaultProjects);
+export async function getWorks(): Promise<Project[]> {
+  const result = await fetchJSONBin<Project[]>("works", defaultProjects);
   return Array.isArray(result) ? result : defaultProjects;
 }
 
-export function saveWorks(works: Project[]): void {
-  writeJSON("works", works);
+export async function saveWorks(works: Project[]): Promise<void> {
+  await saveJSONBin("works", works);
 }
 
 // ── Journal ──────────────────────────────────────────────────────────────────
-export function getJournal(includeUnpublished = false): JournalPost[] {
-  const result = readJSON<JournalPost[]>("journal", defaultPosts);
+export async function getJournal(includeUnpublished = false): Promise<JournalPost[]> {
+  const result = await fetchJSONBin<JournalPost[]>("journal", defaultPosts);
   const posts = Array.isArray(result) ? result : defaultPosts;
   if (includeUnpublished) return posts;
 
@@ -95,28 +130,28 @@ export function getJournal(includeUnpublished = false): JournalPost[] {
   });
 }
 
-export function saveJournal(posts: JournalPost[]): void {
-  writeJSON("journal", posts);
+export async function saveJournal(posts: JournalPost[]): Promise<void> {
+  await saveJSONBin("journal", posts);
 }
 
 // ── Services ──────────────────────────────────────────────────────────────────
-export function getServices(): Service[] {
-  const result = readJSON<Service[]>("services", defaultServices);
+export async function getServices(): Promise<Service[]> {
+  const result = await fetchJSONBin<Service[]>("services", defaultServices);
   return Array.isArray(result) ? result : defaultServices;
 }
 
-export function saveServices(services: Service[]): void {
-  writeJSON("services", services);
+export async function saveServices(services: Service[]): Promise<void> {
+  await saveJSONBin("services", services);
 }
 
 // ── Clients ──────────────────────────────────────────────────────────────────
-export function getClients(): string[] {
-  const result = readJSON<string[]>("clients", defaultClients);
+export async function getClients(): Promise<string[]> {
+  const result = await fetchJSONBin<string[]>("clients", defaultClients);
   return Array.isArray(result) ? result : defaultClients;
 }
 
-export function saveClients(clients: string[]): void {
-  writeJSON("clients", clients);
+export async function saveClients(clients: string[]): Promise<void> {
+  await saveJSONBin("clients", clients);
 }
 
 // ── CV ────────────────────────────────────────────────────────────────────
@@ -128,12 +163,12 @@ const defaultCV: CVData = {
   awards: defaultAwards,
 };
 
-export function getCV(): CVData {
-  return readJSON("cv", defaultCV);
+export async function getCV(): Promise<CVData> {
+  return fetchJSONBin("cv", defaultCV);
 }
 
-export function saveCV(cv: CVData): void {
-  writeJSON("cv", cv);
+export async function saveCV(cv: CVData): Promise<void> {
+  await saveJSONBin("cv", cv);
 }
 
 // ── SEO ────────────────────────────────────────────────────────────────────
@@ -157,15 +192,15 @@ const defaultSEO: SEOConfig = {
   robots: "index, follow",
 };
 
-export function getSEO(): SEOConfig {
-  return readJSON("seo", defaultSEO);
+export async function getSEO(): Promise<SEOConfig> {
+  return fetchJSONBin("seo", defaultSEO);
 }
 
-export function saveSEO(seo: SEOConfig): void {
-  writeJSON("seo", seo);
+export async function saveSEO(seo: SEOConfig): Promise<void> {
+  await saveJSONBin("seo", seo);
 }
 
-export function buildMetadata(overrides: {
+export async function buildMetadata(overrides: {
   title?: string;
   description?: string;
   image?: string;
@@ -174,8 +209,8 @@ export function buildMetadata(overrides: {
   publishedTime?: string;
   authors?: string[];
   tags?: string[];
-} = {}): import("next").Metadata {
-  const seo = getSEO();
+} = {}): Promise<import("next").Metadata> {
+  const seo = await getSEO();
   const base = seo.canonicalBaseUrl || "https://rizkyirawan.com";
 
   const metadataBase = overrides.canonical ? undefined : new URL(base);

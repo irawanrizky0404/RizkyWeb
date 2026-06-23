@@ -36,10 +36,10 @@ const jsonLd = {
   },
 };
 
-export default function Home() {
-  const works = getWorks();
-  const services = getServices();
-  const clients = getClients();
+export default async function Home() {
+  const works = await getWorks();
+  const services = await getServices();
+  const clients = await getClients();
 
   return (
     <>
