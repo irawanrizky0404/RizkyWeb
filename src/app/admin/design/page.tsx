@@ -32,7 +32,14 @@ export default function AdminDesign() {
     setConfig(DEFAULT);
     fetch("/api/admin/design")
       .then((r) => { if (!r.ok) throw new Error("Failed"); return r.json(); })
-      .then((d) => { setConfig(d || DEFAULT); setLoaded(true); })
+      .then((d) => { 
+        if (d && typeof d === 'object' && 'colors' in d && 'hero' in d && 'site' in d) {
+          setConfig(d as DesignConfig); 
+        } else {
+          setConfig(DEFAULT);
+        }
+        setLoaded(true); 
+      })
       .catch(() => { setConfig(DEFAULT); setLoaded(true); });
   }, []);
 

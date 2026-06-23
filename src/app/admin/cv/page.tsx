@@ -207,7 +207,14 @@ export default function AdminCV() {
     setCV(EMPTY_CV);
     fetch("/api/admin/cv")
       .then((r) => { if (!r.ok) throw new Error("Failed"); return r.json(); })
-      .then((d) => { setCV(d || EMPTY_CV); setLoaded(true); })
+      .then((d) => { 
+        if (d && typeof d === 'object' && Array.isArray(d.experiences)) {
+          setCV(d); 
+        } else {
+          setCV(EMPTY_CV);
+        }
+        setLoaded(true); 
+      })
       .catch(() => { setCV(EMPTY_CV); setLoaded(true); });
   }, []);
 
