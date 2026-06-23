@@ -35,6 +35,7 @@ async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
 
   const binId = BIN_IDS[key];
   if (!binId) {
+    console.warn(`[store] No bin ID for ${key}`);
     return fallback;
   }
 
@@ -46,6 +47,7 @@ async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
     });
 
     if (!response.ok) {
+      console.error(`[store] ${key} fetch failed:`, response.status);
       return fallback;
     }
 
@@ -53,7 +55,8 @@ async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
     const value = data.record || data;
     memoryCache[key] = JSON.stringify(value);
     return value as T;
-  } catch {
+  } catch (err) {
+    console.error(`[store] ${key} error:`, err);
     return fallback;
   }
 }
