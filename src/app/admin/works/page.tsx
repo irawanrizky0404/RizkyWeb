@@ -207,9 +207,15 @@ export default function AdminWorks() {
   const [mode, setMode] = useState<"list" | "add" | "edit">("list");
   const [editing, setEditing] = useState<Project | null>(null);
   const [msg, setMsg] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<"type-client" | "type-personal" | "">("");
 
   useEffect(() => {
     setPage(1);
+  }, [filter, search]);
+
+  useEffect(() => {
+    setSelected(new Set());
   }, [filter, search]);
 
   useEffect(() => {
@@ -265,6 +271,38 @@ export default function AdminWorks() {
     });
   }
 
+  function toggleSelectAll() {
+    if (selected.size === paginated.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(paginated.map((p) => p.slug)));
+    }
+  }
+
+  function toggleSelect(slug: string) {
+    const next = new Set(selected);
+    if (next.has(slug)) next.delete(slug);
+    else next.add(slug);
+    setSelected(next);
+  }
+
+  async function handleBulkUpdate() {
+    if (!bulkAction || selected.size === 0) return;
+    const newType = bulkAction === "type-client" ? "client" : "personal";
+    startTransition(async () => {
+      for (const slug of selected) {
+        const work = works.find((w) => w.slug === slug);
+        if (work) {
+          await updateWork(slug, { ...work, type: newType });
+        }
+      }
+      setWorks((prev) => prev.map((w) => selected.has(w.slug) ? { ...w, type: newType } : w));
+      setSelected(new Set());
+      setBulkAction("");
+      notify(`Updated ${selected.size} works to ${newType}`);
+    });
+  }
+
   const fs = { fontSize: "0.6rem" };
 
   if (!loaded) return <div className="p-6"><span className="lab text-white/30" style={fs}>Loading…</span></div>;
@@ -315,10 +353,41 @@ export default function AdminWorks() {
         </div>
       </div>
 
+      {/* ── Bulk Actions ── */}
+      {selected.size > 0 && (
+        <div className="shrink-0 bg-signal/10 border-b border-rule px-5 py-2 flex items-center gap-3">
+          <span className="lab text-white" style={{ fontSize: "0.55rem" }}>{selected.size} selected</span>
+          <select
+            value={bulkAction}
+            onChange={(e) => setBulkAction(e.target.value as typeof bulkAction)}
+            className="bg-black border border-rule px-2 py-1 lab text-white"
+            style={{ fontSize: "0.5rem" }}
+          >
+            <option value="">Bulk actions…</option>
+            <option value="type-client">Set as Client Work</option>
+            <option value="type-personal">Set as Personal Work</option>
+          </select>
+          <button
+            onClick={handleBulkUpdate}
+            disabled={!bulkAction || isPending}
+            className="border border-signal px-3 py-1 hover:bg-signal transition-colors disabled:opacity-40"
+          >
+            <span className="lab text-white" style={{ fontSize: "0.5rem" }}>Apply</span>
+          </button>
+          <button onClick={() => setSelected(new Set())} className="lab text-white/50 hover:text-white" style={{ fontSize: "0.5rem" }}>Clear</button>
+        </div>
+      )}
+
       {/* ── Table ── */}
       <div className="flex-1 overflow-auto">
         {/* Table header */}
-        <div className="grid border-b border-rule px-5 py-2 sticky top-0 bg-black z-10" style={{ gridTemplateColumns: "48px 1fr 100px 64px 40px 88px" }}>
+        <div className="grid border-b border-rule px-5 py-2 sticky top-0 bg-black z-10" style={{ gridTemplateColumns: "32px 32px 1fr 100px 64px 40px 88px" }}>
+          <input
+            type="checkbox"
+            checked={selected.size === paginated.length && paginated.length > 0}
+            onChange={toggleSelectAll}
+            className="accent-signal"
+          />
           {["#", "Title / Client", "Category", "Year", "★", "Actions"].map((h) => (
             <span key={h} className="lab text-white/25" style={{ fontSize: "0.48rem" }}>{h}</span>
           ))}
@@ -333,8 +402,14 @@ export default function AdminWorks() {
             <div
               key={p.slug}
               className="grid items-center border-b border-rule px-5 py-2.5 hover:bg-white/[0.02] transition-colors"
-              style={{ gridTemplateColumns: "48px 1fr 100px 64px 40px 88px" }}
+              style={{ gridTemplateColumns: "32px 32px 1fr 100px 64px 40px 88px" }}
             >
+              <input
+                type="checkbox"
+                checked={selected.has(p.slug)}
+                onChange={() => toggleSelect(p.slug)}
+                className="accent-signal"
+              />
               {/* Thumb */}
               <div className="relative w-10 h-7 bg-rule overflow-hidden shrink-0 mr-2">
                 {p.cover ? (

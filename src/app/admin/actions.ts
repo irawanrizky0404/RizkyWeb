@@ -101,6 +101,9 @@ export async function updateWork(slug: string, work: Project) {
     works[idx] = work;
     await saveWorks(works);
     revalidatePath("/works");
+    revalidatePath("/personal-works");
+    revalidatePath("/works/" + slug);
+    revalidatePath("/personal-works/" + slug);
     revalidatePath(`/works/${slug}`);
     revalidatePath("/");
     await logActivity("work.update", `Updated work: "${work.title}"`);
