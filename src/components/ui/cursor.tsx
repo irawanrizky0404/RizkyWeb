@@ -6,12 +6,18 @@ import { usePathname } from "next/navigation";
 export function Cursor() {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const dotRef  = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const mouse   = useRef({ x: -200, y: -200 });
   const ringPos = useRef({ x: -200, y: -200 });
   const rafId   = useRef<number>(0);
   const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    setIsTouchDevice(isTouch);
+  }, []);
 
   useEffect(() => {
     let isVisible = false;
@@ -59,7 +65,7 @@ export function Cursor() {
     };
   }, [hovered]);
 
-  if (pathname.startsWith("/admin") || !visible) return null;
+  if (pathname.startsWith("/admin") || !visible || isTouchDevice) return null;
 
   return (
     <>
