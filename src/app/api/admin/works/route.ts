@@ -2,5 +2,11 @@ import { NextResponse } from "next/server";
 import { getWorks } from "@/lib/store";
 
 export async function GET() {
-  return NextResponse.json(await getWorks());
+  try {
+    const works = await getWorks();
+    return NextResponse.json(works);
+  } catch (error) {
+    console.error("[api admin works]", error);
+    return NextResponse.json([], { status: 200 });
+  }
 }
