@@ -15,7 +15,7 @@ export function Cursor() {
   const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
-    const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const isTouch = "ontouchstart" in window && navigator.maxTouchPoints > 0 && window.matchMedia("(pointer: coarse)").matches;
     setIsTouchDevice(isTouch);
   }, []);
 
