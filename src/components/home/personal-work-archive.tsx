@@ -67,9 +67,9 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
             <div className={`flex flex-col md:flex-row ${i % 2 === 1 ? 'md:flex-row-reverse' : ''} relative`}>
               {/* IMAGE - LARGE */}
               <div className="relative w-full md:w-3/5 aspect-[16/10] md:aspect-[21/9] overflow-hidden bg-black">
-                {/* Frame lines */}
-                <div className="absolute inset-0 border border-white/[0.05] z-20 pointer-events-none" />
-                <div className="absolute inset-4 border border-white/[0.03] z-20 pointer-events-none hidden md:block" />
+                {/* Frame lines - signal accent */}
+                <div className="absolute inset-0 border border-signal/30 z-20 pointer-events-none" />
+                <div className="absolute inset-4 border border-white/10 z-20 pointer-events-none hidden md:block" />
                 
                 <Image
                   src={project.cover}
@@ -81,18 +81,24 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
                     filter: "grayscale(1) contrast(1.1) brightness(1.1)",
                   }}
                 />
-                {/* Dark gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
                 
-                {/* Hover scan line effect */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(255,255,255,0)_50%,transparent_100%)] opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none" />
+                {/* Frame counter */}
+                <div className="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+                  <span className="dis text-white/40" style={{ fontSize: "0.7rem", letterSpacing: "0.05em" }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="w-6 h-[1px] bg-white/30" />
+                  <span className="lab text-white/30" style={{ fontSize: "0.5rem" }}>
+                    FT
+                  </span>
+                </div>
               </div>
 
               {/* INFO - DARK SIDE */}
               <div className="relative w-full md:w-2/5 flex flex-col justify-center px-10 py-16 md:px-16 md:py-0">
                 {/* Large number */}
                 <span 
-                  className="absolute top-8 right-8 md:top-auto md:bottom-4 md:right-6 text-white/[0.05] dis select-none pointer-events-none" 
+                  className="absolute top-8 right-8 md:top-auto md:bottom-4 md:right-6 text-white/[0.08] dis select-none pointer-events-none" 
                   style={{ fontSize: "clamp(8rem, 25vw, 20rem)", lineHeight: 1, fontWeight: 300 }}
                 >
                   {String(i + 1).padStart(2, '0')}
