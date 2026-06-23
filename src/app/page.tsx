@@ -81,7 +81,7 @@ export default async function Home() {
       </section>
 
       <FilmStrip projects={works} typeFilter="personal" />
-      <WorksCatalogue projects={works} typeFilter="client" />
+      <WorksCatalogue projects={works} />
       <Capabilities services={services} />
       <Clients clients={clients} />
       <Recognition />
