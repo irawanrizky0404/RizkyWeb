@@ -46,10 +46,19 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
         }}
       />
 
-      {/* VIGNETTE */}
-      <div className="pointer-events-none absolute inset-0 z-30" 
-        style={{ background: "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%)" }} 
-      />
+      {/* FILM PERFORATIONS - LEFT */}
+      <div className="fixed left-0 top-0 bottom-0 z-30 hidden lg:flex flex-col justify-evenly py-8">
+        {[...Array(10)].map((_, i) => (
+          <div key={i} className="w-4 h-6 border border-signal/40 mx-2" />
+        ))}
+      </div>
+
+      {/* FILM PERFORATIONS - RIGHT */}
+      <div className="fixed right-0 top-0 bottom-0 z-30 hidden lg:flex flex-col justify-evenly py-8">
+        {[...Array(10)].map((_, i) => (
+          <div key={i} className="w-4 h-6 border border-signal/40 mx-2" />
+        ))}
+      </div>
 
       {personalProjects.map((project, i) => (
         <motion.section
