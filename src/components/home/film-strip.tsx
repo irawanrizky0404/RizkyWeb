@@ -54,37 +54,24 @@ export function FilmStrip({ projects }: FilmStripProps) {
   }
   function onMouseUp() { isDragging.current = false; }
 
-  // Touch scroll (mobile) — native horizontal scroll, no conflict
+  // Touch scroll (mobile) — native horizontal scroll
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-    let startTouchX = 0;
-    let startTouchY = 0;
-    let decided = false;
-    let isHorizontal = false;
 
     const onTouchStart = (e: TouchEvent) => {
-      startTouchX = e.touches[0].clientX;
-      startTouchY = e.touches[0].clientY;
-      decided = false;
-      isHorizontal = false;
+      track.dataset.touching = "true";
     };
 
-    const onTouchMove = (e: TouchEvent) => {
-      const dx = Math.abs(e.touches[0].clientX - startTouchX);
-      const dy = Math.abs(e.touches[0].clientY - startTouchY);
-      if (!decided && (dx > 5 || dy > 5)) {
-        decided = true;
-        isHorizontal = dx > dy;
-      }
-      if (isHorizontal) e.preventDefault();
+    const onTouchEnd = () => {
+      delete track.dataset.touching;
     };
 
     track.addEventListener("touchstart", onTouchStart, { passive: true });
-    track.addEventListener("touchmove", onTouchMove, { passive: false });
+    track.addEventListener("touchend", onTouchEnd, { passive: true });
     return () => {
       track.removeEventListener("touchstart", onTouchStart);
-      track.removeEventListener("touchmove", onTouchMove);
+      track.removeEventListener("touchend", onTouchEnd);
     };
   }, []);
 
@@ -140,6 +127,7 @@ export function FilmStrip({ projects }: FilmStripProps) {
           scrollBehavior: "auto",
           WebkitOverflowScrolling: "touch",
           touchAction: "pan-x",
+          overscrollBehaviorX: "contain",
         }}
       >
         {/* Sprocket holes — top */}
