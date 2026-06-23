@@ -12,11 +12,10 @@ interface WorksCatalogueProps {
 
 export function WorksCatalogue({ projects, typeFilter }: WorksCatalogueProps) {
   const [hovered, setHovered] = useState<string | null>(null);
-  const filteredProjects = typeFilter === "personal" ? projects.filter((p) => p.type === "personal") :
-                           typeFilter === "client" ? projects.filter((p) => p.type === "client" || !p.type) :
-                           projects;
-  const personalSeries = typeFilter !== "client" ? projects.filter((p) => p.type === "personal" || p.tags.includes("Personal")) : [];
-  const active = personalSeries.find((p) => p.slug === hovered);
+  const catalogueWorks = typeFilter === "personal" ? projects.filter((p) => p.type === "personal" || p.tags.includes("Personal")) :
+                          typeFilter === "client" ? projects.filter((p) => p.type === "client" || !p.type) :
+                          projects;
+  const active = catalogueWorks.find((p) => p.slug === hovered);
 
   return (
     <section className="relative border-t border-rule">
@@ -39,11 +38,11 @@ export function WorksCatalogue({ projects, typeFilter }: WorksCatalogueProps) {
       <div className="relative flex items-center justify-between border-b border-rule px-5 py-3 md:px-8">
         <span className="fac">{typeFilter === "personal" ? "FAC.03 — Personal" : "FAC.04"}</span>
         <Link href={typeFilter === "personal" ? "/personal-works" : "/works"} className="lab text-white/50 transition-colors hover:text-white" style={{ fontSize: "0.62rem" }}>
-          All ({projects.length}) ↗
+          All ({catalogueWorks.length}) ↗
         </Link>
       </div>
 
-      {personalSeries.map((p, i) => (
+      {catalogueWorks.map((p, i) => (
         <Link
           key={p.slug}
           href={`/${typeFilter === "personal" ? "personal-works" : "works"}/${p.slug}`}
@@ -87,10 +86,10 @@ export function WorksCatalogue({ projects, typeFilter }: WorksCatalogueProps) {
       ))}
 
       <Link
-        href="/works"
+        href={typeFilter === "personal" ? "/personal-works" : "/works"}
         className="group relative flex items-center justify-between px-5 py-4 transition-colors hover:bg-white/[0.04] md:px-8"
       >
-        <span className="lab text-white/40 group-hover:text-white" style={{ fontSize: "0.62rem" }}>Full archive + client work</span>
+        <span className="lab text-white/40 group-hover:text-white" style={{ fontSize: "0.62rem" }}>Full archive {typeFilter === "personal" ? "" : "+ client work"}</span>
         <span className="lab text-white/40 group-hover:text-signal">→</span>
       </Link>
     </section>
