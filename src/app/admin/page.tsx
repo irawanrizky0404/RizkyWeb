@@ -12,9 +12,9 @@ const quickLinks = [
 ];
 
 const adminTools = [
-  { label: "Media Library", href: "/admin/media", desc: "Manage images & uploads" },
-  { label: "AI Tools", href: "/admin/ai", desc: "Caption, tags, SEO generation" },
-  { label: "SEO Settings", href: "/admin/seo", desc: "Site metadata & indexing" },
+  { label: "Media Library", href: "/admin/upload", desc: "Manage images & uploads" },
+  { label: "AI Tools", href: "/admin/tools", desc: "Content & visual AI generation" },
+  { label: "SEO & Clients", href: "/admin/settings", desc: "Site metadata & client list" },
   { label: "Design Config", href: "/admin/design", desc: "Colors, hero, social links" },
 ];
 
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
           <p className="dis text-white group-hover:text-signal transition-colors" style={{ fontSize: "2rem", lineHeight: 1 }}>{clientCount}</p>
           <p className="lab text-white/20 mt-1" style={{ fontSize: "0.48rem" }}>collaborations</p>
         </Link>
-        <Link href="/admin/media" className="group border border-rule p-4 hover:border-signal transition-colors">
+        <Link href="/admin/upload" className="group border border-rule p-4 hover:border-signal transition-colors">
           <p className="lab text-white/30 mb-1" style={{ fontSize: "0.5rem" }}>Media</p>
           <p className="dis text-white group-hover:text-signal transition-colors" style={{ fontSize: "2rem", lineHeight: 1 }}>{mediaCount}</p>
           <p className="lab text-white/20 mt-1" style={{ fontSize: "0.48rem" }}>{formatBytes(totalMediaSize)}</p>
