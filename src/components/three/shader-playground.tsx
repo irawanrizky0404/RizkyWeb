@@ -32,6 +32,7 @@ export function ShaderPlayground() {
         time: { value: 0 },
         resolution: { value: new THREE.Vector2(width, height) },
         mouse: { value: new THREE.Vector2(0.5, 0.5) },
+        hoverIntensity: { value: 0 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -44,6 +45,7 @@ export function ShaderPlayground() {
         uniform float time;
         uniform vec2 resolution;
         uniform vec2 mouse;
+        uniform float hoverIntensity;
         varying vec2 vUv;
         
         // Noise function
@@ -107,6 +109,9 @@ export function ShaderPlayground() {
           // Add mouse glow
           color += vec3(1.0, 0.3, 0.1) * glow;
           
+          // Invert on hover
+          color = mix(color, vec3(1.0) - color, hoverIntensity);
+          
           // Vignette
           float vignette = 1.0 - length(uv - 0.5) * 0.8;
           color *= vignette;
@@ -120,17 +125,24 @@ export function ShaderPlayground() {
     scene.add(quad);
 
     // Mouse tracking
+    const hoverRef = { current: 0 };
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       material.uniforms.mouse.value.x = (e.clientX - rect.left) / rect.width;
       material.uniforms.mouse.value.y = 1.0 - (e.clientY - rect.top) / rect.height;
+      hoverRef.current = 1;
+    };
+    const handleMouseLeave = () => {
+      hoverRef.current = 0;
     };
     container.addEventListener("mousemove", handleMouseMove);
+    container.addEventListener("mouseleave", handleMouseLeave);
 
     let animationId: number;
     const animate = () => {
       animationId = requestAnimationFrame(animate);
       material.uniforms.time.value += 0.01;
+      material.uniforms.hoverIntensity.value += (hoverRef.current - material.uniforms.hoverIntensity.value) * 0.06;
       renderer.render(scene, camera);
     };
     animate();
@@ -147,6 +159,7 @@ export function ShaderPlayground() {
       cancelAnimationFrame(animationId);
       window.removeEventListener("resize", handleResize);
       container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("mouseleave", handleMouseLeave);
       container.removeChild(renderer.domElement);
       geometry.dispose();
       material.dispose();

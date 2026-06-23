@@ -5,6 +5,7 @@ import * as THREE from "three";
 
 export function NoiseTerrain() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const mouseRef = useRef({ x: 0, y: 0, normalizedX: 0, normalizedY: 0, velocityX: 0, velocityY: 0, lastX: 0, lastY: 0 });
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -56,13 +57,20 @@ export function NoiseTerrain() {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
+        mouseX: { value: 0 },
+        mouseY: { value: 0 },
+        mouseVelocity: { value: 0 },
       },
       vertexShader: `
         attribute vec3 color;
         varying vec3 vColor;
         varying vec3 vNormal;
         varying float vHeight;
+        varying float vDist;
         uniform float time;
+        uniform float mouseX;
+        uniform float mouseY;
+        uniform float mouseVelocity;
         
         void main() {
           vColor = color;
@@ -71,9 +79,17 @@ export function NoiseTerrain() {
           
           vec3 pos = position;
           
-          // Animate terrain
+          // Animate terrain with wave
           float wave = sin(pos.x * 0.1 + time * 0.5) * cos(pos.z * 0.1 + time * 0.3) * 2.0;
-          pos.y += wave;
+          float wave2 = sin(pos.x * 0.05 + pos.z * 0.05 + time * 0.4) * 1.5;
+          
+          // Mouse influence - create ripple from cursor
+          float distToMouse = distance(vec2(pos.x, pos.z), vec2(mouseX * 40.0, mouseY * 40.0));
+          float ripple = sin(distToMouse * 0.3 - time * 3.0) * exp(-distToMouse * 0.05) * mouseVelocity * 3.0;
+          
+          pos.y += wave + wave2 + ripple;
+          
+          vDist = distToMouse;
           
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
           gl_Position = projectionMatrix * mvPosition;
@@ -83,6 +99,7 @@ export function NoiseTerrain() {
         varying vec3 vColor;
         varying vec3 vNormal;
         varying float vHeight;
+        varying float vDist;
         
         void main() {
           vec3 light = normalize(vec3(0.5, 1.0, 0.3));
@@ -93,6 +110,12 @@ export function NoiseTerrain() {
           // Add glow at peaks
           if (vHeight > 3.0) {
             finalColor += vec3(0.3, 0.1, 0.0) * ((vHeight - 3.0) / 5.0);
+          }
+          
+          // Mouse glow effect
+          if (vDist < 15.0) {
+            float glow = smoothstep(15.0, 0.0, vDist) * 0.4;
+            finalColor += vec3(1.0, 0.4, 0.1) * glow;
           }
           
           gl_FragColor = vec4(finalColor, 1.0);
@@ -118,10 +141,38 @@ export function NoiseTerrain() {
     const animate = () => {
       animationId = requestAnimationFrame(animate);
       material.uniforms.time.value += 0.02;
+      
+      material.uniforms.mouseX.value += (mouseRef.current.normalizedX - material.uniforms.mouseX.value) * 0.08;
+      material.uniforms.mouseY.value += (mouseRef.current.normalizedY - material.uniforms.mouseY.value) * 0.08;
+      
       wireframeMaterial.opacity = 0.1 + Math.sin(Date.now() * 0.002) * 0.05;
       renderer.render(scene, camera);
     };
     animate();
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const newX = e.clientX - rect.left;
+      const newY = e.clientY - rect.top;
+      
+      mouseRef.current.velocityX = (newX - mouseRef.current.lastX) * 0.2 + mouseRef.current.velocityX * 0.8;
+      mouseRef.current.velocityY = (newY - mouseRef.current.lastY) * 0.2 + mouseRef.current.velocityY * 0.8;
+      
+      mouseRef.current.lastX = newX;
+      mouseRef.current.lastY = newY;
+      mouseRef.current.x = newX;
+      mouseRef.current.y = newY;
+      mouseRef.current.normalizedX = (newX / rect.width) * 2 - 1;
+      mouseRef.current.normalizedY = -((newY / rect.height) * 2 - 1);
+    };
+
+    const handleMouseLeave = () => {
+      mouseRef.current.velocityX = 0;
+      mouseRef.current.velocityY = 0;
+    };
+
+    container.addEventListener("mousemove", handleMouseMove);
+    container.addEventListener("mouseleave", handleMouseLeave);
 
     const handleResize = () => {
       const w = container.clientWidth;
@@ -135,6 +186,8 @@ export function NoiseTerrain() {
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener("resize", handleResize);
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("mouseleave", handleMouseLeave);
       container.removeChild(renderer.domElement);
       geometry.dispose();
       material.dispose();
