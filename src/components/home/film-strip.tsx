@@ -95,7 +95,7 @@ export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 md:px-12 border-b border-rule">
         <div className="flex items-center gap-4">
-          <span className="fac">FAC.03 — Film Strip</span>
+          <span className="fac">{typeFilter === "personal" ? "FAC.03 — Personal" : "FAC.04 — Works"}</span>
           <span className="lab text-white/20 desk-only" style={{ fontSize: "0.52rem" }}>Drag or scroll to advance</span>
         </div>
         {/* Frame counter */}

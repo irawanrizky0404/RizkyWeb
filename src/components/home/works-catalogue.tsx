@@ -35,8 +35,8 @@ export function WorksCatalogue({ projects, typeFilter }: WorksCatalogueProps) {
 
       {/* Header — two short pieces, never wraps */}
       <div className="relative flex items-center justify-between border-b border-rule px-5 py-3 md:px-8">
-        <span className="fac">FAC.04</span>
-        <Link href="/works" className="lab text-white/50 transition-colors hover:text-white" style={{ fontSize: "0.62rem" }}>
+        <span className="fac">{typeFilter === "personal" ? "FAC.03 — Personal" : "FAC.04"}</span>
+        <Link href={typeFilter === "personal" ? "/personal-works" : "/works"} className="lab text-white/50 transition-colors hover:text-white" style={{ fontSize: "0.62rem" }}>
           All ({projects.length}) ↗
         </Link>
       </div>
@@ -44,7 +44,7 @@ export function WorksCatalogue({ projects, typeFilter }: WorksCatalogueProps) {
       {personalSeries.map((p, i) => (
         <Link
           key={p.slug}
-          href={`/works/${p.slug}`}
+          href={`/${typeFilter === "personal" ? "personal-works" : "works"}/${p.slug}`}
           className="group relative flex items-center gap-3 border-b border-rule px-5 py-3 transition-colors duration-75 hover:bg-white/[0.04] md:gap-8 md:px-8 md:py-5"
           onMouseEnter={() => setHovered(p.slug)}
           onMouseLeave={() => setHovered(null)}
