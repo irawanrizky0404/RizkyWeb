@@ -3,7 +3,10 @@
 import { useState, useEffect, useTransition } from "react";
 import { addExperience, updateExperience, deleteExperience, addSkillGroup, updateSkillGroup, deleteSkillGroup, addToolGroup, updateToolGroup, deleteToolGroup, addEducation, updateEducation, deleteEducation, addAward, updateAward, deleteAward } from "@/app/admin/actions";
 import type { Experience, SkillGroup, Education, Award } from "@/lib/types";
+import type { CVData } from "@/lib/store";
 import { useRouter } from "next/navigation";
+
+const EMPTY_CV: CVData = { experiences: [], skillGroups: [], tools: [], education: [], awards: [] };
 
 type Tab = "experience" | "skills" | "tools" | "education" | "awards";
 
@@ -201,7 +204,10 @@ export default function AdminCV() {
   const [editing, setEditing] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/cv").then((r) => r.json()).then((d) => { setCV(d); setLoaded(true); });
+    fetch("/api/admin/cv")
+      .then((r) => r.json())
+      .then((d) => { setCV(d); setLoaded(true); })
+      .catch(() => { setCV(EMPTY_CV); setLoaded(true); });
   }, []);
 
   function notify(text: string) { setMsg(text); setTimeout(() => setMsg(""), 3000); }
