@@ -7,7 +7,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
+
+  if (!apiKey) {
+    return NextResponse.json({ error: "GROQ_API_KEY not configured" }, { status: 500 });
+  }
 
   const contextType = type === "work"
     ? "a visual artist's portfolio work/series"
@@ -16,17 +20,18 @@ export async function POST(req: NextRequest) {
     : "a creative portfolio page";
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `Generate SEO metadata for ${contextType} titled "${title}" ${description ? `with this description: "${description}"` : ""}.
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          {
+            role: "user",
+            content: `Generate SEO metadata for ${contextType} titled "${title}" ${description ? `with this description: "${description}"` : ""}.
 
 Generate EXACTLY this format (5 lines, no extra text):
 META_TITLE: [SEO-friendly title, 50-60 chars, include key keywords]
@@ -34,26 +39,21 @@ META_DESCRIPTION: [Compelling description, 150-160 chars, actionable and specifi
 OG_TITLE: [OpenGraph title, max 60 chars, engaging for social]
 OG_DESCRIPTION: [OpenGraph description, 60-100 chars, click-worthy]
 KEYWORDS: [5-7 relevant keywords, lowercase, comma-separated]`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            maxOutputTokens: 200,
-            temperature: 0.7,
           },
-        }),
-      }
-    );
+        ],
+        max_tokens: 200,
+        temperature: 0.7,
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[ai seo] Gemini API error:", response.status, errorText);
+      console.error("[ai seo] Groq API error:", response.status, errorText);
       return NextResponse.json({ error: "AI request failed" }, { status: 500 });
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const text = data.choices?.[0]?.message?.content ?? "";
 
     const parseField = (field: string) =>
       text.match(new RegExp(`${field}:\\s*(.+)`, "i"))?.[1]?.trim() ?? "";

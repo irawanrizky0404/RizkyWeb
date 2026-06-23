@@ -7,22 +7,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Topic or prompt is required" }, { status: 400 });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
+
+  if (!apiKey) {
+    return NextResponse.json({ error: "GROQ_API_KEY not configured" }, { status: 500 });
+  }
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text:
-                    prompt ||
-                    `Write a journal/blog post about "${topic}".
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          {
+            role: "user",
+            content: prompt ||
+              `Write a journal/blog post about "${topic}".
 
 Write in the style of a visual artist's personal journal — introspective, thoughtful, with references to creative process, aesthetics, and artistic vision. The writing should feel authentic and personal, not corporate or overly formal.
 
@@ -32,26 +36,21 @@ EXCERPT: [A compelling 1-2 sentence excerpt that draws readers in - max 40 words
 TAGS: [tag1, tag2, tag3] (3-5 relevant tags, lowercase, separated by commas)
 CONTENT:
 [Full journal post content - 300-500 words, with thoughtful reflection on the topic. Use a personal, reflective tone. Include sensory details and artistic references where appropriate.]`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            maxOutputTokens: 800,
-            temperature: 0.8,
           },
-        }),
-      }
-    );
+        ],
+        max_tokens: 800,
+        temperature: 0.8,
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[ai journal] Gemini API error:", response.status, errorText);
+      console.error("[ai journal] Groq API error:", response.status, errorText);
       return NextResponse.json({ error: "AI request failed" }, { status: 500 });
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const text = data.choices?.[0]?.message?.content ?? "";
 
     const titleMatch = text.match(/TITLE:\s*(.+)/i);
     const excerptMatch = text.match(/EXCERPT:\s*(.+)/i);
