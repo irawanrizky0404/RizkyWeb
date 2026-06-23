@@ -277,7 +277,7 @@ export default function AdminJournal() {
       if (result.ok) {
         notify("Post published!");
         setShowAi(false);
-        const res = await fetch("/api/admin/journal");
+        const res = await fetch(`/api/admin/journal?t=${Date.now()}`);
         const d = await res.json();
         setPosts(d);
       } else {
