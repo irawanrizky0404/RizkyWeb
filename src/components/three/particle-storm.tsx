@@ -42,10 +42,10 @@ export function ParticleStorm() {
         const idx = i * rows + j;
         const i3 = idx * 3;
         
-        // Position in grid
-        const x = (i - columns / 2) * 1.2;
-        const baseY = (j - rows / 2) * 0.8;
-        const z = (Math.random() - 0.5) * 5;
+        // Position in grid with some randomness for surreal feel
+        const x = (i - columns / 2) * 1.5 + (Math.random() - 0.5) * 0.5;
+        const baseY = (j - rows / 2) * 1.0 + (Math.random() - 0.5) * 0.5;
+        const z = (Math.random() - 0.5) * 8;
 
         originalPositions[i3] = x;
         originalPositions[i3 + 1] = baseY;
@@ -54,23 +54,21 @@ export function ParticleStorm() {
         positions[i3 + 1] = baseY;
         positions[i3 + 2] = z;
 
-        // Color - signal orange gradient
-        const intensity = j / rows;
-        if (intensity > 0.7) {
-          colors[i3] = 0.95;
-          colors[i3 + 1] = 0.95;
-          colors[i3 + 2] = 0.95;
-        } else if (intensity > 0.4) {
+        // Color - orange and white only
+        const rand = Math.random();
+        if (rand > 0.5) {
+          // Signal orange
           colors[i3] = 1.0;
           colors[i3 + 1] = 0.21;
           colors[i3 + 2] = 0.0;
         } else {
-          colors[i3] = 0.3;
-          colors[i3 + 1] = 0.4;
-          colors[i3 + 2] = 0.5;
+          // Pure white
+          colors[i3] = 0.95;
+          colors[i3 + 1] = 0.95;
+          colors[i3 + 2] = 0.95;
         }
 
-        sizes[idx] = Math.random() * 2.5 + 1.5;
+        sizes[idx] = Math.random() * 3 + 1;
       }
     }
 
@@ -91,6 +89,7 @@ export function ParticleStorm() {
         attribute vec3 color;
         varying vec3 vColor;
         varying float vAlpha;
+        varying float vDist;
         uniform float time;
         uniform float mouseX;
         uniform float mouseY;
@@ -100,42 +99,63 @@ export function ParticleStorm() {
           
           vec3 pos = position;
           
-          // Wave effect
-          float wave = sin(pos.x * 0.3 + time * 0.8) * 3.0;
-          float wave2 = cos(pos.x * 0.2 + time * 0.5) * 2.0;
-          pos.y += wave + wave2;
-          pos.z += sin(pos.x * 0.2 + time * 0.6) * 2.0;
+          // Surreal wave effect - multiple layered waves
+          float wave1 = sin(pos.x * 0.4 + time * 0.6) * 4.0;
+          float wave2 = cos(pos.y * 0.3 + time * 0.4) * 3.0;
+          float wave3 = sin(pos.x * 0.2 + pos.y * 0.2 + time * 0.8) * 2.0;
+          float wave4 = cos(time * 0.3 + pos.x * pos.y * 0.01) * 1.5;
           
-          // Add some chaos
-          pos.y += sin(time * 2.0 + pos.x * 0.5) * 0.5;
+          pos.y += wave1 + wave2 + wave3 + wave4;
+          pos.z += sin(pos.x * 0.3 + time * 0.5) * 4.0;
           
-          // Mouse interaction - particles react to cursor
-          float distToMouse = distance(vec2(pos.x, pos.y), vec2(mouseX * 30.0, mouseY * 20.0));
-          float mouseInfluence = smoothstep(25.0, 0.0, distToMouse);
-          pos.x += mouseX * 8.0 * mouseInfluence;
-          pos.y += mouseY * 5.0 * mouseInfluence;
-          pos.z += 3.0 * mouseInfluence;
+          // Surreal breathing/pulsing effect
+          float breath = sin(time * 0.5) * 0.5 + 0.5;
+          pos.x += sin(time * 0.3 + pos.y * 0.2) * 2.0 * breath;
+          
+          // Mouse interaction - more dramatic
+          float distToMouse = distance(vec2(pos.x, pos.y), vec2(mouseX * 35.0, mouseY * 25.0));
+          float mouseInfluence = smoothstep(30.0, 0.0, distToMouse);
+          float mousePull = sin(time * 3.0 + distToMouse * 0.1) * 5.0 * mouseInfluence;
+          
+          pos.x += mouseX * 12.0 * mouseInfluence + mousePull * 0.5;
+          pos.y += mouseY * 8.0 * mouseInfluence + mousePull * 0.3;
+          pos.z += 5.0 * mouseInfluence + mousePull;
+          
+          // Pass distance for color variation
+          vDist = distToMouse;
           
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = size * (150.0 / -mvPosition.z);
+          gl_PointSize = size * (180.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
           
-          float alphaMod = 0.5 + 0.5 * sin(time + pos.x);
-          float mouseGlow = mouseInfluence * 2.0;
-          vAlpha = smoothstep(80.0, 30.0, -mvPosition.z) * alphaMod + mouseGlow;
+          // Alpha with surreal pulsing
+          float pulse = sin(time * 1.5 + pos.x * 0.2 + pos.y * 0.2) * 0.3 + 0.7;
+          float mouseGlow = mouseInfluence * 3.0;
+          vAlpha = smoothstep(90.0, 25.0, -mvPosition.z) * pulse + mouseGlow;
+          vAlpha = min(vAlpha, 1.0);
         }
       `,
       fragmentShader: `
         varying vec3 vColor;
         varying float vAlpha;
+        varying float vDist;
         
         void main() {
           vec2 center = gl_PointCoord - vec2(0.5);
           float dist = length(center);
           if (dist > 0.5) discard;
           
-          float alpha = smoothstep(0.5, 0.1, dist) * vAlpha * 0.7;
-          gl_FragColor = vec4(vColor, alpha);
+          // Soft circular point
+          float alpha = smoothstep(0.5, 0.15, dist) * vAlpha * 0.8;
+          
+          // Slight color shift near edges
+          vec3 finalColor = vColor;
+          if (vDist < 15.0) {
+            // Add glow near mouse
+            finalColor = mix(vColor, vec3(1.0, 0.5, 0.2), smoothstep(15.0, 0.0, vDist) * 0.3);
+          }
+          
+          gl_FragColor = vec4(finalColor, alpha);
         }
       `,
       transparent: true,
