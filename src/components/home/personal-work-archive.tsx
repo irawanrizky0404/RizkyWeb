@@ -12,7 +12,14 @@ interface PersonalWorkArchiveProps {
 export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
   const personalProjects = projects.filter((p) => p.type === "personal" || p.tags.includes("Personal"));
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
   const filmRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (personalProjects.length > 0) {
+      setIsLoaded(true);
+    }
+  }, [personalProjects.length]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -28,14 +35,19 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "j") {
+        e.preventDefault();
         setActiveIndex(i => Math.min(i + 1, personalProjects.length - 1));
       } else if (e.key === "ArrowUp" || e.key === "k") {
+        e.preventDefault();
         setActiveIndex(i => Math.max(i - 1, 0));
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [personalProjects.length]);
+
+  const goNext = () => setActiveIndex(i => Math.min(i + 1, personalProjects.length - 1));
+  const goPrev = () => setActiveIndex(i => Math.max(i - 1, 0));
 
   if (personalProjects.length === 0) {
     return (
@@ -62,13 +74,13 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
         }}
       />
 
-      {/* MAIN IMAGE - using standard img tag instead of Next Image for reliability */}
+      {/* MAIN IMAGE */}
       <div className="absolute inset-0">
         <img
           key={active.slug}
           src={active.cover}
           alt={active.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-opacity duration-500"
           style={{
             filter: "grayscale(1) contrast(1.3) brightness(0.65)",
           }}
@@ -91,32 +103,40 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
         </p>
       </div>
 
-      {/* NAVIGATION - RIGHT SIDE */}
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-2">
-        {personalProjects.map((p, i) => (
-          <button
-            key={p.slug}
-            onClick={() => setActiveIndex(i)}
-            className="w-3 h-3 rounded-full transition-all duration-300"
-            style={{
-              background: i === activeIndex ? "#ffffff" : "rgba(255,255,255,0.2)",
-              transform: i === activeIndex ? "scale(1.3)" : "scale(1)",
-            }}
-            aria-label={`Go to ${p.title}`}
-          />
-        ))}
+      {/* ARROW NAVIGATION - BOTTOM RIGHT */}
+      <div className="absolute bottom-6 right-6 md:bottom-12 md:right-12 z-20 flex items-center gap-4">
+        <button
+          onClick={goPrev}
+          disabled={activeIndex === 0}
+          className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white/40 hover:text-white hover:border-white/60 transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed"
+          aria-label="Previous"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <button
+          onClick={goNext}
+          disabled={activeIndex === personalProjects.length - 1}
+          className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white/40 hover:text-white hover:border-white/60 transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed"
+          aria-label="Next"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
       </div>
 
-      {/* MOBILE NAV - BOTTOM DOTS */}
-      <div className="md:hidden absolute bottom-6 left-0 right-0 z-20">
-        <div className="flex justify-center gap-4">
+      {/* NAVIGATION DOTS - BOTTOM CENTER */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+        <div className="flex justify-center gap-3">
           {personalProjects.map((p, i) => (
             <button
               key={p.slug}
               onClick={() => setActiveIndex(i)}
               className="rounded-full transition-all duration-300"
               style={{
-                width: i === activeIndex ? "20px" : "8px",
+                width: i === activeIndex ? "24px" : "8px",
                 height: "8px",
                 background: i === activeIndex ? "#ffffff" : "rgba(255,255,255,0.25)",
               }}
@@ -133,11 +153,18 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
         </span>
       </div>
 
-      {/* KEYBOARD HINT - TOP RIGHT */}
-      <div className="absolute top-4 right-4 z-20 hidden md:block">
+      {/* KEYBOARD HINT - HIDDEN ON MOBILE */}
+      <div className="absolute top-4 right-4 z-20 hidden md:flex items-center gap-3">
         <span className="lab text-white/15" style={{ fontSize: "0.4rem", letterSpacing: "0.15em" }}>
-          ↑↓ NAVIGATE
+          ← → OR J K
         </span>
+      </div>
+
+      {/* BACK LINK - TOP LEFT CORNER */}
+      <div className="absolute top-4 left-20 z-20">
+        <Link href="/" className="lab text-white/20 hover:text-white/60 transition-colors" style={{ fontSize: "0.5rem", letterSpacing: "0.1em" }}>
+          ← HOME
+        </Link>
       </div>
     </div>
   );
