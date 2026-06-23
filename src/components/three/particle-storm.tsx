@@ -5,7 +5,11 @@ import * as THREE from "three";
 
 export function ParticleStorm() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0, normalizedX: 0, normalizedY: 0 });
+  const mouseRef = useRef({ x: 0, y: 0, normalizedX: 0, normalizedY: 0, velocityX: 0, velocityY: 0, lastX: 0, lastY: 0 });
+  const audioRef = useRef<AudioContext | null>(null);
+  const oscillatorRef = useRef<OscillatorNode | null>(null);
+  const gainRef = useRef<GainNode | null>(null);
+  const filterRef = useRef<BiquadFilterNode | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -172,32 +176,112 @@ export function ParticleStorm() {
     // Mouse move handler
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
-      mouseRef.current.x = e.clientX - rect.left;
-      mouseRef.current.y = e.clientY - rect.top;
-      mouseRef.current.normalizedX = (mouseRef.current.x / rect.width) * 2 - 1;
-      mouseRef.current.normalizedY = -((mouseRef.current.y / rect.height) * 2 - 1);
+      const newX = e.clientX - rect.left;
+      const newY = e.clientY - rect.top;
+      
+      // Calculate velocity
+      mouseRef.current.velocityX = newX - mouseRef.current.lastX;
+      mouseRef.current.velocityY = newY - mouseRef.current.lastY;
+      mouseRef.current.lastX = newX;
+      mouseRef.current.lastY = newY;
+      
+      mouseRef.current.x = newX;
+      mouseRef.current.y = newY;
+      mouseRef.current.normalizedX = (newX / rect.width) * 2 - 1;
+      mouseRef.current.normalizedY = -((newY / rect.height) * 2 - 1);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length > 0) {
         const rect = container.getBoundingClientRect();
-        mouseRef.current.x = e.touches[0].clientX - rect.left;
-        mouseRef.current.y = e.touches[0].clientY - rect.top;
-        mouseRef.current.normalizedX = (mouseRef.current.x / rect.width) * 2 - 1;
-        mouseRef.current.normalizedY = -((mouseRef.current.y / rect.height) * 2 - 1);
+        const newX = e.touches[0].clientX - rect.left;
+        const newY = e.touches[0].clientY - rect.top;
+        
+        mouseRef.current.velocityX = newX - mouseRef.current.lastX;
+        mouseRef.current.velocityY = newY - mouseRef.current.lastY;
+        mouseRef.current.lastX = newX;
+        mouseRef.current.lastY = newY;
+        
+        mouseRef.current.x = newX;
+        mouseRef.current.y = newY;
+        mouseRef.current.normalizedX = (newX / rect.width) * 2 - 1;
+        mouseRef.current.normalizedY = -((newY / rect.height) * 2 - 1);
       }
     };
 
     container.addEventListener("mousemove", handleMouseMove);
     container.addEventListener("touchmove", handleTouchMove, { passive: true });
 
+    // Audio setup
+    const initAudio = () => {
+      if (!audioRef.current) {
+        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        audioRef.current = new AudioContextClass();
+        
+        // Create oscillator for ambient drone
+        oscillatorRef.current = audioRef.current.createOscillator();
+        oscillatorRef.current.type = "sine";
+        oscillatorRef.current.frequency.value = 55; // Low A note
+        
+        // Create gain for volume control
+        gainRef.current = audioRef.current.createGain();
+        gainRef.current.gain.value = 0.0; // Start silent
+        
+        // Create filter for warmer sound
+        filterRef.current = audioRef.current.createBiquadFilter();
+        filterRef.current.type = "lowpass";
+        filterRef.current.frequency.value = 200;
+        filterRef.current.Q.value = 1;
+        
+        // Connect nodes
+        oscillatorRef.current.connect(filterRef.current);
+        filterRef.current.connect(gainRef.current);
+        gainRef.current.connect(audioRef.current.destination);
+        
+        oscillatorRef.current.start();
+      }
+    };
+
+    container.addEventListener("mouseenter", initAudio, { once: true });
+    container.addEventListener("touchstart", initAudio, { once: true });
+
     // Animation
     let animationId: number;
     const animate = () => {
       animationId = requestAnimationFrame(animate);
       material.uniforms.time.value += 0.015;
+      
+      // Smooth mouse following
       material.uniforms.mouseX.value += (mouseRef.current.normalizedX - material.uniforms.mouseX.value) * 0.05;
       material.uniforms.mouseY.value += (mouseRef.current.normalizedY - material.uniforms.mouseY.value) * 0.05;
+      
+      // Update audio based on cursor velocity
+      if (audioRef.current && gainRef.current && filterRef.current) {
+        const velocity = Math.sqrt(
+          mouseRef.current.velocityX * mouseRef.current.velocityX +
+          mouseRef.current.velocityY * mouseRef.current.velocityY
+        );
+        
+        // Normalize velocity (rough estimate)
+        const normalizedVelocity = Math.min(velocity / 20, 1);
+        
+        // Update gain and filter based on velocity
+        const targetGain = normalizedVelocity * 0.15;
+        const targetFreq = 150 + normalizedVelocity * 400;
+        const targetOscFreq = 55 + normalizedVelocity * 110;
+        
+        gainRef.current.gain.value += (targetGain - gainRef.current.gain.value) * 0.1;
+        filterRef.current.frequency.value += (targetFreq - filterRef.current.frequency.value) * 0.1;
+        
+        if (oscillatorRef.current) {
+          oscillatorRef.current.frequency.value += (targetOscFreq - oscillatorRef.current.frequency.value) * 0.1;
+        }
+        
+        // Decay velocity
+        mouseRef.current.velocityX *= 0.9;
+        mouseRef.current.velocityY *= 0.9;
+      }
+      
       renderer.render(scene, camera);
     };
     animate();
@@ -222,6 +306,15 @@ export function ParticleStorm() {
       geometry.dispose();
       material.dispose();
       renderer.dispose();
+      
+      // Cleanup audio
+      if (oscillatorRef.current) {
+        oscillatorRef.current.stop();
+        oscillatorRef.current.disconnect();
+      }
+      if (gainRef.current) gainRef.current.disconnect();
+      if (filterRef.current) filterRef.current.disconnect();
+      if (audioRef.current) audioRef.current.close();
     };
   }, []);
 
