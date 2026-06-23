@@ -106,58 +106,41 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
 
                 <div className="relative z-10 max-w-md">
                   {/* Category line */}
-                  <div className="flex items-center gap-4 mb-6">
-                    <span className="w-6 h-[1px] bg-white/20" />
-                    <span className="lab text-white/30" style={{ fontSize: "0.5rem", letterSpacing: "0.25em" }}>
-                      {project.category.toUpperCase()}
-                    </span>
-                    <span className="w-4 h-[1px] bg-white/10" />
-                    <span className="lab text-white/20" style={{ fontSize: "0.5rem", letterSpacing: "0.15em" }}>
-                      {project.tags[0]?.toUpperCase() || 'UNTITLED'}
+                  <div className="flex items-center gap-4 mb-8">
+                    <span className="w-10 h-[2px] bg-signal" />
+                    <span className="lab text-white/50" style={{ fontSize: "0.6rem", letterSpacing: "0.2em" }}>
+                      {project.category}
                     </span>
                   </div>
                   
                   <h2 
                     className="dis text-white" 
-                    style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)", lineHeight: 0.85, letterSpacing: "-0.03em", fontWeight: 300 }}
+                    style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)", lineHeight: 0.85, letterSpacing: "-0.03em", fontWeight: 400 }}
                   >
                     {project.title}
                   </h2>
 
                   {/* Year and tags row */}
                   <div className="flex items-center gap-6 mt-8">
-                    <span className="dis text-white/25" style={{ fontSize: "clamp(1.2rem, 3vw, 2.5rem)", fontWeight: 300 }}>
+                    <span className="dis text-white/40" style={{ fontSize: "clamp(1.2rem, 3vw, 2.5rem)", fontWeight: 300 }}>
                       {project.year}
                     </span>
-                    <span className="w-8 h-[1px] bg-white/10" />
-                    <div className="flex items-center gap-2">
-                      {project.tags.slice(0, 3).map((tag, ti) => (
-                        <span key={ti} className="lab text-white/15" style={{ fontSize: "0.45rem", letterSpacing: "0.1em" }}>
-                          {tag.toUpperCase()}{ti < Math.min(project.tags.length, 3) - 1 ? ' ·' : ''}
+                    <span className="w-12 h-[1px] bg-white/20" />
+                    <div className="flex items-center gap-3">
+                      {project.tags.slice(0, 2).map((tag, ti) => (
+                        <span key={ti} className="lab text-white/30" style={{ fontSize: "0.55rem", letterSpacing: "0.1em" }}>
+                          {tag}
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  {/* Aspect ratio indicator */}
-                  <div className="flex items-center gap-3 mt-6">
-                    <div className="w-6 h-4 border border-white/10 flex items-center justify-center">
-                      <span className="lab text-white/20" style={{ fontSize: "0.35rem" }}>16:9</span>
-                    </div>
-                    <span className="lab text-white/10" style={{ fontSize: "0.4rem", letterSpacing: "0.1em" }}>
-                      {project.aspectRatio || 'VARIANT'}
-                    </span>
-                  </div>
-
-                  {/* Enter CTA */}
+                  {/* CTA */}
                   <div className="mt-10 flex items-center gap-3">
-                    <span className="lab text-white/25" style={{ fontSize: "0.55rem", letterSpacing: "0.2em" }}>
-                      ENTER
+                    <span className="lab text-white/40" style={{ fontSize: "0.6rem", letterSpacing: "0.15em" }}>
+                      VIEW PROJECT
                     </span>
-                    <span className="text-lg text-white/15 group-hover:text-white/50 group-hover:translate-x-1 transition-all duration-300">→</span>
-                    <span className="lab text-white/10" style={{ fontSize: "0.45rem", letterSpacing: "0.1em" }}>
-                      {String(project.slug.length + 100).padStart(3, '0')}
-                    </span>
+                    <span className="text-lg text-white/30 group-hover:text-white/70 group-hover:translate-x-1 transition-all duration-500">→</span>
                   </div>
                 </div>
               </div>
