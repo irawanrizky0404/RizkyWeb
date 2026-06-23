@@ -109,8 +109,9 @@ export function ShaderPlayground() {
           // Add mouse glow
           color += vec3(1.0, 0.3, 0.1) * glow;
           
-          // Invert on hover
-          color = mix(color, vec3(1.0) - color, hoverIntensity);
+          // Invert only near mouse area
+          float invertMask = smoothstep(0.6, 0.1, mouseDist) * hoverIntensity;
+          color = mix(color, vec3(1.0) - color, invertMask);
           
           // Vignette
           float vignette = 1.0 - length(uv - 0.5) * 0.8;
