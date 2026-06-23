@@ -4,7 +4,6 @@ import { useState, useEffect, useTransition } from "react";
 import { addExperience, updateExperience, deleteExperience, addSkillGroup, updateSkillGroup, deleteSkillGroup, addToolGroup, updateToolGroup, deleteToolGroup, addEducation, updateEducation, deleteEducation, addAward, updateAward, deleteAward } from "@/app/admin/actions";
 import type { Experience, SkillGroup, Education, Award } from "@/lib/types";
 import type { CVData } from "@/lib/store";
-import { useRouter } from "next/navigation";
 
 const EMPTY_CV: CVData = { experiences: [], skillGroups: [], tools: [], education: [], awards: [] };
 
@@ -194,7 +193,6 @@ function AwardForm({ initial, onSave, onCancel, isNew }: { initial: Award; onSav
 }
 
 export default function AdminCV() {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [tab, setTab] = useState<Tab>("experience");
   const [cv, setCV] = useState<CVData | null>(null);
