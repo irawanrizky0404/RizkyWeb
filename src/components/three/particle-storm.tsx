@@ -94,21 +94,21 @@ export function ParticleStorm() {
           vec3 pos = position;
           
           // Simple sine wave
-          float wave = sin(pos.x * 0.15 + time * 0.8) * 4.0;
-          float wave2 = sin(pos.x * 0.08 + time * 0.5) * 2.0;
+          float wave = sin(pos.x * 0.12 + time * 0.6) * 3.0;
+          float wave2 = sin(pos.x * 0.06 + time * 0.4) * 1.5;
           pos.y += wave + wave2;
           
           // Z depth wave
-          pos.z += sin(pos.x * 0.1 + time * 0.6) * 1.5;
+          pos.z += sin(pos.x * 0.1 + time * 0.5) * 1.0;
           
-          // Mouse push - simple and clear
+          // Mouse push - subtle and smooth
           float distToMouse = distance(vec2(pos.x, pos.y), vec2(mouseX * 40.0, mouseY * 25.0));
-          float push = smoothstep(30.0, 0.0, distToMouse) * (1.0 + mouseVelocity * 6.0);
+          float push = smoothstep(25.0, 0.0, distToMouse) * (0.5 + mouseVelocity * 2.0);
           
           vec2 pushDir = normalize(vec2(pos.x, pos.y) - vec2(mouseX * 40.0, mouseY * 25.0));
-          pos.x += pushDir.x * push * 4.0;
-          pos.y += pushDir.y * push * 4.0;
-          pos.z += push * 2.0;
+          pos.x += pushDir.x * push * 2.0;
+          pos.y += pushDir.y * push * 2.0;
+          pos.z += push * 1.0;
           
           vDist = distToMouse;
           
@@ -161,7 +161,7 @@ export function ParticleStorm() {
         audioRef.current = new AudioContextClass();
         
         masterGainRef.current = audioRef.current.createGain();
-        masterGainRef.current.gain.value = 0.8;
+        masterGainRef.current.gain.value = 0.2;
         masterGainRef.current.connect(audioRef.current.destination);
         
         // Main drone
@@ -170,7 +170,7 @@ export function ParticleStorm() {
         osc1.frequency.value = 60;
         
         const gain1 = audioRef.current.createGain();
-        gain1.gain.value = 0.4;
+        gain1.gain.value = 0.15;
         
         const filter = audioRef.current.createBiquadFilter();
         filter.type = "lowpass";
@@ -188,7 +188,7 @@ export function ParticleStorm() {
         osc2.frequency.value = 90;
         
         const gain2 = audioRef.current.createGain();
-        gain2.gain.value = 0.3;
+        gain2.gain.value = 0.1;
         
         osc2.connect(gain2);
         gain2.connect(masterGainRef.current);
@@ -200,7 +200,7 @@ export function ParticleStorm() {
         osc3.frequency.value = 120;
         
         const gain3 = audioRef.current.createGain();
-        gain3.gain.value = 0.2;
+        gain3.gain.value = 0.05;
         
         osc3.connect(gain3);
         gain3.connect(masterGainRef.current);
@@ -275,14 +275,14 @@ export function ParticleStorm() {
       const velocity = Math.sqrt(
         mouseRef.current.velocityX * mouseRef.current.velocityX +
         mouseRef.current.velocityY * mouseRef.current.velocityY
-      ) / 8;
+      ) / 12;
       const normalizedVelocity = Math.min(Math.max(velocity, 0), 1);
       
-      material.uniforms.mouseVelocity.value += (normalizedVelocity - material.uniforms.mouseVelocity.value) * 0.1;
+      material.uniforms.mouseVelocity.value += (normalizedVelocity - material.uniforms.mouseVelocity.value) * 0.08;
       
       // Update audio
       if (masterGainRef.current && audioRef.current && audioRef.current.state !== "suspended") {
-        masterGainRef.current.gain.value = 0.4 + normalizedVelocity * 0.6;
+        masterGainRef.current.gain.value = 0.15 + normalizedVelocity * 0.25;
       }
       
       mouseRef.current.velocityX *= 0.92;
