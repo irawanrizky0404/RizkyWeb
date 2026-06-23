@@ -19,7 +19,7 @@ export function ParticleStorm() {
 
     // Camera
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    camera.position.z = 30;
+    camera.position.z = 50;
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -27,45 +27,46 @@ export function ParticleStorm() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // Particles
-    const particleCount = 2000;
+    // Waveform particles
+    const columns = 80;
+    const rows = 40;
+    const particleCount = columns * rows;
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
     const sizes = new Float32Array(particleCount);
 
-    for (let i = 0; i < particleCount; i++) {
-      const i3 = i * 3;
-      
-      // Position - spread in a sphere
-      const radius = 40 + Math.random() * 20;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(Math.random() * 2 - 1);
-      
-      positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
-      positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-      positions[i3 + 2] = radius * Math.cos(phi);
+    for (let i = 0; i < columns; i++) {
+      for (let j = 0; j < rows; j++) {
+        const idx = i * rows + j;
+        const i3 = idx * 3;
+        
+        // Position in grid
+        const x = (i - columns / 2) * 1.2;
+        const baseY = (j - rows / 2) * 0.8;
+        const z = (Math.random() - 0.5) * 5;
 
-      // Color - subtle warm/cool variation
-      const warmth = Math.random();
-      if (warmth > 0.7) {
-        // Signal orange tint
-        colors[i3] = 0.3 + Math.random() * 0.1;
-        colors[i3 + 1] = 0.1 + Math.random() * 0.05;
-        colors[i3 + 2] = 0;
-      } else if (warmth > 0.4) {
-        // White
-        colors[i3] = 0.9 + Math.random() * 0.1;
-        colors[i3 + 1] = 0.9 + Math.random() * 0.1;
-        colors[i3 + 2] = 0.9 + Math.random() * 0.1;
-      } else {
-        // Blue tint
-        colors[i3] = 0.2 + Math.random() * 0.1;
-        colors[i3 + 1] = 0.3 + Math.random() * 0.1;
-        colors[i3 + 2] = 0.4 + Math.random() * 0.1;
+        positions[i3] = x;
+        positions[i3 + 1] = baseY;
+        positions[i3 + 2] = z;
+
+        // Color - signal orange gradient
+        const intensity = j / rows;
+        if (intensity > 0.7) {
+          colors[i3] = 0.9 + Math.random() * 0.1;
+          colors[i3 + 1] = 0.9 + Math.random() * 0.1;
+          colors[i3 + 2] = 0.9 + Math.random() * 0.1;
+        } else if (intensity > 0.4) {
+          colors[i3] = 0.3 + Math.random() * 0.1;
+          colors[i3 + 1] = 0.1 + Math.random() * 0.05;
+          colors[i3 + 2] = 0;
+        } else {
+          colors[i3] = 0.2 + Math.random() * 0.1;
+          colors[i3 + 1] = 0.2 + Math.random() * 0.1;
+          colors[i3 + 2] = 0.3 + Math.random() * 0.1;
+        }
+
+        sizes[idx] = Math.random() * 2 + 1;
       }
-
-      // Size
-      sizes[i] = Math.random() * 2 + 0.5;
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -73,7 +74,7 @@ export function ParticleStorm() {
     geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
 
-    // Shader material for custom point rendering
+    // Shader material
     const material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
@@ -85,28 +86,26 @@ export function ParticleStorm() {
         varying vec3 vColor;
         varying float vAlpha;
         uniform float time;
-        uniform float pixelRatio;
         
         void main() {
           vColor = color;
           
           vec3 pos = position;
           
-          // Slow rotation
-          float angle = time * 0.05;
-          mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
-          pos.xy = rot * pos.xy;
+          // Wave effect
+          float wave = sin(pos.x * 0.3 + time * 0.8) * 3.0;
+          float wave2 = cos(pos.x * 0.2 + time * 0.5) * 2.0;
+          pos.y += wave + wave2;
+          pos.z += sin(pos.x * 0.2 + time * 0.6) * 2.0;
           
-          // Gentle floating
-          pos.y += sin(time * 0.2 + position.x * 0.1) * 0.5;
-          pos.z += cos(time * 0.15 + position.y * 0.1) * 0.5;
+          // Add some chaos
+          pos.y += sin(time * 2.0 + pos.x * 0.5) * 0.5;
           
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = size * pixelRatio * (200.0 / -mvPosition.z);
+          gl_PointSize = size * (150.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
           
-          // Fade based on distance
-          vAlpha = smoothstep(60.0, 20.0, -mvPosition.z);
+          vAlpha = smoothstep(80.0, 30.0, -mvPosition.z) * (0.5 + 0.5 * sin(time + pos.x));
         }
       `,
       fragmentShader: `
@@ -114,13 +113,12 @@ export function ParticleStorm() {
         varying float vAlpha;
         
         void main() {
-          // Circular point with soft edge
           vec2 center = gl_PointCoord - vec2(0.5);
           float dist = length(center);
           if (dist > 0.5) discard;
           
-          float alpha = smoothstep(0.5, 0.2, dist) * vAlpha;
-          gl_FragColor = vec4(vColor, alpha * 0.6);
+          float alpha = smoothstep(0.5, 0.1, dist) * vAlpha;
+          gl_FragColor = vec4(vColor, alpha * 0.7);
         }
       `,
       transparent: true,
@@ -131,14 +129,14 @@ export function ParticleStorm() {
     const particles = new THREE.Points(geometry, material);
     scene.add(particles);
 
-    // Fog for depth
-    scene.fog = new THREE.FogExp2(0x080808, 0.008);
+    // Fog
+    scene.fog = new THREE.FogExp2(0x080808, 0.012);
 
     // Animation
     let animationId: number;
     const animate = () => {
       animationId = requestAnimationFrame(animate);
-      material.uniforms.time.value += 0.01;
+      material.uniforms.time.value += 0.015;
       renderer.render(scene, camera);
     };
     animate();
@@ -150,7 +148,6 @@ export function ParticleStorm() {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
-      material.uniforms.pixelRatio.value = renderer.getPixelRatio();
     };
     window.addEventListener("resize", handleResize);
 
