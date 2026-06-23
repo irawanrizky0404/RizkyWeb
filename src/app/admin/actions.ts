@@ -147,6 +147,9 @@ export async function toggleFeatured(slug: string) {
 export async function addPost(post: JournalPost) {
   try {
     const posts = await getJournal();
+    if (!post.slug) {
+      post.slug = post.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").slice(0, 60);
+    }
     if (posts.find((p) => p.slug === post.slug)) {
       return { ok: false, error: "Slug already exists" };
     }
