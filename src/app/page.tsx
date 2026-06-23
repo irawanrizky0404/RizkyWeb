@@ -80,8 +80,8 @@ export default async function Home() {
         </div>
       </section>
 
-      <FilmStrip projects={works} />
-      <WorksCatalogue projects={works} />
+      <FilmStrip projects={works} typeFilter="client" />
+      <WorksCatalogue projects={works} typeFilter="client" />
       <Capabilities services={services} />
       <Clients clients={clients} />
       <Recognition />

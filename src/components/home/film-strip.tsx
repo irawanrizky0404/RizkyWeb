@@ -7,11 +7,13 @@ import type { Project } from "@/lib/types";
 
 interface FilmStripProps {
   projects: Project[];
+  typeFilter?: "client" | "personal";
 }
 
-export function FilmStrip({ projects }: FilmStripProps) {
-  const featured = projects.filter((p) => p.featured);
-  const rest = projects.filter((p) => !p.featured);
+export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
+  const filteredProjects = typeFilter ? projects.filter((p) => p.type === typeFilter) : projects;
+  const featured = filteredProjects.filter((p) => p.featured);
+  const rest = filteredProjects.filter((p) => !p.featured);
   const FRAMES = [...featured, ...rest].slice(0, 6);
   const trackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);

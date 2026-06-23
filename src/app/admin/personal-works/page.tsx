@@ -12,7 +12,7 @@ const PAGE_SIZE = 15;
 const EMPTY: Project = {
   slug: "", title: "", year: new Date().getFullYear().toString(),
   category: "3D", client: "", summary: "", description: "",
-  tags: [], cover: "", gallery: [], featured: false, type: "client",
+  tags: [], cover: "", gallery: [], featured: false, type: "personal",
 };
 
 function WorkForm({ initial, onSave, onCancel, isNew }: {
@@ -103,7 +103,7 @@ function WorkForm({ initial, onSave, onCancel, isNew }: {
           <div>
             <span className="lab text-signal" style={{ fontSize: "0.5rem" }}>FAC.ADM</span>
             <p className="dis text-white mt-0.5" style={{ fontSize: "clamp(1rem, 3vw, 1.8rem)", lineHeight: 0.9 }}>
-              {isNew ? "Add Work" : `Edit — ${initial.title}`}
+              {isNew ? "Add Personal Work" : `Edit — ${initial.title}`}
             </p>
           </div>
           <button onClick={onCancel} className="lab text-white/30 hover:text-white transition-colors" style={fs}>✕ Close</button>
@@ -121,7 +121,7 @@ function WorkForm({ initial, onSave, onCancel, isNew }: {
             </div>
             <div>
               <label className={labelCls} style={fs}>Client *</label>
-              <input required value={form.client} onChange={set("client")} className={inputCls} style={fs} placeholder="Client name or Personal Work" />
+              <input required value={form.client} onChange={set("client")} className={inputCls} style={fs} placeholder="Client name or Personal" />
             </div>
             <div>
               <label className={labelCls} style={fs}>Year *</label>
@@ -136,8 +136,8 @@ function WorkForm({ initial, onSave, onCancel, isNew }: {
             <div>
               <label className={labelCls} style={fs}>Type *</label>
               <select required value={form.type} onChange={(e) => setForm((p) => ({ ...p, type: e.target.value as "client" | "personal" }))} className={inputCls} style={fs}>
-                <option value="client">Client Work</option>
                 <option value="personal">Personal Work</option>
+                <option value="client">Client Work</option>
               </select>
             </div>
             <div>
@@ -196,7 +196,7 @@ function WorkForm({ initial, onSave, onCancel, isNew }: {
   );
 }
 
-export default function AdminWorks() {
+export default function AdminPersonalWorks() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [works, setWorks] = useState<Project[]>([]);
@@ -213,8 +213,9 @@ export default function AdminWorks() {
   }, [filter, search]);
 
   useEffect(() => {
-    fetch("/api/admin/works").then((r) => r.json()).then((data) => {
-      setWorks(data);
+    fetch("/api/admin/works?t=" + Date.now()).then((r) => r.json()).then((data) => {
+      const personalWorks = (data as Project[]).filter((w: Project) => w.type === "personal");
+      setWorks(personalWorks);
       setLoaded(true);
     });
   }, []);
@@ -234,6 +235,7 @@ export default function AdminWorks() {
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function handleSave(work: Project) {
+    work.type = "personal";
     startTransition(async () => {
       const result = editing && mode === "edit"
         ? await updateWork(editing.slug, work)
@@ -242,7 +244,10 @@ export default function AdminWorks() {
         notify(mode === "add" ? "Work added!" : "Work updated!");
         setMode("list");
         setEditing(null);
-        setTimeout(() => window.location.reload(), 500);
+        const res = await fetch("/api/admin/works?t=" + Date.now());
+        const data = await res.json();
+        const personalWorks = (data as Project[]).filter((w: Project) => w.type === "personal");
+        setWorks(personalWorks);
       } else {
         notify(`Error: ${result.error}`);
       }
@@ -275,8 +280,8 @@ export default function AdminWorks() {
       <div className="shrink-0 bg-black border-b border-rule px-5 py-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <span className="lab text-signal" style={{ fontSize: "0.5rem" }}>FAC.ADM — Works</span>
-            <p className="dis text-white" style={{ fontSize: "clamp(1.2rem, 3vw, 2.5rem)", lineHeight: 0.88 }}>Works</p>
+            <span className="lab text-signal" style={{ fontSize: "0.5rem" }}>FAC.ADM — Personal Works</span>
+            <p className="dis text-white" style={{ fontSize: "clamp(1.2rem, 3vw, 2.5rem)", lineHeight: 0.88 }}>Personal Works</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             {msg && <span className="lab text-signal" style={{ fontSize: "0.52rem" }}>{msg}</span>}
@@ -326,7 +331,7 @@ export default function AdminWorks() {
 
         {paginated.length === 0 ? (
           <div className="px-5 py-12 text-center">
-            <p className="lab text-white/20" style={fs}>No works found.</p>
+            <p className="lab text-white/20" style={fs}>No personal works found.</p>
           </div>
         ) : (
           paginated.map((p) => (
@@ -377,7 +382,7 @@ export default function AdminWorks() {
                 >
                   Edit
                 </button>
-                <Link href={`/works/${p.slug}`} target="_blank" className="lab text-white/20 hover:text-white transition-colors" style={{ fontSize: "0.5rem" }}>↗</Link>
+                <Link href={`/personal-works/${p.slug}`} target="_blank" className="lab text-white/20 hover:text-white transition-colors" style={{ fontSize: "0.5rem" }}>↗</Link>
                 <button
                   onClick={() => handleDelete(p.slug, p.title)}
                   disabled={isPending}

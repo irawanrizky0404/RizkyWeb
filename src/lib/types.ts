@@ -23,6 +23,7 @@ export interface Project {
   gallery: string[];
   url?: string;
   featured: boolean;
+  type?: "client" | "personal";
 }
 
 export interface Award {

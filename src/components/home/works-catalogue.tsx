@@ -7,11 +7,13 @@ import type { Project } from "@/lib/types";
 
 interface WorksCatalogueProps {
   projects: Project[];
+  typeFilter?: "client" | "personal";
 }
 
-export function WorksCatalogue({ projects }: WorksCatalogueProps) {
+export function WorksCatalogue({ projects, typeFilter }: WorksCatalogueProps) {
   const [hovered, setHovered] = useState<string | null>(null);
-  const personalSeries = projects.filter((p) => p.tags.includes("Personal"));
+  const filteredProjects = typeFilter ? projects.filter((p) => p.type === typeFilter) : projects;
+  const personalSeries = filteredProjects.filter((p) => p.type === "personal" || p.tags.includes("Personal"));
   const active = personalSeries.find((p) => p.slug === hovered);
 
   return (

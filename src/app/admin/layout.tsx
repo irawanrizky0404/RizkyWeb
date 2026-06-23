@@ -8,6 +8,7 @@ import { AdminBodyClass } from "@/components/admin/admin-body-class";
 const navItems = [
   { label: "Dashboard", href: "/admin" },
   { label: "Works", href: "/admin/works" },
+  { label: "Personal Works", href: "/admin/personal-works" },
   { label: "Journal", href: "/admin/journal" },
   { label: "Services", href: "/admin/services" },
   { label: "CV", href: "/admin/cv" },

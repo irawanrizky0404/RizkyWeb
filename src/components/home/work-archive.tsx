@@ -9,15 +9,17 @@ import type { Project } from "@/lib/types";
 
 interface WorkArchiveProps {
   projects: Project[];
+  typeFilter?: "client" | "personal";
 }
 
 const FILTERS = ["All", "3D", "Illustration", "Graphic Design", "Animation"] as const;
 type Filter = typeof FILTERS[number];
 
-export function WorkArchive({ projects }: WorkArchiveProps) {
+export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const featured = projects.filter((p) => p.featured);
+  const filteredProjects = typeFilter ? projects.filter((p) => p.type === typeFilter) : projects;
+  const featured = filteredProjects.filter((p) => p.featured);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const rawFilter = searchParams.get("category") ?? "All";
   const filter: Filter = (FILTERS as readonly string[]).includes(rawFilter) ? rawFilter as Filter : "All";
@@ -35,7 +37,7 @@ export function WorkArchive({ projects }: WorkArchiveProps) {
   const pos = useRef({ x: 0, y: 0 });
   const rafId = useRef<number>(0);
 
-  const filtered = filter === "All" ? projects : projects.filter((p) => p.category === filter);
+  const filtered = filter === "All" ? filteredProjects : filteredProjects.filter((p) => p.category === filter);
 
   useEffect(() => {
     const tick = () => {
@@ -57,7 +59,7 @@ export function WorkArchive({ projects }: WorkArchiveProps) {
     mouse.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
-  const activeProject = projects.find((p) => p.slug === activeSlug);
+  const activeProject = filteredProjects.find((p) => p.slug === activeSlug);
 
   return (
     <div>
