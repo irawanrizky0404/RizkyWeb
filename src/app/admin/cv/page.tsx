@@ -143,7 +143,7 @@ function SkillGroupForm({ initial, onSave, onCancel, isNew }: { initial: SkillGr
         {isNew ? "Add Category" : `Edit — ${initial.category}`}
       </h2>
       <div className="space-y-6">
-        <FormField label="Category *"><Input value={form.category} onChange={set("category")} placeholder="3D" required disabled={!isNew} /></FormField>
+        <FormField label="Category *"><Input value={form.category} onChange={set("category")} placeholder="3D" required /></FormField>
         <FormField label="Items (comma separated)"><Textarea value={itemsStr} onChange={setItemsStr} placeholder="Archviz Interior, Product Render..." rows={3} /></FormField>
       </div>
       <div className="mt-6 flex items-center gap-4">

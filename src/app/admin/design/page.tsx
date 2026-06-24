@@ -26,6 +26,7 @@ export default function AdminDesign() {
   const [loaded, setLoaded] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
+  const [activeTab, setActiveTab] = useState<"colors" | "hero" | "site" | "social">("colors");
 
   useEffect(() => {
     setLoaded(false);
@@ -74,14 +75,21 @@ export default function AdminDesign() {
 
   if (!loaded || !config?.colors?.signal) return <div className="p-8"><span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>Loading…</span></div>;
 
-  const inputCls = "w-full bg-dim border-b border-rule px-3 py-2 lab text-white placeholder:text-white/30 focus:outline-none focus:border-signal transition-colors";
+  const inputCls = "w-full bg-dim border border-rule px-3 py-2 lab text-white placeholder:text-white/30 focus:outline-none focus:border-signal transition-colors";
   const labelCls = "lab text-white/30 block mb-1";
   const fs = { fontSize: "0.6rem" };
 
+  const tabs = [
+    { id: "colors" as const, label: "Colors" },
+    { id: "hero" as const, label: "Hero & Statement" },
+    { id: "site" as const, label: "Site Info" },
+    { id: "social" as const, label: "Social Links" },
+  ];
+
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-6 md:p-8 max-w-4xl">
       {/* Header */}
-      <div className="mb-8 border-b border-rule pb-6 flex items-end justify-between gap-4 flex-wrap">
+      <div className="mb-6 border-b border-rule pb-6 flex items-end justify-between gap-4 flex-wrap">
         <div>
           <span className="lab text-signal" style={{ fontSize: "0.55rem" }}>FAC.ADM — Design</span>
           <h1 className="dis text-white mt-1" style={{ fontSize: "clamp(2rem, 5vw, 5rem)", lineHeight: 0.88 }}>Design</h1>
@@ -98,134 +106,156 @@ export default function AdminDesign() {
         </div>
       </div>
 
-      {/* ── COLORS ─────────────────────────────────────────────────── */}
-      <section className="mb-10">
-        <h2 className="lab text-white/60 mb-5 border-b border-rule pb-2" style={{ fontSize: "0.62rem" }}>Colors</h2>
+      {/* Tabs */}
+      <div className="flex gap-1 mb-6 border-b border-rule pb-0 flex-wrap">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className="lab px-4 py-2 transition-colors"
+            style={{
+              fontSize: "0.6rem",
+              color: activeTab === tab.id ? "#080808" : "rgba(240,240,238,0.4)",
+              background: activeTab === tab.id ? "#ff3500" : "transparent",
+              borderBottom: activeTab === tab.id ? "2px solid #ff3500" : "2px solid transparent",
+              marginBottom: "-2px",
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        {/* Accent color presets */}
-        <div className="mb-5">
-          <label className={labelCls} style={fs}>Accent Color (Signal)</label>
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            {PRESET_ACCENTS.map((p) => (
-              <button key={p.value} onClick={() => setColor("signal", p.value)} title={p.name}
-                className="flex items-center gap-2 border px-3 py-2 transition-colors lab"
-                style={{
-                  fontSize: "0.5rem",
-                  borderColor: config.colors.signal === p.value ? p.value : "rgba(240,240,238,0.1)",
-                  color: config.colors.signal === p.value ? p.value : "rgba(240,240,238,0.4)",
-                }}>
-                <span className="h-3 w-3 rounded-full shrink-0" style={{ background: p.value }} />
-                {p.name}
-              </button>
-            ))}
-            {/* Custom color picker */}
-            <label className="flex items-center gap-2 border border-rule px-3 py-2 cursor-pointer lab transition-colors hover:border-signal"
-              style={{ fontSize: "0.5rem", color: "rgba(240,240,238,0.4)" }}>
-              <input type="color" value={config.colors.signal} onChange={(e) => setColor("signal", e.target.value)}
-                className="h-3 w-3 border-0 bg-transparent p-0 cursor-pointer" style={{ opacity: 0, position: "absolute" }} />
-              <span className="h-3 w-3 rounded-full shrink-0" style={{ background: config.colors.signal }} />
-              Custom
-            </label>
-          </div>
-        </div>
-
-        {/* Color inputs */}
-        <div className="grid grid-cols-2 gap-4">
-          {([
-            ["signal", "Accent / Signal"],
-            ["black", "Background"],
-            ["white", "Foreground / Text"],
-            ["grey", "Muted / Secondary"],
-          ] as [keyof DesignConfig["colors"], string][]).map(([key, label]) => (
-            <div key={key}>
-              <label className={labelCls} style={fs}>{label}</label>
-              <div className="flex items-center gap-2">
-                <input type="color" value={config.colors[key]} onChange={(e) => setColor(key, e.target.value)}
-                  className="h-7 w-10 border border-rule bg-transparent cursor-pointer p-0" />
-                <input value={config.colors[key]} onChange={(e) => setColor(key, e.target.value)}
-                  className="flex-1 bg-transparent border-b border-rule py-1 lab text-white focus:outline-none focus:border-signal"
-                  style={{ fontSize: "0.58rem" }} placeholder="#000000" />
+      {/* Tab Content */}
+      <div className="min-h-[400px]">
+        {/* COLORS TAB */}
+        {activeTab === "colors" && (
+          <section>
+            {/* Accent color presets */}
+            <div className="mb-6">
+              <label className={labelCls} style={fs}>Accent Color (Signal)</label>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                {PRESET_ACCENTS.map((p) => (
+                  <button key={p.value} onClick={() => setColor("signal", p.value)} title={p.name}
+                    className="flex items-center gap-2 border px-3 py-2 transition-colors lab"
+                    style={{
+                      fontSize: "0.5rem",
+                      borderColor: config.colors.signal === p.value ? p.value : "rgba(240,240,238,0.1)",
+                      color: config.colors.signal === p.value ? p.value : "rgba(240,240,238,0.4)",
+                    }}>
+                    <span className="h-3 w-3 rounded-full shrink-0" style={{ background: p.value }} />
+                    {p.name}
+                  </button>
+                ))}
+                {/* Custom color picker */}
+                <label className="flex items-center gap-2 border border-rule px-3 py-2 cursor-pointer lab transition-colors hover:border-signal relative"
+                  style={{ fontSize: "0.5rem", color: "rgba(240,240,238,0.4)" }}>
+                  <input type="color" value={config.colors.signal} onChange={(e) => setColor("signal", e.target.value)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                  <span className="h-3 w-3 rounded-full shrink-0" style={{ background: config.colors.signal }} />
+                  Custom
+                </label>
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Live preview */}
-        <div className="mt-4 border border-rule p-4" style={{ background: config.colors.black }}>
-          <p className="lab mb-1" style={{ fontSize: "0.5rem", color: config.colors.signal, opacity: 0.7 }}>FAC.001 — Preview</p>
-          <p style={{ color: config.colors.white, fontFamily: "var(--font-display)", fontSize: "2.5rem", lineHeight: 0.88, textTransform: "uppercase" }}>
-            Rizky <span style={{ color: config.colors.signal }}>Irawan</span>
-          </p>
-          <p style={{ color: config.colors.grey, fontSize: "0.65rem", marginTop: "8px", fontFamily: "var(--font-mono)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
-            Multidisciplinary Visual Artist
-          </p>
-        </div>
-      </section>
-
-      {/* ── HERO TEXT ──────────────────────────────────────────────── */}
-      <section className="mb-10">
-        <h2 className="lab text-white/60 mb-5 border-b border-rule pb-2" style={{ fontSize: "0.62rem" }}>Hero & Statement</h2>
-        <div className="flex flex-col gap-5">
-          <div>
-            <label className={labelCls} style={fs}>Statement (displayed on homepage)</label>
-            <textarea rows={2} value={config.hero.statement} onChange={(e) => setHero("statement", e.target.value)}
-              className={inputCls} style={{ ...fs, resize: "none" }} placeholder="Your main statement text" />
-          </div>
-          <div>
-            <label className={labelCls} style={fs}>Bio (below statement)</label>
-            <textarea rows={3} value={config.hero.bio} onChange={(e) => setHero("bio", e.target.value)}
-              className={inputCls} style={{ ...fs, resize: "none" }} placeholder="Short biography" />
-          </div>
-          <div>
-            <label className={labelCls} style={fs}>Available Text (header badge)</label>
-            <input value={config.hero.availableText} onChange={(e) => setHero("availableText", e.target.value)}
-              className={inputCls} style={fs} placeholder="Available for Work" />
-          </div>
-        </div>
-      </section>
-
-      {/* ── SITE INFO ──────────────────────────────────────────────── */}
-      <section className="mb-10">
-        <h2 className="lab text-white/60 mb-5 border-b border-rule pb-2" style={{ fontSize: "0.62rem" }}>Site Info</h2>
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          {([
-            ["name", "Your Name"],
-            ["role", "Role / Title"],
-            ["tagline", "Site Tagline"],
-            ["email", "Contact Email"],
-            ["location", "Location"],
-            ["timezone", "Timezone"],
-            ["established", "Established Year"],
-          ] as [keyof DesignConfig["site"], string][]).map(([key, label]) => (
-            <div key={key}>
-              <label className={labelCls} style={fs}>{label}</label>
-              <input value={config.site[key]} onChange={(e) => setSite(key, e.target.value)}
-                className={inputCls} style={fs} />
+            {/* Color inputs */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {([
+                ["signal", "Accent / Signal"],
+                ["black", "Background"],
+                ["white", "Foreground / Text"],
+                ["grey", "Muted / Secondary"],
+              ] as [keyof DesignConfig["colors"], string][]).map(([key, label]) => (
+                <div key={key}>
+                  <label className={labelCls} style={fs}>{label}</label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <input type="color" value={config.colors[key]} onChange={(e) => setColor(key, e.target.value)}
+                      className="h-8 w-10 border border-rule bg-transparent cursor-pointer p-0 shrink-0" />
+                    <input value={config.colors[key]} onChange={(e) => setColor(key, e.target.value)}
+                      className="flex-1 bg-dim border border-rule px-2 py-1 lab text-white focus:outline-none focus:border-signal"
+                      style={{ fontSize: "0.58rem" }} placeholder="#000000" />
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* ── SOCIAL LINKS ───────────────────────────────────────────── */}
-      <section className="mb-10">
-        <h2 className="lab text-white/60 mb-5 border-b border-rule pb-2" style={{ fontSize: "0.62rem" }}>Social Links</h2>
-        <div className="flex flex-col gap-5">
-          {([
-            ["instagram", "Instagram URL"],
-            ["behance", "Behance URL"],
-            ["linkedin", "LinkedIn URL"],
-          ] as [keyof DesignConfig["social"], string][]).map(([key, label]) => (
-            <div key={key}>
-              <label className={labelCls} style={fs}>{label}</label>
-              <input type="url" value={config.social[key]} onChange={(e) => setSocial(key, e.target.value)}
-                className={inputCls} style={fs} placeholder="https://" />
+            {/* Live preview */}
+            <div className="border border-rule p-4" style={{ background: config.colors.black }}>
+              <p className="lab mb-2" style={{ fontSize: "0.5rem", color: config.colors.signal, opacity: 0.7 }}>FAC.001 — Preview</p>
+              <p style={{ color: config.colors.white, fontFamily: "var(--font-display)", fontSize: "2.5rem", lineHeight: 0.88, textTransform: "uppercase" }}>
+                Rizky <span style={{ color: config.colors.signal }}>Irawan</span>
+              </p>
+              <p style={{ color: config.colors.grey, fontSize: "0.65rem", marginTop: "8px", fontFamily: "var(--font-mono)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                Multidisciplinary Visual Artist
+              </p>
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+        )}
+
+        {/* HERO TAB */}
+        {activeTab === "hero" && (
+          <section className="flex flex-col gap-5">
+            <div>
+              <label className={labelCls} style={fs}>Statement (displayed on homepage)</label>
+              <textarea rows={3} value={config.hero.statement} onChange={(e) => setHero("statement", e.target.value)}
+                className={inputCls} style={{ ...fs, resize: "vertical" }} placeholder="Your main statement text" />
+            </div>
+            <div>
+              <label className={labelCls} style={fs}>Bio (below statement)</label>
+              <textarea rows={4} value={config.hero.bio} onChange={(e) => setHero("bio", e.target.value)}
+                className={inputCls} style={{ ...fs, resize: "vertical" }} placeholder="Short biography" />
+            </div>
+            <div>
+              <label className={labelCls} style={fs}>Available Text (header badge)</label>
+              <input value={config.hero.availableText} onChange={(e) => setHero("availableText", e.target.value)}
+                className={inputCls} style={fs} placeholder="Available for Work" />
+            </div>
+          </section>
+        )}
+
+        {/* SITE INFO TAB */}
+        {activeTab === "site" && (
+          <section>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {([
+                ["name", "Your Name"],
+                ["role", "Role / Title"],
+                ["tagline", "Site Tagline"],
+                ["email", "Contact Email"],
+                ["location", "Location"],
+                ["timezone", "Timezone"],
+                ["established", "Established Year"],
+              ] as [keyof DesignConfig["site"], string][]).map(([key, label]) => (
+                <div key={key}>
+                  <label className={labelCls} style={fs}>{label}</label>
+                  <input value={config.site[key]} onChange={(e) => setSite(key, e.target.value)}
+                    className={inputCls} style={fs} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* SOCIAL LINKS TAB */}
+        {activeTab === "social" && (
+          <section className="flex flex-col gap-5">
+            {([
+              ["instagram", "Instagram URL"],
+              ["behance", "Behance URL"],
+              ["linkedin", "LinkedIn URL"],
+            ] as [keyof DesignConfig["social"], string][]).map(([key, label]) => (
+              <div key={key}>
+                <label className={labelCls} style={fs}>{label}</label>
+                <input type="url" value={config.social[key]} onChange={(e) => setSocial(key, e.target.value)}
+                  className={inputCls} style={fs} placeholder="https://" />
+              </div>
+            ))}
+          </section>
+        )}
+      </div>
 
       {/* Save button bottom */}
-      <div className="flex items-center gap-4 border-t border-rule pt-6">
+      <div className="flex items-center gap-4 border-t border-rule pt-6 mt-6">
         <button onClick={save} disabled={isPending}
           className="group inline-flex items-center gap-3 border border-signal px-5 py-3 hover:bg-signal transition-colors disabled:opacity-40">
           <span className="lab text-white group-hover:text-black transition-colors" style={fs}>
