@@ -58,6 +58,7 @@ function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
   const [uploadingCover, setUploadingCover] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
   const [generatingTags, setGeneratingTags] = useState(false);
   const [gallery, setGallery] = useState<string[]>([]);
   const [uploadingGallery, setUploadingGallery] = useState(false);
@@ -179,6 +180,24 @@ function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
     finally { setGeneratingDesc(false); setTimeout(() => setMsg(""), 2000); }
   }
 
+  async function handleGenerateSummary() {
+    if (!form.title.trim()) { setMsg("Add title first"); return; }
+    setGeneratingSummary(true);
+    try {
+      const res = await fetch("/api/admin/ai/description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: form.title, type: "summary", category: form.category }),
+      });
+      const data = await res.json();
+      if (data.result) {
+        setForm((p) => ({ ...p, summary: data.result }));
+        setMsg("Summary generated!");
+      } else { setMsg("Generation failed"); }
+    } catch { setMsg("Generation failed"); }
+    finally { setGeneratingSummary(false); setTimeout(() => setMsg(""), 2000); }
+  }
+
   async function handleGenerateTags() {
     if (!form.description.trim()) { setMsg("Add description first"); return; }
     setGeneratingTags(true);
@@ -271,7 +290,12 @@ function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
         </div>
         <div className="md:col-span-2">
           <label className={labelCls} style={fs}>Summary *</label>
-          <input required value={form.summary} onChange={set("summary")} className={inputCls} style={fs} placeholder="One sentence summary" />
+          <div className="flex items-center gap-2">
+            <input required value={form.summary} onChange={set("summary")} className={inputCls} style={fs} placeholder="One sentence summary" />
+            <button type="button" onClick={handleGenerateSummary} disabled={generatingSummary || !form.title.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap">
+              <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingSummary ? "..." : "✨ AI"}</span>
+            </button>
+          </div>
         </div>
         <div className="md:col-span-2">
           <label className={labelCls} style={fs}>Description</label>
@@ -355,6 +379,7 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
   const [uploadingCover, setUploadingCover] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
   const [generatingTags, setGeneratingTags] = useState(false);
   const [gallery, setGallery] = useState<string[]>([]);
   const [uploadingGallery, setUploadingGallery] = useState(false);
@@ -440,6 +465,24 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
     finally { setUploadingCover(false); }
   }
 
+  async function handleGenerateTitle() {
+    if (!form.description.trim()) { setMsg("Add description first"); return; }
+    setGeneratingTitle(true);
+    try {
+      const res = await fetch("/api/admin/ai/title", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: form.description }),
+      });
+      const data = await res.json();
+      if (data.title) {
+        setForm((p) => ({ ...p, title: data.title, slug: generateSlug(data.title) }));
+        setMsg("Title generated!");
+      } else { setMsg("Generation failed"); }
+    } catch { setMsg("Generation failed"); }
+    finally { setGeneratingTitle(false); setTimeout(() => setMsg(""), 2000); }
+  }
+
   async function handleGenerateDescription() {
     if (!form.title.trim()) { setMsg("Add title first"); return; }
     setGeneratingDesc(true);
@@ -456,6 +499,24 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
       } else { setMsg("Generation failed"); }
     } catch { setMsg("Generation failed"); }
     finally { setGeneratingDesc(false); setTimeout(() => setMsg(""), 2000); }
+  }
+
+  async function handleGenerateSummary() {
+    if (!form.title.trim()) { setMsg("Add title first"); return; }
+    setGeneratingSummary(true);
+    try {
+      const res = await fetch("/api/admin/ai/description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: form.title, type: "summary", category: form.category }),
+      });
+      const data = await res.json();
+      if (data.result) {
+        setForm((p) => ({ ...p, summary: data.result }));
+        setMsg("Summary generated!");
+      } else { setMsg("Generation failed"); }
+    } catch { setMsg("Generation failed"); }
+    finally { setGeneratingSummary(false); setTimeout(() => setMsg(""), 2000); }
   }
 
   async function handleGenerateTags() {
@@ -508,7 +569,12 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="md:col-span-2">
           <label className={labelCls} style={fs}>Title *</label>
-          <input required value={form.title} onChange={set("title")} className={inputCls} style={fs} placeholder="Personal project title" />
+          <div className="flex items-center gap-2">
+            <input required value={form.title} onChange={set("title")} className={inputCls} style={fs} placeholder="Personal project title" />
+            <button type="button" onClick={handleGenerateTitle} disabled={generatingTitle || !form.description.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap" title="Generate from description">
+              <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingTitle ? "..." : "✨ Title"}</span>
+            </button>
+          </div>
         </div>
         <div>
           <label className={labelCls} style={fs}>Slug</label>
@@ -541,7 +607,12 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
         </div>
         <div className="md:col-span-2">
           <label className={labelCls} style={fs}>Summary *</label>
-          <input required value={form.summary} onChange={set("summary")} className={inputCls} style={fs} placeholder="One sentence summary" />
+          <div className="flex items-center gap-2">
+            <input required value={form.summary} onChange={set("summary")} className={inputCls} style={fs} placeholder="One sentence summary" />
+            <button type="button" onClick={handleGenerateSummary} disabled={generatingSummary || !form.title.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap">
+              <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingSummary ? "..." : "✨ AI"}</span>
+            </button>
+          </div>
         </div>
         <div className="md:col-span-2">
           <label className={labelCls} style={fs}>Description</label>
