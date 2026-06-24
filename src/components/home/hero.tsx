@@ -3,11 +3,19 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { MaskReveal } from "@/components/ui/mask-reveal";
+import { useDesign } from "@/lib/design-context";
 
 export function Hero() {
+  const design = useDesign();
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [scrollProgress, setScrollProgress] = useState(0);
   const ref = useRef<HTMLElement>(null);
+
+  const heroImage = design?.hero?.heroImage || "/images/works/phantom-in-the-ruins/01.jpg";
+  const location = design?.site?.location || "Indonesia";
+  const established = design?.site?.established || "2017";
+  const role = design?.site?.role || "Multidisciplinary Visual Artist";
+  const availableText = design?.hero?.availableText || "Available for Work";
 
   useEffect(() => {
     const onScroll = () => {
@@ -40,7 +48,7 @@ export function Hero() {
         }}
       >
         <Image
-          src="/images/works/phantom-in-the-ruins/01.jpg"
+          src={heroImage}
           alt=""
           fill
           priority
@@ -81,15 +89,15 @@ export function Hero() {
       <div className="absolute left-5 top-0 z-10 flex flex-col pt-[4.5rem] md:left-12 md:pt-20">
         <span className="lab text-signal" style={{ fontSize: "0.58rem" }}>FAC.001</span>
         <div className="my-[4px] h-px w-5 bg-signal/40" />
-        <span className="lab text-white/55" style={{ fontSize: "0.58rem" }}>Indonesia · Est. 2017</span>
-        <span className="desk-only lab text-white/25" style={{ fontSize: "0.56rem" }}>Multidisciplinary Visual Artist</span>
+        <span className="lab text-white/55" style={{ fontSize: "0.58rem" }}>{location} · Est. {established}</span>
+        <span className="desk-only lab text-white/25" style={{ fontSize: "0.56rem" }}>{role}</span>
       </div>
 
       {/* ── TOP RIGHT: status — mobile only ───────────────────────── */}
       <div className="mob-only absolute right-5 top-0 z-10 flex flex-col items-end pt-[4.5rem]">
-        <span className="lab text-signal" style={{ fontSize: "0.55rem" }}>Available</span>
+        <span className="lab text-signal" style={{ fontSize: "0.55rem" }}>{availableText}</span>
         <div className="mt-[4px] h-px w-6 bg-signal/30" />
-        <span className="lab text-white/30 mt-[4px]" style={{ fontSize: "0.52rem" }}>For Work</span>
+        <span className="lab text-white/30 mt-[4px]" style={{ fontSize: "0.52rem" }}></span>
       </div>
 
       {/* ── TOP RIGHT: disciplines — desktop only ──────────────────── */}
@@ -98,7 +106,7 @@ export function Hero() {
           <span key={d} className="lab text-white/22 leading-[2]" style={{ fontSize: "0.56rem" }}>{d}</span>
         ))}
         <div className="my-2 h-px w-5 bg-white/10 self-end" />
-        <span className="lab text-signal/55" style={{ fontSize: "0.56rem" }}>Available for work</span>
+        <span className="lab text-signal/55" style={{ fontSize: "0.56rem" }}>{availableText}</span>
       </div>
 
 

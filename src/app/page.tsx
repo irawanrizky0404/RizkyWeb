@@ -9,7 +9,7 @@ import { Cta } from "@/components/home/cta";
 import { Reveal, RevealText } from "@/components/ui/reveal";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 import { siteConfig } from "@/lib/data";
-import { getWorks, getServices, getClients, getContent } from "@/lib/store";
+import { getWorks, getServices, getClients, getContent, getDesign } from "@/lib/store";
 
 export function generateMetadata(): Promise<Metadata> {
   return Promise.resolve({
@@ -40,7 +40,10 @@ export default async function Home() {
   const works = await getWorks().catch(() => []);
   const services = await getServices().catch(() => []);
   const clients = await getClients().catch(() => []);
-  const content = await getContent().catch(() => null);
+  const [content, design] = await Promise.all([
+    getContent().catch(() => null),
+    getDesign().catch(() => null),
+  ]);
 
   const homepage = content?.homepage;
 
@@ -61,7 +64,7 @@ export default async function Home() {
           <div className="flex-1">
             <MaskReveal delay={0.08}>
               <p className="dis text-white" style={{ fontSize: "clamp(2.4rem, 9vw, 13rem)", lineHeight: 0.85 }}>
-                {homepage?.statement || "Working at the frequency between signal and silence."}
+                {homepage?.statement || design?.hero?.statement || "Working at the frequency between signal and silence."}
               </p>
             </MaskReveal>
           </div>
@@ -72,11 +75,11 @@ export default async function Home() {
           </RevealText>
           <RevealText delay={0.22}>
             <p className="text-sm leading-loose text-white/50 max-w-xl">
-              {homepage?.bio || "5 years across 3D, motion, illustration, and identity. Every project begins with a feeling, not a brief. Aesthetic leads. Technique follows."}
+              {homepage?.bio || design?.hero?.bio || "5 years across 3D, motion, illustration, and identity. Every project begins with a feeling, not a brief. Aesthetic leads. Technique follows."}
             </p>
           </RevealText>
           <RevealText delay={0.28}>
-            <span className="lab text-white/15 hidden md:block" style={{ fontSize: "0.52rem" }}>{homepage?.location || "Indonesia"} · Est. {homepage?.established || "2017"}</span>
+            <span className="lab text-white/15 hidden md:block" style={{ fontSize: "0.52rem" }}>{homepage?.location || design?.site?.location || "Indonesia"} · Est. {homepage?.established || design?.site?.established || "2017"}</span>
           </RevealText>
         </div>
       </section>

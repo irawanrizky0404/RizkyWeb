@@ -5,12 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { navLinks, siteConfig } from "@/lib/data";
-
-const socials = [
-  { label: "Instagram", href: siteConfig.social.instagram },
-  { label: "Behance", href: siteConfig.social.behance },
-  { label: "LinkedIn", href: siteConfig.social.linkedin },
-];
+import { useDesign } from "@/lib/design-context";
 import { cn } from "@/lib/utils";
 import { Magnetic } from "@/components/ui/magnetic";
 
@@ -71,11 +66,20 @@ function ScrambleLink({ href, label, active }: { href: string; label: string; ac
 
 export function Header() {
   const pathname = usePathname();
+  const design = useDesign();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
+
+  const siteName = design?.site?.name || siteConfig.name || "Rizky Irawan";
+  const email = design?.site?.email || siteConfig.email;
+  const socials = [
+    { label: "Instagram", href: design?.social?.instagram || siteConfig.social.instagram },
+    { label: "Behance", href: design?.social?.behance || siteConfig.social.behance },
+    { label: "LinkedIn", href: design?.social?.linkedin || siteConfig.social.linkedin },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -125,7 +129,7 @@ export function Header() {
                 className="lab text-white transition-colors group-hover:text-signal"
                 style={{ letterSpacing: "0.15em", fontSize: "0.85rem" }}
               >
-                Rizky Irawan
+                {siteName}
               </span>
             </Link>
           </Magnetic>
@@ -246,11 +250,11 @@ export function Header() {
             {/* Footer */}
             <div className="relative z-20 border-t border-white/5 px-5 py-5">
               <a
-                href={`mailto:${siteConfig.email}`}
+                href={`mailto:${email}`}
                 className="lab text-white/40 hover:text-signal transition-colors block mb-3"
                 style={{ fontSize: "0.6rem" }}
               >
-                {siteConfig.email}
+                {email}
               </a>
               <div className="flex items-center gap-5">
                 {socials.map((s) => (

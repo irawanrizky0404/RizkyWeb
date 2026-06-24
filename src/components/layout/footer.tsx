@@ -5,12 +5,7 @@ import { usePathname } from "next/navigation";
 import { siteConfig } from "@/lib/data";
 import { Magnetic } from "@/components/ui/magnetic";
 import { AmbientSound } from "@/components/ui/ambient-sound";
-
-const socials = [
-  { label: "Instagram", href: siteConfig.social.instagram },
-  { label: "Behance",   href: siteConfig.social.behance   },
-  { label: "LinkedIn",  href: siteConfig.social.linkedin  },
-];
+import { useDesign } from "@/lib/design-context";
 
 const TICKER_ITEMS = [
   "Available for Work",
@@ -28,7 +23,23 @@ const TICKER_TEXT = Array(4).fill(TICKER_ITEMS).flat()
 
 export function Footer() {
   const pathname = usePathname();
+  const design = useDesign();
   const year = new Date().getFullYear();
+
+  const email = design?.site?.email || siteConfig.email;
+  const name = design?.site?.name || siteConfig.name || "Rizky Irawan";
+  const location = design?.site?.location || "Indonesia";
+  const established = design?.site?.established || "2017";
+  const availableText = design?.hero?.availableText || "Open for Work";
+
+  const socials = [
+    { label: "Instagram", href: design?.social?.instagram || siteConfig.social.instagram },
+    { label: "Behance",   href: design?.social?.behance   || siteConfig.social.behance   },
+    { label: "LinkedIn",  href: design?.social?.linkedin  || siteConfig.social.linkedin  },
+  ];
+
+  // Split email into user/domain for big display
+  const [emailUser, emailDomain] = email.includes("@") ? email.split("@") : [email, ""];
 
   if (pathname.startsWith("/admin")) return null;
 
@@ -50,24 +61,26 @@ export function Footer() {
           <p className="lab text-white/25" style={{ fontSize: "0.55rem" }}>Open for transmission</p>
           <span className="lab flex items-center gap-2 text-signal" style={{ fontSize: "0.55rem" }}>
             <span className="inline-block h-[5px] w-[5px] rounded-full bg-signal" style={{ animation: "pulse-dot 1.6s ease-in-out infinite" }} />
-            Available for Work
+            {availableText}
           </span>
           <style>{`@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}`}</style>
         </div>
         <Magnetic strength={0.18}>
-          <a href={`mailto:${siteConfig.email}`} className="group block">
+          <a href={`mailto:${email}`} className="group block">
             <span
               className="dis block text-white transition-colors duration-200 group-hover:text-signal"
               style={{ fontSize: "clamp(1.8rem, 5.5vw, 9rem)", lineHeight: 0.88 }}
             >
-              rizkyirawan0404
+              {emailUser}
             </span>
-            <span
-              className="dis block text-white/30 transition-colors duration-200 group-hover:text-white/50"
-              style={{ fontSize: "clamp(1.8rem, 5.5vw, 9rem)", lineHeight: 0.88 }}
-            >
-              @gmail.com
-            </span>
+            {emailDomain && (
+              <span
+                className="dis block text-white/30 transition-colors duration-200 group-hover:text-white/50"
+                style={{ fontSize: "clamp(1.8rem, 5.5vw, 9rem)", lineHeight: 0.88 }}
+              >
+                @{emailDomain}
+              </span>
+            )}
           </a>
         </Magnetic>
         <div className="mt-8 flex items-center gap-6 pb-10">
@@ -109,7 +122,7 @@ export function Footer() {
         {/* Status + Ambient Sound */}
         <div className="flex items-center justify-between md:justify-start gap-6">
           <AmbientSound />
-          <span className="lab text-signal shrink-0" style={{ fontSize: "0.58rem" }}>Open for Work</span>
+          <span className="lab text-signal shrink-0" style={{ fontSize: "0.58rem" }}>{availableText}</span>
         </div>
       </div>
 
@@ -138,7 +151,7 @@ export function Footer() {
       {/* ── Copyright ─────────────────────────────────────────────── */}
       <div className="relative border-t border-rule px-5 py-3 md:px-8">
         <span className="lab text-white/15" style={{ fontSize: "0.55rem" }}>
-          © {year} Rizky Irawan · Indonesia · Est. 2017
+          © {year} {name} · {location} · Est. {established}
         </span>
       </div>
     </footer>

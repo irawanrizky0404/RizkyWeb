@@ -5,12 +5,10 @@ import { LenisProvider } from "@/components/providers/lenis-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Cursor } from "@/components/ui/cursor";
-import { AmbientSound } from "@/components/ui/ambient-sound";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { getDesign, getSEO } from "@/lib/store";
+import { DesignProvider } from "@/lib/design-context";
 import { PageTransition } from "@/components/ui/page-transition";
-// import { Analytics } from "@vercel/analytics/react";
-// import { SpeedInsights } from "@vercel/speed-insights/react";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +33,14 @@ const ibmMono = IBM_Plex_Mono({
   weight: ["400"],
   display: "swap",
 });
+
+function buildGoogleFontsUrl(fonts: { display?: string; body?: string; accent?: string }) {
+  const families = [...new Set([fonts.display, fonts.body, fonts.accent].filter(Boolean) as string[])];
+  const params = families
+    .map((f) => `family=${encodeURIComponent(f)}:wght@300;400;500;700`)
+    .join("&");
+  return `https://fonts.googleapis.com/css2?${params}&display=swap`;
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSEO();
@@ -91,11 +97,25 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const design = await getDesign();
+
+  const displayFont = design?.fonts?.display || "Bebas Neue";
+  const bodyFont = design?.fonts?.body || "IBM Plex Sans";
+  const accentFont = design?.fonts?.accent || "IBM Plex Mono";
+
+  const googleFontsUrl = buildGoogleFontsUrl({ display: displayFont, body: bodyFont, accent: accentFont });
+
   const cssVars = {
     "--signal": design?.colors?.signal ?? "#ff3500",
     "--black": design?.colors?.black ?? "#080808",
     "--white": design?.colors?.white ?? "#f0f0ee",
     "--grey": design?.colors?.grey ?? "#7a7a76",
+    "--font-display": `'${displayFont}', sans-serif`,
+    "--font-body": `'${bodyFont}', sans-serif`,
+    "--font-mono": `'${accentFont}', monospace`,
+    "--border-radius": design?.layout?.borderRadius ?? "4px",
+    "--container-max": design?.layout?.containerWidth ?? "1280px",
+    "--header-h": design?.layout?.headerHeight ?? "64px",
+    "--grid-gap": design?.layout?.gridGap ?? "24px",
   } as React.CSSProperties;
 
   let pathname = "/";
@@ -111,17 +131,23 @@ export default async function RootLayout({
     <html
       lang="en"
       className={`${bebas.variable} ${ibm.variable} ${ibmMono.variable}`}
+      style={cssVars}
     >
-      <body className="bg-black text-white antialiased min-h-screen" style={cssVars} suppressHydrationWarning>
-        <LenisProvider>
-          <ProgressBar />
-          {!isAdmin && <Cursor />}
-          <Header />
-          <main><PageTransition>{children}</PageTransition></main>
-          <Footer />
-          {/* <Analytics /> */}
-          {/* <SpeedInsights /> */}
-        </LenisProvider>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href={googleFontsUrl} rel="stylesheet" />
+      </head>
+      <body className="bg-black text-white antialiased min-h-screen" suppressHydrationWarning>
+        <DesignProvider design={design}>
+          <LenisProvider>
+            <ProgressBar />
+            {!isAdmin && <Cursor />}
+            <Header />
+            <main><PageTransition>{children}</PageTransition></main>
+            <Footer />
+          </LenisProvider>
+        </DesignProvider>
       </body>
     </html>
   );
