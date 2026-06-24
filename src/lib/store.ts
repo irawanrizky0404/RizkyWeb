@@ -83,7 +83,7 @@ async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
   }
 
   const json = JSON.stringify(data, null, 2);
-  memoryCache[key] = json;
+  delete memoryCache[key];
 
   const response = await fetch(`${JSONBIN_BASE}/b/${binId}`, {
     method: "PUT",
