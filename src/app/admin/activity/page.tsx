@@ -24,8 +24,8 @@ const ACTION_CATEGORIES = [
 
 const ACTION_COLORS: Record<string, string> = {
   "add": "#39ff14",
-  "update": "#ff3500",
-  "delete": "#ff3500",
+  "update": "var(--signal)",
+  "delete": "var(--signal)",
   "upload": "#39ff14",
 };
 
@@ -59,7 +59,7 @@ function getActionInfo(action: string) {
   const parts = action.split(".");
   const type = parts[0] || "";
   const verb = parts[1] || "";
-  const color = ACTION_COLORS[verb] || "rgba(240,240,238,0.4)";
+  const color = ACTION_COLORS[verb] || "color-mix(in srgb, var(--white) 40%, transparent)";
 
   const labels: Record<string, string> = {
     "work.add": "Work Added",
@@ -326,8 +326,8 @@ export default function AdminActivity() {
               className="lab px-3 py-2 transition-colors"
               style={{
                 fontSize: "0.52rem",
-                color: categoryFilter === cat.id ? "#080808" : "rgba(240,240,238,0.35)",
-                background: categoryFilter === cat.id ? "#ff3500" : "transparent",
+                color: categoryFilter === cat.id ? "var(--black)" : "color-mix(in srgb, var(--white) 35%, transparent)",
+                background: categoryFilter === cat.id ? "var(--signal)" : "transparent",
               }}
             >
               {cat.label}

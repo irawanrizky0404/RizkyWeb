@@ -118,7 +118,7 @@ export function ImageUpload({
         )}
       </div>
       {msg && (
-        <p className="lab mt-1" style={{ fontSize: "0.5rem", color: msg.includes("failed") || msg.includes("Only") ? "#f87171" : "#ff3500" }}>
+        <p className="lab mt-1" style={{ fontSize: "0.5rem", color: msg.includes("failed") || msg.includes("Only") ? "#f87171" : "var(--signal)" }}>
           {msg}
         </p>
       )}
@@ -219,8 +219,8 @@ export function ImageUploadDropzone({
         onClick={() => fileInputRef.current?.click()}
         className="border-2 border-dashed cursor-pointer transition-colors flex flex-col items-center justify-center py-10 gap-2"
         style={{
-          borderColor: dragOver ? "#ff3500" : "rgba(240,240,238,0.15)",
-          background: dragOver ? "rgba(255,53,0,0.04)" : "transparent",
+          borderColor: dragOver ? "var(--signal)" : "color-mix(in srgb, var(--white) 15%, transparent)",
+          background: dragOver ? "color-mix(in srgb, var(--signal) 4%, transparent)" : "transparent",
         }}
       >
         {uploading ? (
@@ -244,7 +244,7 @@ export function ImageUploadDropzone({
         )}
       </div>
       {msg && (
-        <p className="lab mt-1" style={{ fontSize: "0.5rem", color: msg.includes("failed") || msg.includes("Only") ? "#f87171" : "#ff3500" }}>
+        <p className="lab mt-1" style={{ fontSize: "0.5rem", color: msg.includes("failed") || msg.includes("Only") ? "#f87171" : "var(--signal)" }}>
           {msg}
         </p>
       )}

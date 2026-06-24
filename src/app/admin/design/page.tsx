@@ -248,7 +248,7 @@ const SOCIAL_PRESETS = [
 
 const DEFAULT: DesignConfig = {
   colors: { signal: "#ff3500", black: "#080808", white: "#f0f0ee", grey: "#7a7a76" },
-  hero: { statement: "Working at the frequency between signal and silence.", bio: "5 years across 3D, motion, illustration, and identity.", availableText: "Available for Work", heroImage: "/images/works/phantom-in-the-ruins/01.jpg" },
+  hero: { statement: "Working at the frequency between signal and silence.", bio: "5 years across 3D, motion, illustration, and identity.", availableText: "Available for Work", heroImage: "/images/works/phantom-in-the-ruins/01.jpg", statementSize: "clamp(3rem, 10vw, 12rem)", statementAlign: "left", showImage: true, imageOverlay: 0.6 },
   site: { name: "Rizky Irawan", role: "Multidisciplinary Visual Artist", tagline: "Visual Archive", email: "rizkyirawan0404@gmail.com", location: "Indonesia", timezone: "UTC +7", established: "2017" },
   social: { instagram: "", behance: "", linkedin: "" },
   fonts: { display: "Bebas Neue", heading: "IBM Plex Sans", body: "IBM Plex Sans", accent: "IBM Plex Mono" },
@@ -293,13 +293,10 @@ export default function AdminDesign() {
   const [selectedFontPreset, setSelectedFontPreset] = useState<string | null>(null);
   const [selectedLayoutPreset, setSelectedLayoutPreset] = useState<string | null>(null);
 
-  const [heroStyle, setHeroStyle] = useState({
-    selectedPreset: "Full Screen",
-    statementSize: "clamp(3rem, 10vw, 12rem)",
-    statementAlign: "left" as "left" | "center" | "right",
-    showImage: true,
-    imageOverlay: 0.6,
-  });
+  const [selectedHeroPreset, setSelectedHeroPreset] = useState<string | null>(null);
+  function setHero<K extends keyof DesignConfig["hero"]>(key: K, value: DesignConfig["hero"][K]) {
+    setConfig((prev) => ({ ...prev, hero: { ...prev.hero, [key]: value } }));
+  }
 
   const [socialStyle, setSocialStyle] = useState({
     selectedPreset: "Minimal Icons",
@@ -1560,17 +1557,17 @@ export default function AdminDesign() {
                 {HERO_PRESETS.map((preset) => (
                   <button
                     key={preset.name}
-                    onClick={() => setHeroStyle({
-                      selectedPreset: preset.name,
-                      statementSize: preset.statementSize,
-                      statementAlign: preset.statementAlign as "left" | "center" | "right",
-                      showImage: preset.showImage,
-                      imageOverlay: preset.imageOverlay,
-                    })}
+                    onClick={() => {
+                      setSelectedHeroPreset(preset.name);
+                      setHero("statementSize", preset.statementSize);
+                      setHero("statementAlign", preset.statementAlign);
+                      setHero("showImage", preset.showImage);
+                      setHero("imageOverlay", preset.imageOverlay);
+                    }}
                     className="flex flex-col items-center gap-2 border p-4 transition-all hover:scale-[1.02]"
                     style={{
-                      borderColor: heroStyle.selectedPreset === preset.name ? config.colors.signal : "rgba(240,240,238,0.1)",
-                      background: heroStyle.selectedPreset === preset.name ? `${config.colors.signal}10` : "transparent",
+                      borderColor: selectedHeroPreset === preset.name ? config.colors.signal : "rgba(240,240,238,0.1)",
+                      background: selectedHeroPreset === preset.name ? `${config.colors.signal}10` : "transparent",
                     }}
                   >
                     <div className="w-full aspect-video bg-dim border border-rule rounded flex flex-col items-center justify-center gap-1 p-2 relative overflow-hidden">
@@ -1679,24 +1676,24 @@ export default function AdminDesign() {
               {/* Hero Preview */}
               <div className="relative overflow-hidden border border-rule" style={{ minHeight: "300px", background: config.colors.black }}>
                 {/* Background Image */}
-                {heroStyle.showImage && (
+                {config.hero.showImage && (
                   <div
                     className="absolute inset-0 bg-cover bg-center"
                     style={{
-                      backgroundImage: "url(/images/works/phantom-in-the-ruins/01.jpg)",
-                      opacity: heroStyle.imageOverlay,
+                      backgroundImage: `url(${config.hero.heroImage || "/images/works/phantom-in-the-ruins/01.jpg"})`,
+                      opacity: config.hero.imageOverlay,
                     }}
                   />
                 )}
-                {heroStyle.showImage && <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />}
+                {config.hero.showImage && <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />}
 
                 {/* Content */}
-                <div className="relative p-8 md:p-12" style={{ textAlign: heroStyle.statementAlign as "left" | "center" | "right" }}>
+                <div className="relative p-8 md:p-12" style={{ textAlign: (config.hero.statementAlign || "left") as "left" | "center" | "right" }}>
                   <span className="lab text-white/40 mb-4 block" style={{ fontSize: "0.5rem" }}>FAC.02 — Hero</span>
                   <h1
                     style={{
                       fontFamily: `'${config.fonts.display}', sans-serif`,
-                      fontSize: heroStyle.statementSize,
+                      fontSize: config.hero.statementSize || "clamp(3rem, 10vw, 12rem)",
                       lineHeight: 0.88,
                       color: config.colors.white,
                     }}
@@ -1724,19 +1721,19 @@ export default function AdminDesign() {
               <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
                 <div className="border border-rule p-2 text-center">
                   <p className="lab text-white/30" style={{ fontSize: "0.45rem" }}>Preset</p>
-                  <p className="lab text-white" style={{ fontSize: "0.55rem" }}>{heroStyle.selectedPreset}</p>
+                  <p className="lab text-white" style={{ fontSize: "0.55rem" }}>{selectedHeroPreset || "Custom"}</p>
                 </div>
                 <div className="border border-rule p-2 text-center">
                   <p className="lab text-white/30" style={{ fontSize: "0.45rem" }}>Alignment</p>
-                  <p className="lab text-white" style={{ fontSize: "0.55rem" }}>{heroStyle.statementAlign}</p>
+                  <p className="lab text-white" style={{ fontSize: "0.55rem" }}>{config.hero.statementAlign || "left"}</p>
                 </div>
                 <div className="border border-rule p-2 text-center">
                   <p className="lab text-white/30" style={{ fontSize: "0.45rem" }}>Image BG</p>
-                  <p className="lab text-white" style={{ fontSize: "0.55rem" }}>{heroStyle.showImage ? "Yes" : "No"}</p>
+                  <p className="lab text-white" style={{ fontSize: "0.55rem" }}>{config.hero.showImage ? "Yes" : "No"}</p>
                 </div>
                 <div className="border border-rule p-2 text-center">
                   <p className="lab text-white/30" style={{ fontSize: "0.45rem" }}>Overlay</p>
-                  <p className="lab text-white" style={{ fontSize: "0.55rem" }}>{Math.round(heroStyle.imageOverlay * 100)}%</p>
+                  <p className="lab text-white" style={{ fontSize: "0.55rem" }}>{Math.round((config.hero.imageOverlay ?? 0.6) * 100)}%</p>
                 </div>
               </div>
             </div>
@@ -1751,8 +1748,8 @@ export default function AdminDesign() {
                   <select
                     className={selectCls}
                     style={fs}
-                    value={heroStyle.statementSize}
-                    onChange={(e) => setHeroStyle(prev => ({ ...prev, statementSize: e.target.value, selectedPreset: "Custom" }))}
+                    value={config.hero.statementSize || "clamp(3rem, 10vw, 12rem)"}
+                    onChange={(e) => { setSelectedHeroPreset(null); setHero("statementSize", e.target.value); }}
                   >
                     <option value="clamp(2rem, 6vw, 5rem)">Compact — Good for minimal layouts</option>
                     <option value="clamp(2.5rem, 8vw, 8rem)">Medium — Balanced for most sites</option>
@@ -1766,8 +1763,8 @@ export default function AdminDesign() {
                   <select
                     className={selectCls}
                     style={fs}
-                    value={heroStyle.statementAlign}
-                    onChange={(e) => setHeroStyle(prev => ({ ...prev, statementAlign: e.target.value as "left" | "center" | "right", selectedPreset: "Custom" }))}
+                    value={config.hero.statementAlign || "left"}
+                    onChange={(e) => { setSelectedHeroPreset(null); setHero("statementAlign", e.target.value); }}
                   >
                     <option value="left">Left — Classic, editorial feel</option>
                     <option value="center">Center — Modern, centered focus</option>
@@ -1780,8 +1777,8 @@ export default function AdminDesign() {
                   <select
                     className={selectCls}
                     style={fs}
-                    value={heroStyle.showImage ? "yes" : "no"}
-                    onChange={(e) => setHeroStyle(prev => ({ ...prev, showImage: e.target.value === "yes", selectedPreset: "Custom" }))}
+                    value={config.hero.showImage ? "yes" : "no"}
+                    onChange={(e) => { setSelectedHeroPreset(null); setHero("showImage", e.target.value === "yes"); }}
                   >
                     <option value="yes">Show background image</option>
                     <option value="no">No background (solid color)</option>
@@ -1789,16 +1786,16 @@ export default function AdminDesign() {
                   <p className="lab text-white/20 mt-1" style={{ fontSize: "0.5rem" }}>Toggle hero background image</p>
                 </div>
                 <div>
-                  <label className={labelCls} style={fs}>Image Overlay: {Math.round(heroStyle.imageOverlay * 100)}%</label>
+                  <label className={labelCls} style={fs}>Image Overlay: {Math.round((config.hero.imageOverlay ?? 0.6) * 100)}%</label>
                   <input
                     type="range"
                     min="0"
                     max="100"
                     step="5"
-                    value={heroStyle.imageOverlay * 100}
-                    onChange={(e) => setHeroStyle(prev => ({ ...prev, imageOverlay: parseInt(e.target.value) / 100, selectedPreset: "Custom" }))}
+                    value={(config.hero.imageOverlay ?? 0.6) * 100}
+                    onChange={(e) => { setSelectedHeroPreset(null); setHero("imageOverlay", parseInt(e.target.value) / 100); }}
                     className="w-full"
-                    disabled={!heroStyle.showImage}
+                    disabled={!config.hero.showImage}
                   />
                   <p className="lab text-white/20 mt-1" style={{ fontSize: "0.5rem" }}>Darkness of overlay on background image</p>
                 </div>

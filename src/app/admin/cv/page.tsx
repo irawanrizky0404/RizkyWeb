@@ -471,8 +471,8 @@ export default function AdminCV() {
             className="lab px-4 py-2 transition-colors"
             style={{
               fontSize: "0.58rem",
-              color: tab === t.id ? "#ff3500" : "rgba(240,240,238,0.4)",
-              background: tab === t.id ? "rgba(255,53,0,0.08)" : "transparent",
+              color: tab === t.id ? "var(--signal)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+              background: tab === t.id ? "color-mix(in srgb, var(--signal) 8%, transparent)" : "transparent",
             }}
           >
             {t.label}

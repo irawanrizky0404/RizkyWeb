@@ -186,7 +186,7 @@ export function Header() {
             {/* Vignette */}
             <div
               className="pointer-events-none absolute inset-0 z-[11]"
-              style={{ background: "radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(8,8,8,0.7) 100%)" }}
+              style={{ background: "radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, color-mix(in srgb, var(--black) 70%, transparent) 100%)" }}
             />
 
             {/* Orange accent line top */}

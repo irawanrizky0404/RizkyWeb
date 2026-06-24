@@ -279,16 +279,16 @@ function LibraryPanel({ category, view, onViewChange, sortBy, onSortChange, onCo
             <button
               onClick={() => onViewChange("grid")}
               className="px-2 py-1.5 transition-colors"
-              style={{ background: view === "grid" ? "rgba(255,53,0,0.1)" : "transparent" }}
+              style={{ background: view === "grid" ? "color-mix(in srgb, var(--signal) 10%, transparent)" : "transparent" }}
             >
-              <span className="lab" style={{ fontSize: "0.5rem", color: view === "grid" ? "#ff3500" : "rgba(240,240,238,0.35)" }}>Grid</span>
+              <span className="lab" style={{ fontSize: "0.5rem", color: view === "grid" ? "var(--signal)" : "color-mix(in srgb, var(--white) 35%, transparent)" }}>Grid</span>
             </button>
             <button
               onClick={() => onViewChange("list")}
               className="px-2 py-1.5 transition-colors border-l border-rule"
-              style={{ background: view === "list" ? "rgba(255,53,0,0.1)" : "transparent" }}
+              style={{ background: view === "list" ? "color-mix(in srgb, var(--signal) 10%, transparent)" : "transparent" }}
             >
-              <span className="lab" style={{ fontSize: "0.5rem", color: view === "list" ? "#ff3500" : "rgba(240,240,238,0.35)" }}>List</span>
+              <span className="lab" style={{ fontSize: "0.5rem", color: view === "list" ? "var(--signal)" : "color-mix(in srgb, var(--white) 35%, transparent)" }}>List</span>
             </button>
           </div>
 
@@ -481,9 +481,9 @@ export default function AdminUpload() {
                   className="lab px-2.5 py-2 transition-colors text-left"
                   style={{
                     fontSize: "0.52rem",
-                    color: category === c.value ? "#080808" : "rgba(240,240,238,0.4)",
-                    background: category === c.value ? "#ff3500" : "transparent",
-                    border: `1px solid ${category === c.value ? "#ff3500" : "rgba(240,240,238,0.12)"}`,
+                    color: category === c.value ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+                    background: category === c.value ? "var(--signal)" : "transparent",
+                    border: `1px solid ${category === c.value ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)"}`,
                   }}
                 >
                   {c.label}
@@ -503,8 +503,8 @@ export default function AdminUpload() {
             onClick={() => fileInputRef.current?.click()}
             className="border-2 border-dashed cursor-pointer transition-colors flex flex-col items-center justify-center py-10 gap-2"
             style={{
-              borderColor: dragOver ? "#ff3500" : "rgba(240,240,238,0.15)",
-              background: dragOver ? "rgba(255,53,0,0.04)" : "transparent",
+              borderColor: dragOver ? "var(--signal)" : "color-mix(in srgb, var(--white) 15%, transparent)",
+              background: dragOver ? "color-mix(in srgb, var(--signal) 4%, transparent)" : "transparent",
             }}
           >
             <input
@@ -549,7 +549,7 @@ export default function AdminUpload() {
                         <Image src={u.result.path || ""} alt="" fill className="object-cover" unoptimized />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <span className="lab" style={{ fontSize: "0.4rem", color: u.result?.error ? "#f87171" : "rgba(240,240,238,0.3)" }}>
+                          <span className="lab" style={{ fontSize: "0.4rem", color: u.result?.error ? "#f87171" : "color-mix(in srgb, var(--white) 30%, transparent)" }}>
                             {u.progress < 100 ? `${u.progress}%` : u.result?.error ? "✕" : "…"}
                           </span>
                         </div>

@@ -144,8 +144,8 @@ export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
                     className="lab px-2 py-1 transition-colors"
                     style={{
                       fontSize: "0.5rem",
-                      color: view === v ? "#080808" : "rgba(240,240,238,0.3)",
-                      background: view === v ? "#ff3500" : "transparent",
+                      color: view === v ? "var(--black)" : "color-mix(in srgb, var(--white) 30%, transparent)",
+                      background: view === v ? "var(--signal)" : "transparent",
                     }}
                   >
                     {v === "list" ? "≡ List" : "⊞ Grid"}
@@ -164,9 +164,9 @@ export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
                 className="lab shrink-0 px-3 py-1 transition-colors"
                 style={{
                   fontSize: "0.55rem",
-                  color: filter === f ? "#080808" : "rgba(240,240,238,0.3)",
-                  background: filter === f ? "#ff3500" : "transparent",
-                  border: `1px solid ${filter === f ? "#ff3500" : "rgba(240,240,238,0.1)"}`,
+                  color: filter === f ? "var(--black)" : "color-mix(in srgb, var(--white) 30%, transparent)",
+                  background: filter === f ? "var(--signal)" : "transparent",
+                  border: `1px solid ${filter === f ? "var(--signal)" : "color-mix(in srgb, var(--white) 10%, transparent)"}`,
                   borderRadius: "2px",
                 }}
               >
@@ -257,7 +257,7 @@ export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
                       className="object-cover"
                       style={{ filter: "grayscale(1) contrast(1.15) brightness(0.6)", mixBlendMode: "screen" }}
                     />
-                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(8,8,8,0.8) 0%, transparent 55%)" }} />
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, color-mix(in srgb, var(--black) 80%, transparent) 0%, transparent 55%)" }} />
                     <div className="absolute bottom-3 left-3 right-3">
                       <p className="fac" style={{ fontSize: "0.42rem" }}>{activeProject.category}</p>
                       <p className="dis text-white mt-1" style={{ fontSize: "clamp(0.9rem, 2vw, 1.4rem)", lineHeight: 0.9 }}>

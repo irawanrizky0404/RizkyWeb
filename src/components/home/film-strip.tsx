@@ -108,7 +108,7 @@ export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
               style={{
                 width: i === activeIndex ? "16px" : "4px",
                 height: "2px",
-                background: i === activeIndex ? "#ff3500" : "rgba(240,240,238,0.2)",
+                background: i === activeIndex ? "var(--signal)" : "color-mix(in srgb, var(--white) 20%, transparent)",
                 transition: "width 0.3s ease, background 0.3s ease",
                 borderRadius: "1px",
               }}
@@ -176,7 +176,7 @@ export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
             {/* Bottom info */}
             <div
               className="absolute bottom-0 left-0 right-0 z-20 p-4"
-              style={{ background: "linear-gradient(to top, rgba(8,8,8,0.9) 0%, transparent 100%)" }}
+              style={{ background: "linear-gradient(to top, color-mix(in srgb, var(--black) 90%, transparent) 0%, transparent 100%)" }}
             >
               <p className="fac mb-1" style={{ fontSize: "0.5rem" }}>{String(i + 1).padStart(2, "0")} / {String(FRAMES.length).padStart(2, "0")}</p>
               <p className="dis text-white group-hover:text-signal transition-colors" style={{ fontSize: "clamp(1rem, 3vw, 2.2rem)", lineHeight: 0.9 }}>

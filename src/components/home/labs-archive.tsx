@@ -5,17 +5,17 @@ import Link from "next/link";
 
 const ParticleStorm = dynamic(
   () => import("@/components/three/particle-storm").then((mod) => mod.ParticleStorm),
-  { ssr: false, loading: () => <div className="w-full h-full bg-[#080808]" /> }
+  { ssr: false, loading: () => <div className="w-full h-full bg-[var(--black)]" /> }
 );
 
 const NoiseTerrain = dynamic(
   () => import("@/components/three/noise-terrain").then((mod) => mod.NoiseTerrain),
-  { ssr: false, loading: () => <div className="w-full h-full bg-[#080808]" /> }
+  { ssr: false, loading: () => <div className="w-full h-full bg-[var(--black)]" /> }
 );
 
 const ShaderPlayground = dynamic(
   () => import("@/components/three/shader-playground").then((mod) => mod.ShaderPlayground),
-  { ssr: false, loading: () => <div className="w-full h-full bg-[#080808]" /> }
+  { ssr: false, loading: () => <div className="w-full h-full bg-[var(--black)]" /> }
 );
 
 const experiments = [
@@ -47,7 +47,7 @@ const experiments = [
 
 export function LabsArchive() {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#080808]">
+    <div className="min-h-screen relative overflow-hidden bg-[var(--black)]">
       {experiments.map((experiment, i) => (
         <section key={experiment.id} id={experiment.id} className="relative border-t border-white/[0.03]">
           {/* Three.js Canvas */}

@@ -418,8 +418,8 @@ export default function AdminTools() {
             className="px-3 py-2 lab transition-colors border-b-2 whitespace-nowrap shrink-0"
             style={{
               fontSize: "0.6rem",
-              color: mode === tab.id ? "#ff3500" : "rgba(240,240,238,0.4)",
-              borderColor: mode === tab.id ? "#ff3500" : "transparent",
+              color: mode === tab.id ? "var(--signal)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+              borderColor: mode === tab.id ? "var(--signal)" : "transparent",
             }}
           >
             {tab.label}
@@ -441,9 +441,9 @@ export default function AdminTools() {
                 className="px-3 py-1.5 lab border transition-colors"
                 style={{
                   fontSize: "0.55rem",
-                  color: contentMode === tab.id ? "#080808" : "rgba(240,240,238,0.4)",
-                  background: contentMode === tab.id ? "#ff3500" : "transparent",
-                  borderColor: contentMode === tab.id ? "#ff3500" : "rgba(240,240,238,0.12)",
+                  color: contentMode === tab.id ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+                  background: contentMode === tab.id ? "var(--signal)" : "transparent",
+                  borderColor: contentMode === tab.id ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)",
                 }}
               >
                 {tab.label}
@@ -596,9 +596,9 @@ export default function AdminTools() {
                 className="px-3 py-1.5 lab border transition-colors"
                 style={{
                   fontSize: "0.55rem",
-                  color: visualMode === tab.id ? "#080808" : "rgba(240,240,238,0.4)",
-                  background: visualMode === tab.id ? "#ff3500" : "transparent",
-                  borderColor: visualMode === tab.id ? "#ff3500" : "rgba(240,240,238,0.12)",
+                  color: visualMode === tab.id ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+                  background: visualMode === tab.id ? "var(--signal)" : "transparent",
+                  borderColor: visualMode === tab.id ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)",
                 }}
               >
                 {tab.label}
@@ -677,9 +677,9 @@ export default function AdminTools() {
                   className="lab px-3 py-1.5 border transition-colors"
                   style={{
                     fontSize: "0.55rem",
-                    color: seoType === t ? "#080808" : "rgba(240,240,238,0.4)",
-                    background: seoType === t ? "#ff3500" : "transparent",
-                    borderColor: seoType === t ? "#ff3500" : "rgba(240,240,238,0.12)",
+                    color: seoType === t ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+                    background: seoType === t ? "var(--signal)" : "transparent",
+                    borderColor: seoType === t ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)",
                   }}
                 >
                   {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -762,9 +762,9 @@ export default function AdminTools() {
                 className="lab px-3 py-1.5 border transition-colors"
                 style={{
                   fontSize: "0.55rem",
-                  color: utilsMode === tab.id ? "#080808" : "rgba(240,240,238,0.4)",
-                  background: utilsMode === tab.id ? "#ff3500" : "transparent",
-                  borderColor: utilsMode === tab.id ? "#ff3500" : "rgba(240,240,238,0.12)",
+                  color: utilsMode === tab.id ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+                  background: utilsMode === tab.id ? "var(--signal)" : "transparent",
+                  borderColor: utilsMode === tab.id ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)",
                 }}
               >
                 {tab.label}
@@ -938,9 +938,9 @@ export default function AdminTools() {
                 className="lab px-3 py-1.5 border transition-colors"
                 style={{
                   fontSize: "0.55rem",
-                  color: descType === "summary" ? "#080808" : "rgba(240,240,238,0.4)",
-                  background: descType === "summary" ? "#ff3500" : "transparent",
-                  borderColor: descType === "summary" ? "#ff3500" : "rgba(240,240,238,0.12)",
+                  color: descType === "summary" ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+                  background: descType === "summary" ? "var(--signal)" : "transparent",
+                  borderColor: descType === "summary" ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)",
                 }}
               >
                 Summary (1 sentence)
@@ -951,9 +951,9 @@ export default function AdminTools() {
                 className="lab px-3 py-1.5 border transition-colors"
                 style={{
                   fontSize: "0.55rem",
-                  color: descType === "description" ? "#080808" : "rgba(240,240,238,0.4)",
-                  background: descType === "description" ? "#ff3500" : "transparent",
-                  borderColor: descType === "description" ? "#ff3500" : "rgba(240,240,238,0.12)",
+                  color: descType === "description" ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+                  background: descType === "description" ? "var(--signal)" : "transparent",
+                  borderColor: descType === "description" ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)",
                 }}
               >
                 Full Description

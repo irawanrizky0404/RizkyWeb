@@ -102,7 +102,7 @@ async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
 
 export type DesignConfig = {
   colors: { signal: string; black: string; white: string; grey: string };
-  hero: { statement: string; bio: string; availableText: string; heroImage: string };
+  hero: { statement: string; bio: string; availableText: string; heroImage: string; statementSize: string; statementAlign: string; showImage: boolean; imageOverlay: number; };
   site: { name: string; role: string; tagline: string; email: string; location: string; timezone: string; established: string };
   social: { instagram: string; behance: string; linkedin: string };
   fonts: {
@@ -142,7 +142,7 @@ export type DesignConfig = {
 
 const defaultDesign: DesignConfig = {
   colors: { signal: "#ff3500", black: "#080808", white: "#f0f0ee", grey: "#7a7a76" },
-  hero: { statement: "Working at the frequency between signal and silence.", bio: "", availableText: "Available for Work", heroImage: "/images/works/phantom-in-the-ruins/01.jpg" },
+  hero: { statement: "Working at the frequency between signal and silence.", bio: "", availableText: "Available for Work", heroImage: "/images/works/phantom-in-the-ruins/01.jpg", statementSize: "clamp(3rem, 10vw, 12rem)", statementAlign: "left", showImage: true, imageOverlay: 0.6 },
   site: { name: "Rizky Irawan", role: "Multidisciplinary Visual Artist", tagline: "Visual Archive", email: "rizkyirawan0404@gmail.com", location: "Indonesia", timezone: "UTC +7", established: "2017" },
   social: { instagram: "", behance: "", linkedin: "" },
   fonts: {

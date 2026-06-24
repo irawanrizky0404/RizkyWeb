@@ -97,9 +97,9 @@ export default function AdminSettings() {
           className="lab px-4 py-2 transition-colors"
           style={{
             fontSize: "0.6rem",
-            color: tab === "seo" ? "#080808" : "rgba(240,240,238,0.4)",
-            background: tab === "seo" ? "#ff3500" : "transparent",
-            borderBottom: tab === "seo" ? "2px solid #ff3500" : "2px solid transparent",
+            color: tab === "seo" ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+            background: tab === "seo" ? "var(--signal)" : "transparent",
+            borderBottom: tab === "seo" ? "2px solid var(--signal)" : "2px solid transparent",
             marginBottom: "-2px",
           }}
         >
@@ -110,9 +110,9 @@ export default function AdminSettings() {
           className="lab px-4 py-2 transition-colors"
           style={{
             fontSize: "0.6rem",
-            color: tab === "clients" ? "#080808" : "rgba(240,240,238,0.4)",
-            background: tab === "clients" ? "#ff3500" : "transparent",
-            borderBottom: tab === "clients" ? "2px solid #ff3500" : "2px solid transparent",
+            color: tab === "clients" ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+            background: tab === "clients" ? "var(--signal)" : "transparent",
+            borderBottom: tab === "clients" ? "2px solid var(--signal)" : "2px solid transparent",
             marginBottom: "-2px",
           }}
         >
@@ -195,7 +195,7 @@ export default function AdminSettings() {
                   {["index, follow", "noindex, nofollow", "index, nofollow"].map((r) => (
                     <button key={r} onClick={() => setSeoField("robots", r)}
                       className="lab px-2 py-1 border border-rule hover:border-signal transition-colors"
-                      style={{ fontSize: "0.5rem", color: seo.robots === r ? "#ff3500" : "rgba(240,240,238,0.4)" }}>
+                      style={{ fontSize: "0.5rem", color: seo.robots === r ? "var(--signal)" : "color-mix(in srgb, var(--white) 40%, transparent)" }}>
                       {r}
                     </button>
                   ))}

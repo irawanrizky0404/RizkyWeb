@@ -34,7 +34,7 @@ export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#080808]">
+    <div className="min-h-screen relative overflow-hidden bg-[var(--black)]">
       {/* FILM GRAIN */}
       <div
         ref={filmRef}

@@ -30,7 +30,7 @@ export function StaticBurst() {
         pointerEvents: "none",
         opacity: phase === "fade" ? 0 : 1,
         transition: phase === "fade" ? "opacity 0.32s ease-out" : "none",
-        background: "#080808",
+        background: "var(--black)",
       }}
     >
       {/* Noise layer */}
@@ -61,7 +61,7 @@ export function StaticBurst() {
         fontFamily: "monospace",
         fontSize: "0.6rem",
         letterSpacing: "0.2em",
-        color: "rgba(255,53,0,0.6)",
+        color: "color-mix(in srgb, var(--signal) 60%, transparent)",
         textTransform: "uppercase",
       }}>
         FAC.001 — Initialising

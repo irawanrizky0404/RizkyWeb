@@ -200,7 +200,7 @@ export function NoiseTerrain() {
     <div 
       ref={containerRef} 
       className="w-full h-full"
-      style={{ background: "#080808" }}
+      style={{ background: "var(--black)" }}
     />
   );
 }

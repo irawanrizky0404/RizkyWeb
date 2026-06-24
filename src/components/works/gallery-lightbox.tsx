@@ -117,7 +117,7 @@ function LightboxModal({
               width: i === index ? "44px" : "28px",
               height: "32px",
               opacity: i === index ? 1 : 0.35,
-              border: i === index ? "1px solid #ff3500" : "1px solid transparent",
+              border: i === index ? "1px solid var(--signal)" : "1px solid transparent",
             }}
           >
             <Image src={img} alt="" fill sizes="44px" className="object-cover" />

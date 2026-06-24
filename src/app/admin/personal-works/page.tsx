@@ -163,9 +163,9 @@ export default function AdminPersonalWorks() {
                 className="lab px-3 py-1.5 transition-colors"
                 style={{
                   fontSize: "0.5rem",
-                  color: filter === c ? "#080808" : "rgba(240,240,238,0.4)",
-                  background: filter === c ? "#ff3500" : "transparent",
-                  border: `1px solid ${filter === c ? "#ff3500" : "rgba(240,240,238,0.12)"}`,
+                  color: filter === c ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+                  background: filter === c ? "var(--signal)" : "transparent",
+                  border: `1px solid ${filter === c ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)"}`,
                 }}
               >
                 {c}
@@ -195,9 +195,9 @@ export default function AdminPersonalWorks() {
           className="lab px-3 py-1 border transition-colors"
           style={{
             fontSize: "0.5rem",
-            color: viewMode === "grid" ? "#080808" : "rgba(240,240,238,0.4)",
-            background: viewMode === "grid" ? "#ff3500" : "transparent",
-            borderColor: viewMode === "grid" ? "#ff3500" : "rgba(240,240,238,0.12)",
+            color: viewMode === "grid" ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+            background: viewMode === "grid" ? "var(--signal)" : "transparent",
+            borderColor: viewMode === "grid" ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)",
           }}
         >
           Grid
@@ -207,9 +207,9 @@ export default function AdminPersonalWorks() {
           className="lab px-3 py-1 border transition-colors"
           style={{
             fontSize: "0.5rem",
-            color: viewMode === "list" ? "#080808" : "rgba(240,240,238,0.4)",
-            background: viewMode === "list" ? "#ff3500" : "transparent",
-            borderColor: viewMode === "list" ? "#ff3500" : "rgba(240,240,238,0.12)",
+            color: viewMode === "list" ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+            background: viewMode === "list" ? "var(--signal)" : "transparent",
+            borderColor: viewMode === "list" ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)",
           }}
         >
           List
@@ -261,7 +261,7 @@ export default function AdminPersonalWorks() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
               className="lab px-2 py-1 border border-rule hover:border-signal transition-colors disabled:opacity-30"
-              style={{ fontSize: "0.5rem", color: "rgba(240,240,238,0.5)" }}
+              style={{ fontSize: "0.5rem", color: "color-mix(in srgb, var(--white) 50%, transparent)" }}
             >
               ←
             </button>
@@ -283,9 +283,9 @@ export default function AdminPersonalWorks() {
                   className="lab px-2 py-1 border transition-colors"
                   style={{
                     fontSize: "0.5rem",
-                    color: p === page ? "#080808" : "rgba(240,240,238,0.5)",
-                    background: p === page ? "#ff3500" : "transparent",
-                    border: `1px solid ${p === page ? "#ff3500" : "rgba(240,240,238,0.12)"}`,
+                    color: p === page ? "var(--black)" : "color-mix(in srgb, var(--white) 50%, transparent)",
+                    background: p === page ? "var(--signal)" : "transparent",
+                    border: `1px solid ${p === page ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)"}`,
                   }}
                 >
                   {p}
@@ -296,7 +296,7 @@ export default function AdminPersonalWorks() {
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
               className="lab px-2 py-1 border border-rule hover:border-signal transition-colors disabled:opacity-30"
-              style={{ fontSize: "0.5rem", color: "rgba(240,240,238,0.5)" }}
+              style={{ fontSize: "0.5rem", color: "color-mix(in srgb, var(--white) 50%, transparent)" }}
             >
               →
             </button>
@@ -338,7 +338,7 @@ function PersonalWorkListItem({ work, onEdit, onDelete, onToggleFeatured, isPend
       <button
         onClick={(e) => { e.stopPropagation(); onToggleFeatured(); }}
         disabled={isPending}
-        style={{ fontSize: "1rem", color: work.featured ? "#ff3500" : "rgba(240,240,238,0.15)" }}
+        style={{ fontSize: "1rem", color: work.featured ? "var(--signal)" : "color-mix(in srgb, var(--white) 15%, transparent)" }}
       >
         {work.featured ? "★" : "☆"}
       </button>
@@ -395,7 +395,7 @@ function PersonalWorkCard({ work, onEdit, onDelete, onToggleFeatured, isPending 
             <button
               onClick={onToggleFeatured}
               disabled={isPending}
-              style={{ fontSize: "0.9rem", color: work.featured ? "#ff3500" : "rgba(240,240,238,0.2)" }}
+              style={{ fontSize: "0.9rem", color: work.featured ? "var(--signal)" : "color-mix(in srgb, var(--white) 20%, transparent)" }}
             >
               {work.featured ? "★" : "☆"}
             </button>
@@ -695,7 +695,7 @@ function PersonalWorkEditor({ work: initial, isNew, onSave, onCancel, isPending,
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, featured: !p.featured }))}
                 className="w-full border py-3 flex items-center justify-center gap-2 transition-colors"
-                style={{ fontSize: "1.2rem", borderColor: form.featured ? "#ff3500" : "rgba(240,240,238,0.12)", color: form.featured ? "#ff3500" : "rgba(240,240,238,0.3)" }}
+                style={{ fontSize: "1.2rem", borderColor: form.featured ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)", color: form.featured ? "var(--signal)" : "color-mix(in srgb, var(--white) 30%, transparent)" }}
               >
                 {form.featured ? "★" : "☆"}
               </button>

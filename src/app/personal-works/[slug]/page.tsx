@@ -42,7 +42,7 @@ export default async function PersonalProjectDetailPage(props: PageProps) {
       {/* ── HERO — full-bleed cover ──────────────────────────────── */}
       <div className="relative h-[70svh] min-h-[420px] overflow-hidden bg-black">
         <ParallaxHero src={project.cover} alt={project.title} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.2) 0%, transparent 40%, rgba(8,8,8,0.85) 100%)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, color-mix(in srgb, var(--black) 20%, transparent) 0%, transparent 40%, color-mix(in srgb, var(--black) 85%, transparent) 100%)" }} />
 
         {/* Back nav */}
         <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 pt-24 pb-5 md:px-12 md:pt-32">
@@ -159,7 +159,7 @@ export default async function PersonalProjectDetailPage(props: PageProps) {
             className="object-cover"
             style={{ filter: "grayscale(1) contrast(1.1) brightness(0.35)", mixBlendMode: "screen" }}
           />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.6) 60%, rgba(8,8,8,0.4) 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, color-mix(in srgb, var(--black) 92%, transparent) 0%, color-mix(in srgb, var(--black) 60%, transparent) 60%, color-mix(in srgb, var(--black) 40%, transparent) 100%)" }} />
         </div>
 
         {/* Top rule */}

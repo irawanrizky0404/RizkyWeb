@@ -70,7 +70,7 @@ export default async function ServicesPage() {
                 />
                 <div
                   className="absolute inset-0"
-                  style={{ background: "linear-gradient(to right, transparent 60%, #080808 100%)" }}
+                  style={{ background: "linear-gradient(to right, transparent 60%, var(--black) 100%)" }}
                 />
               </div>
 

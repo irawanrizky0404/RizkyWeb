@@ -158,9 +158,9 @@ export default function AdminJournal() {
               className="lab px-2 py-1 transition-colors"
               style={{
                 fontSize: "0.5rem",
-                color: statusFilter === s ? "#080808" : "rgba(240,240,238,0.35)",
-                background: statusFilter === s ? "#ff3500" : "transparent",
-                border: `1px solid ${statusFilter === s ? "#ff3500" : "rgba(240,240,238,0.12)"}`,
+                color: statusFilter === s ? "var(--black)" : "color-mix(in srgb, var(--white) 35%, transparent)",
+                background: statusFilter === s ? "var(--signal)" : "transparent",
+                border: `1px solid ${statusFilter === s ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)"}`,
               }}
             >
               {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -236,7 +236,7 @@ export default function AdminJournal() {
       <div className="shrink-0 flex items-center justify-between gap-3 px-5 py-3 border-t border-rule bg-black">
         <span className="lab text-white/20" style={{ fontSize: "0.48rem" }}>{filtered.length} posts · page {page}/{totalPages}</span>
         <div className="flex items-center gap-1">
-          <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="lab px-2 py-1 border border-rule hover:border-signal disabled:opacity-30" style={{ fontSize: "0.5rem", color: "rgba(240,240,238,0.5)" }}>←</button>
+          <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="lab px-2 py-1 border border-rule hover:border-signal disabled:opacity-30" style={{ fontSize: "0.5rem", color: "color-mix(in srgb, var(--white) 50%, transparent)" }}>←</button>
           {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
             let p;
             if (totalPages <= 5) {
@@ -252,15 +252,15 @@ export default function AdminJournal() {
               <button key={p} onClick={() => setPage(p)} className="lab px-2 py-1 border transition-colors"
                 style={{
                   fontSize: "0.5rem",
-                  color: p === page ? "#080808" : "rgba(240,240,238,0.5)",
-                  background: p === page ? "#ff3500" : "transparent",
-                  border: `1px solid ${p === page ? "#ff3500" : "rgba(240,240,238,0.12)"}`,
+                  color: p === page ? "var(--black)" : "color-mix(in srgb, var(--white) 50%, transparent)",
+                  background: p === page ? "var(--signal)" : "transparent",
+                  border: `1px solid ${p === page ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)"}`,
                 }}>
                 {p}
               </button>
             );
           })}
-          <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="lab px-2 py-1 border border-rule hover:border-signal disabled:opacity-30" style={{ fontSize: "0.5rem", color: "rgba(240,240,238,0.5)" }}>→</button>
+          <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="lab px-2 py-1 border border-rule hover:border-signal disabled:opacity-30" style={{ fontSize: "0.5rem", color: "color-mix(in srgb, var(--white) 50%, transparent)" }}>→</button>
         </div>
       </div>
     </div>
@@ -424,9 +424,9 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
                   className="lab px-3 py-1.5 border transition-colors"
                   style={{
                     fontSize: "0.55rem",
-                    color: form.status === s ? "#080808" : "rgba(240,240,238,0.5)",
-                    background: form.status === s ? "#ff3500" : "transparent",
-                    borderColor: form.status === s ? "#ff3500" : "rgba(240,240,238,0.12)",
+                    color: form.status === s ? "var(--black)" : "color-mix(in srgb, var(--white) 50%, transparent)",
+                    background: form.status === s ? "var(--signal)" : "transparent",
+                    borderColor: form.status === s ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)",
                   }}
                 >
                   {s.charAt(0).toUpperCase() + s.slice(1)}

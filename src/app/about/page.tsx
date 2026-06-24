@@ -95,7 +95,7 @@ export default async function AboutPage() {
             mixBlendMode: "screen",
           }}
         />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.5) 0%, transparent 40%, rgba(8,8,8,0.7) 100%)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, color-mix(in srgb, var(--black) 50%, transparent) 0%, transparent 40%, color-mix(in srgb, var(--black) 70%, transparent) 100%)" }} />
         <div className="absolute bottom-6 left-5 md:left-12">
           <span className="fac" style={{ fontSize: "0.48rem" }}>{content?.homepage?.location || "Indonesia"} · Est. {content?.homepage?.established || "2017"}</span>
         </div>

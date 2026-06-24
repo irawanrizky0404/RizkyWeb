@@ -101,7 +101,7 @@ export function AmbientSound() {
             style={{
               width: "2px",
               height: playing ? `${h}px` : "3px",
-              background: playing ? "#ff3500" : "#7a7a76",
+              background: playing ? "var(--signal)" : "var(--grey)",
               borderRadius: "1px",
               transition: `height ${0.15 + i * 0.04}s ease, background 0.3s ease`,
               animation: playing ? `wave-bar ${0.6 + i * 0.1}s ease-in-out infinite alternate` : "none",
@@ -113,7 +113,7 @@ export function AmbientSound() {
         className="lab"
         style={{
           fontSize: "0.5rem",
-          color: playing ? "#ff3500" : "#7a7a76",
+          color: playing ? "var(--signal)" : "var(--grey)",
           transition: "color 0.3s ease",
           letterSpacing: "0.18em",
         }}

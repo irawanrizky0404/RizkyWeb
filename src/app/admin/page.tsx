@@ -1005,8 +1005,8 @@ export default function AdminDashboard() {
             className="lab px-4 py-2.5 transition-colors whitespace-nowrap"
             style={{
               fontSize: "0.58rem",
-              color: activeTab === tab.key ? "#ff3500" : "rgba(240,240,238,0.35)",
-              borderBottom: activeTab === tab.key ? "1px solid #ff3500" : "1px solid transparent",
+              color: activeTab === tab.key ? "var(--signal)" : "color-mix(in srgb, var(--white) 35%, transparent)",
+              borderBottom: activeTab === tab.key ? "1px solid var(--signal)" : "1px solid transparent",
               marginBottom: "-1px",
             }}
           >
@@ -1078,7 +1078,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       {p.featured && (
-                        <span className="lab text-signal shrink-0" style={{ fontSize: "0.48rem", background: "rgba(255,53,0,0.1)", padding: "2px 6px" }}>
+                        <span className="lab text-signal shrink-0" style={{ fontSize: "0.48rem", background: "color-mix(in srgb, var(--signal) 10%, transparent)", padding: "2px 6px" }}>
                           Featured
                         </span>
                       )}

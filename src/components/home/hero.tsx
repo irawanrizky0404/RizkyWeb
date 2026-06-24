@@ -16,6 +16,13 @@ export function Hero() {
   const established = design?.site?.established || "2017";
   const role = design?.site?.role || "Multidisciplinary Visual Artist";
   const availableText = design?.hero?.availableText || "Available for Work";
+  const showImage = design?.hero?.showImage ?? true;
+  const imageOverlay = design?.hero?.imageOverlay ?? 0.6;
+  const statementAlign = (design?.hero?.statementAlign || "left") as "left" | "center" | "right";
+  const siteName = design?.site?.name || "Rizky Irawan";
+  const nameParts = siteName.trim().split(" ");
+  const firstName = nameParts[0] || "Rizky";
+  const lastName = nameParts.slice(1).join(" ") || "Irawan";
 
   useEffect(() => {
     const onScroll = () => {
@@ -40,28 +47,31 @@ export function Hero() {
       className="relative h-[100svh] min-h-[560px] overflow-hidden bg-black select-none"
     >
       {/* ── IMAGE ──────────────────────────────────────────────────── */}
-      <div
-        className="absolute inset-[-4%]"
-        style={{
-          transform: `translate(${mouse.x * -12}px, ${mouse.y * -12}px)`,
-          transition: "transform 0.7s cubic-bezier(0.25, 0.1, 0.25, 1)",
-        }}
-      >
-        <Image
-          src={heroImage}
-          alt=""
-          fill
-          priority
-          className="object-cover"
+      {showImage && (
+        <div
+          className="absolute inset-[-4%]"
           style={{
-            objectPosition: "50% 36%",
-            filter: `grayscale(1) contrast(${1.2 + scrollProgress * 0.3}) brightness(${0.62 - scrollProgress * 0.3}) blur(${scrollProgress * 6}px)`,
-            mixBlendMode: "screen",
-            transform: `scale(${1 + scrollProgress * 0.06})`,
+            transform: `translate(${mouse.x * -12}px, ${mouse.y * -12}px)`,
+            transition: "transform 0.7s cubic-bezier(0.25, 0.1, 0.25, 1)",
+            opacity: imageOverlay + 0.4,
           }}
-          sizes="100vw"
-        />
-      </div>
+        >
+          <Image
+            src={heroImage}
+            alt=""
+            fill
+            priority
+            className="object-cover"
+            style={{
+              objectPosition: "50% 36%",
+              filter: `grayscale(1) contrast(${1.2 + scrollProgress * 0.3}) brightness(${(0.62 - scrollProgress * 0.3) * (imageOverlay / 0.6)}) blur(${scrollProgress * 6}px)`,
+              mixBlendMode: "screen",
+              transform: `scale(${1 + scrollProgress * 0.06})`,
+            }}
+            sizes="100vw"
+          />
+        </div>
+      )}
 
       {/* Scanlines */}
       <div className="pointer-events-none absolute inset-0 z-[1]"
@@ -77,7 +87,7 @@ export function Hero() {
 
       {/* Vignette */}
       <div className="pointer-events-none absolute inset-0 z-[2]"
-        style={{ background: "radial-gradient(ellipse 85% 80% at 50% 40%, transparent 25%, rgba(8,8,8,0.5) 62%, #080808 100%)" }} />
+        style={{ background: "radial-gradient(ellipse 85% 80% at 50% 40%, transparent 25%, color-mix(in srgb, var(--black) 50%, transparent) 62%, var(--black) 100%)" }} />
 
       {/* Top burn */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-36 bg-gradient-to-b from-black via-black/60 to-transparent" />
@@ -156,7 +166,7 @@ export function Hero() {
                 className="dis text-white"
                 style={{ fontSize: "clamp(2.8rem, 14vw, 20rem)", lineHeight: 0.82 }}
               >
-                Rizky
+                {firstName}
               </span>
             </MaskReveal>
             <MaskReveal delay={0.22}>
@@ -164,7 +174,7 @@ export function Hero() {
                 className="dis text-signal"
                 style={{ fontSize: "clamp(2.8rem, 14vw, 20rem)", lineHeight: 0.82 }}
               >
-                Irawan
+                {lastName}
               </span>
             </MaskReveal>
           </h1>

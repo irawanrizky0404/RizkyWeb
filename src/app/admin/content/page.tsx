@@ -162,9 +162,9 @@ export default function AdminContent() {
             className="lab px-4 py-2 transition-colors"
             style={{
               fontSize: "0.6rem",
-              color: activeTab === tab.id ? "#080808" : "rgba(240,240,238,0.4)",
-              background: activeTab === tab.id ? "#ff3500" : "transparent",
-              borderBottom: activeTab === tab.id ? "2px solid #ff3500" : "2px solid transparent",
+              color: activeTab === tab.id ? "var(--black)" : "color-mix(in srgb, var(--white) 40%, transparent)",
+              background: activeTab === tab.id ? "var(--signal)" : "transparent",
+              borderBottom: activeTab === tab.id ? "2px solid var(--signal)" : "2px solid transparent",
               marginBottom: "-2px",
             }}
           >
