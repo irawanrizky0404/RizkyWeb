@@ -354,7 +354,7 @@ const defaultContent: PageContent = {
   },
   about: {
     intro: "5 years across 3D, motion, illustration, and identity. Every project begins with a feeling, not a brief. Aesthetic leads. Technique follows.",
-    storyTitle: "The Story",
+    storyTitle: "Working at the frequency between signal and silence.",
     story: "Aesthetic leads. Technique follows.",
     approachTitle: "The Approach",
     approach: "Aesthetic leads. Technique follows. I believe in the power of restraint, the importance of negative space, and the emotional resonance of light.",
