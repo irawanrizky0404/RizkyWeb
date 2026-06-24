@@ -353,9 +353,9 @@ const defaultContent: PageContent = {
     metaDescription: "",
   },
   about: {
-    intro: "I'm a multidisciplinary visual artist working across 3D, motion, illustration, and graphic design.",
+    intro: "5 years across 3D, motion, illustration, and identity. Every project begins with a feeling, not a brief. Aesthetic leads. Technique follows.",
     storyTitle: "The Story",
-    story: "Every project begins with a feeling, not a brief. I work to translate atmosphere into form, to capture the weight of a moment in pixels and brushstrokes.",
+    story: "Aesthetic leads. Technique follows.",
     approachTitle: "The Approach",
     approach: "Aesthetic leads. Technique follows. I believe in the power of restraint, the importance of negative space, and the emotional resonance of light.",
     imageUrl: "/images/hero/hero-a.jpg",
