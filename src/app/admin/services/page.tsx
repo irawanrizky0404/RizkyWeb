@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const DEFAULT_CATEGORIES: ServiceCategory[] = ["3D", "Animation", "Graphic Design", "Illustration"];
-const EMPTY: Service = { category: "", description: "", items: [] };
+const EMPTY: Service = { category: "3D" as ServiceCategory, description: "", items: [] };
 
 function ServiceForm({ initial, onSave, onCancel, isNew, existingCategories }: {
   initial: Service;
