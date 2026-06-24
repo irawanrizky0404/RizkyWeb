@@ -290,6 +290,8 @@ export default function AdminDesign() {
   const [generatingBio, setGeneratingBio] = useState(false);
   const [genMsg, setGenMsg] = useState("");
 
+  const [selectedFontPreset, setSelectedFontPreset] = useState<string | null>(null);
+
   const [heroStyle, setHeroStyle] = useState({
     selectedPreset: "Full Screen",
     statementSize: "clamp(3rem, 10vw, 12rem)",
@@ -753,10 +755,10 @@ export default function AdminDesign() {
                 {FONT_PRESETS.map((preset) => (
                   <button
                     key={preset.name}
-                    onClick={() => setConfig((prev) => ({ ...prev, fonts: { display: preset.display, heading: preset.heading, body: preset.body, accent: preset.accent } }))}
+                    onClick={() => { setSelectedFontPreset(preset.name); setConfig((prev) => ({ ...prev, fonts: { display: preset.display, heading: preset.heading, body: preset.body, accent: preset.accent } })); }}
                     className="flex flex-col items-center gap-2 border p-4 transition-all hover:scale-[1.02] text-left"
                     style={{
-                      borderColor: config.fonts.display === preset.display ? config.colors.signal : "rgba(240,240,238,0.1)",
+                      borderColor: selectedFontPreset === preset.name ? config.colors.signal : "rgba(240,240,238,0.1)",
                       background: "transparent",
                     }}
                   >
