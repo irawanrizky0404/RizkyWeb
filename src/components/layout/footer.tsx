@@ -107,7 +107,7 @@ export function Footer() {
           ))}
         </div>
         {/* Status + Ambient Sound */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center justify-between md:justify-start gap-6">
           <AmbientSound />
           <span className="lab text-signal shrink-0" style={{ fontSize: "0.58rem" }}>Open for Work</span>
         </div>

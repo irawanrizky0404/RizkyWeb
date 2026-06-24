@@ -88,7 +88,7 @@ export function AmbientSound() {
       onClick={toggle}
       title={playing ? "Mute ambient" : "Play ambient"}
       aria-label={playing ? "Mute ambient sound" : "Play ambient sound"}
-      className="group flex items-center gap-2 transition-opacity ml-auto mr-4"
+      className="group flex items-center gap-2 transition-opacity"
       style={{ opacity: 0.4 }}
       onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
       onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.4")}
