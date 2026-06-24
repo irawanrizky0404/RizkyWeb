@@ -63,6 +63,7 @@ function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
   const [gallery, setGallery] = useState<string[]>([]);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [visualDesc, setVisualDesc] = useState("");
   const [form, setForm] = useState({
     title: "", slug: "", client: "", year: new Date().getFullYear().toString(),
     category: "3D", type: "client" as "client" | "personal", summary: "", description: "", tags: "", cover: "",
@@ -145,13 +146,13 @@ function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
   }
 
   async function handleGenerateTitle() {
-    if (!form.description.trim()) { setMsg("Add description first"); return; }
+    if (!visualDesc.trim()) { setMsg("Add visual description first"); return; }
     setGeneratingTitle(true);
     try {
       const res = await fetch("/api/admin/ai/title", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: form.description }),
+        body: JSON.stringify({ description: visualDesc.trim(), category: form.category }),
       });
       const data = await res.json();
       if (data.title) {
@@ -250,10 +251,14 @@ function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
           <label className={labelCls} style={fs}>Title *</label>
           <div className="flex items-center gap-2">
             <input required value={form.title} onChange={set("title")} className={inputCls} style={fs} placeholder="Project title" />
-            <button type="button" onClick={handleGenerateTitle} disabled={generatingTitle || !form.description.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap" title="Generate from description">
+            <button type="button" onClick={handleGenerateTitle} disabled={generatingTitle || !visualDesc.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap" title="Generate from visual description">
               <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingTitle ? "..." : "✨ Title"}</span>
             </button>
           </div>
+        </div>
+        <div className="md:col-span-2">
+          <label className={labelCls} style={fs}>Visual Description <span style={{ color: "rgba(255,255,255,0.2)" }}>(used by ✨ Title AI)</span></label>
+          <textarea value={visualDesc} onChange={(e) => setVisualDesc(e.target.value)} rows={2} className={textareaCls} style={fs} placeholder="Briefly describe the visual — colors, mood, style, subject..." />
         </div>
         <div>
           <label className={labelCls} style={fs}>Slug</label>
@@ -384,6 +389,7 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
   const [gallery, setGallery] = useState<string[]>([]);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [dragOverGallery, setDragOverGallery] = useState(false);
+  const [visualDesc, setVisualDesc] = useState("");
   const [form, setForm] = useState({
     title: "", slug: "", client: "Personal", year: new Date().getFullYear().toString(),
     category: "3D", type: "personal" as "client" | "personal", summary: "", description: "", tags: "", cover: "",
@@ -466,13 +472,13 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
   }
 
   async function handleGenerateTitle() {
-    if (!form.description.trim()) { setMsg("Add description first"); return; }
+    if (!visualDesc.trim()) { setMsg("Add visual description first"); return; }
     setGeneratingTitle(true);
     try {
       const res = await fetch("/api/admin/ai/title", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: form.description }),
+        body: JSON.stringify({ description: visualDesc.trim(), category: form.category }),
       });
       const data = await res.json();
       if (data.title) {
@@ -571,10 +577,14 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
           <label className={labelCls} style={fs}>Title *</label>
           <div className="flex items-center gap-2">
             <input required value={form.title} onChange={set("title")} className={inputCls} style={fs} placeholder="Personal project title" />
-            <button type="button" onClick={handleGenerateTitle} disabled={generatingTitle || !form.description.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap" title="Generate from description">
+            <button type="button" onClick={handleGenerateTitle} disabled={generatingTitle || !visualDesc.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap" title="Generate from visual description">
               <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingTitle ? "..." : "✨ Title"}</span>
             </button>
           </div>
+        </div>
+        <div className="md:col-span-2">
+          <label className={labelCls} style={fs}>Visual Description <span style={{ color: "rgba(255,255,255,0.2)" }}>(used by ✨ Title AI)</span></label>
+          <textarea value={visualDesc} onChange={(e) => setVisualDesc(e.target.value)} rows={2} className={textareaCls} style={fs} placeholder="Briefly describe the visual — colors, mood, style, subject..." />
         </div>
         <div>
           <label className={labelCls} style={fs}>Slug</label>

@@ -434,6 +434,7 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
   const [form, setForm] = useState<Project>(initial);
   const [tagsStr, setTagsStr] = useState(initial.tags.join(", "));
   const [gallery, setGallery] = useState<string[]>(initial.gallery || []);
+  const [visualDesc, setVisualDesc] = useState("");
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [generatingTags, setGeneratingTags] = useState(false);
@@ -524,13 +525,13 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
   }
 
   async function handleGenerateTitle() {
-    if (!form.description.trim()) { alert("Enter a visual description first"); return; }
+    if (!visualDesc.trim()) { alert("Enter a visual description first"); return; }
     setGeneratingTitle(true);
     try {
       const res = await fetch("/api/admin/ai/title", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: form.description.trim(), category: form.category }),
+        body: JSON.stringify({ description: visualDesc.trim(), category: form.category }),
       });
       const data = await res.json();
       if (data.title) {
@@ -619,10 +620,23 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
                 style={{ fontSize: "0.65rem" }}
                 placeholder="Project title"
               />
-              <button type="button" onClick={handleGenerateTitle} disabled={generatingTitle || !form.description.trim()} className="border border-rule px-4 py-3 hover:border-signal transition-colors disabled:opacity-40" title="Generate title from description">
+              <button type="button" onClick={handleGenerateTitle} disabled={generatingTitle || !visualDesc.trim()} className="border border-rule px-4 py-3 hover:border-signal transition-colors disabled:opacity-40" title="Generate title from visual description">
                 <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingTitle ? "..." : "✨ Title"}</span>
               </button>
             </div>
+          </div>
+
+          {/* Visual Description (for Title AI) */}
+          <div>
+            <label className="lab text-white/40 block mb-2" style={{ fontSize: "0.55rem" }}>Visual Description <span className="text-white/20">(used by ✨ Title AI)</span></label>
+            <textarea
+              value={visualDesc}
+              onChange={(e) => setVisualDesc(e.target.value)}
+              rows={2}
+              className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors resize-none"
+              style={{ fontSize: "0.65rem" }}
+              placeholder="Briefly describe the visual — colors, mood, style, subject..."
+            />
           </div>
 
           {/* Slug & Client */}
