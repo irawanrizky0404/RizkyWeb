@@ -54,7 +54,7 @@ function ServiceForm({ initial, onSave, onCancel, isNew, existingCategories }: {
     }
     onSave({
       ...form,
-      category: form.category.trim(),
+      category: form.category.trim() as ServiceCategory,
       items: itemsStr.split(",").map((t) => t.trim()).filter(Boolean),
     });
   }
@@ -80,10 +80,10 @@ function ServiceForm({ initial, onSave, onCancel, isNew, existingCategories }: {
                 setIsDirty(true);
                 if (e.target.value === "__new__") {
                   setShowNewCategory(true);
-                  setForm(prev => ({ ...prev, category: "" }));
+                  setForm(prev => ({ ...prev, category: "3D" as ServiceCategory }));
                 } else {
                   setShowNewCategory(false);
-                  setForm((prev) => ({ ...prev, category: e.target.value }));
+                  setForm((prev) => ({ ...prev, category: e.target.value as ServiceCategory }));
                 }
               }}
               className={selectCls}
@@ -98,7 +98,7 @@ function ServiceForm({ initial, onSave, onCancel, isNew, existingCategories }: {
             <input
               type="text"
               value={form.category}
-              onChange={(e) => { setIsDirty(true); setForm((prev) => ({ ...prev, category: e.target.value })); }}
+              onChange={(e) => { setIsDirty(true); setForm((prev) => ({ ...prev, category: e.target.value as ServiceCategory })); }}
               className={`${inputCls} mt-2`}
               style={fs}
               placeholder="Enter new category name"
