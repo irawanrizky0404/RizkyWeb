@@ -44,7 +44,7 @@ export default async function AboutPage() {
         <div className="border-b border-rule px-5 py-10 md:px-12 md:py-16">
           <MaskReveal delay={0.1}>
             <p className="dis text-white" style={{ fontSize: "clamp(2rem, 6vw, 8rem)", lineHeight: 0.88, maxWidth: "20ch" }}>
-              {about?.story || "Aesthetic leads. Technique follows."}
+              {about?.storyTitle || "Every project begins with a feeling, not a brief."}
             </p>
           </MaskReveal>
           <div className="mt-6 h-px w-12 bg-signal/40" />
