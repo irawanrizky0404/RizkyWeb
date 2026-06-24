@@ -5,7 +5,7 @@ import { addPost, updatePost, deletePost } from "@/app/admin/actions";
 import type { JournalPost } from "@/lib/types";
 import Link from "next/link";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 12;
 const EMPTY: JournalPost = {
   slug: "", title: "", date: new Date().toISOString().split("T")[0],
   excerpt: "", content: "", tags: [], status: "published",
@@ -20,8 +20,10 @@ export default function AdminJournal() {
   const [view, setView] = useState<"list" | "add" | "edit" | "ai">("list");
   const [editing, setEditing] = useState<JournalPost | null>(null);
   const [msg, setMsg] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "scheduled">("all");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "alpha">("newest");
 
-  useEffect(() => { setPage(1); }, [search]);
+  useEffect(() => { setPage(1); }, [search, statusFilter, sortBy]);
 
   useEffect(() => {
     fetch("/api/admin/journal").then((r) => r.json()).then((d) => { setPosts(d); setLoaded(true); });
@@ -29,10 +31,19 @@ export default function AdminJournal() {
 
   function notify(text: string) { setMsg(text); setTimeout(() => setMsg(""), 3000); }
 
-  const filtered = posts.filter((p) =>
-    p.title.toLowerCase().includes(search.toLowerCase()) ||
-    p.tags?.some((t) => t.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filtered = posts
+    .filter((p) => {
+      const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) ||
+        p.tags?.some((t) => t.toLowerCase().includes(search.toLowerCase())) ||
+        p.excerpt.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      if (sortBy === "newest") return new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (sortBy === "oldest") return new Date(a.date).getTime() - new Date(b.date).getTime();
+      return a.title.localeCompare(b.title);
+    });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -133,10 +144,45 @@ export default function AdminJournal() {
 
       {/* Search / Filters */}
       <div className="shrink-0 flex items-center gap-3 px-5 py-2 border-b border-rule flex-wrap">
-        <input type="text" placeholder="Search title or tag…" value={search}
+        <input type="text" placeholder="Search title, tag, or excerpt…" value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="bg-transparent border border-rule px-3 py-1.5 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
-          style={{ fontSize: "0.55rem", minWidth: "160px" }} />
+          style={{ fontSize: "0.55rem", minWidth: "180px" }} />
+
+        {/* Status Filter */}
+        <div className="flex items-center gap-1">
+          {(["all", "published", "draft", "scheduled"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className="lab px-2 py-1 transition-colors"
+              style={{
+                fontSize: "0.5rem",
+                color: statusFilter === s ? "#080808" : "rgba(240,240,238,0.35)",
+                background: statusFilter === s ? "#ff3500" : "transparent",
+                border: `1px solid ${statusFilter === s ? "#ff3500" : "rgba(240,240,238,0.12)"}`,
+              }}
+            >
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {/* Sort */}
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+          className="bg-black border border-rule px-2 py-1.5 lab text-white/50 focus:outline-none focus:border-signal transition-colors"
+          style={{ fontSize: "0.5rem" }}
+        >
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="alpha">A → Z</option>
+        </select>
+
+        <span className="lab text-white/20 ml-auto" style={{ fontSize: "0.5rem" }}>
+          {filtered.length} post{filtered.length !== 1 ? "s" : ""}
+        </span>
       </div>
 
       {/* Card list */}
@@ -147,29 +193,35 @@ export default function AdminJournal() {
               <p className="lab text-white/20" style={{ fontSize: "0.6rem" }}>No posts found.</p>
             </div>
           ) : paginated.map((post) => (
-            <div key={post.slug} className="border border-rule hover:border-signal/50 transition-colors">
-              <div className="flex items-start gap-4 p-3">
+            <div key={post.slug} className="border border-rule hover:border-signal/50 transition-colors group">
+              <div className="flex items-start gap-4 p-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-3 flex-wrap mb-1">
-                    <p className="lab text-white truncate" style={{ fontSize: "0.6rem" }}>{post.title}</p>
-                    <span className="lab text-white/30 shrink-0" style={{ fontSize: "0.48rem" }}>
-                      {new Date(post.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                      {" · "}{readingTime(post.content ?? post.excerpt)} min
+                  <div className="flex items-baseline gap-3 flex-wrap mb-2">
+                    <p className="lab text-white truncate" style={{ fontSize: "0.65rem" }}>{post.title}</p>
+                    <span className={`lab px-1.5 py-0.5 shrink-0 ${post.status === "published" ? "text-signal border border-signal/30" : post.status === "draft" ? "text-white/40 border border-white/20" : "text-white/30 border border-white/10"}`} style={{ fontSize: "0.42rem" }}>
+                      {post.status}
                     </span>
-                    {post.status !== "published" && (
-                      <span className={`lab px-1.5 py-0.5 ${post.status === "draft" ? "text-white/40 border border-white/20" : "text-signal border border-signal/30"}`} style={{ fontSize: "0.42rem" }}>
-                        {post.status}
-                      </span>
-                    )}
                   </div>
-                  <p className="lab text-white/40 line-clamp-1" style={{ fontSize: "0.52rem" }}>{post.excerpt}</p>
-                  <div className="mt-1.5 flex gap-2 flex-wrap">
-                    {post.tags?.map((t) => (
-                      <span key={t} className="lab text-white/20 border border-rule px-1.5 py-0.5" style={{ fontSize: "0.42rem" }}>{t}</span>
-                    ))}
+                  <p className="lab text-white/40 line-clamp-2 mb-3" style={{ fontSize: "0.55rem" }}>{post.excerpt}</p>
+                  <div className="flex items-center gap-4">
+                    <span className="lab text-white/25" style={{ fontSize: "0.48rem" }}>
+                      {new Date(post.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </span>
+                    <span className="lab text-white/25" style={{ fontSize: "0.48rem" }}>·</span>
+                    <span className="lab text-white/25" style={{ fontSize: "0.48rem" }}>
+                      {readingTime(post.content ?? post.excerpt)} min read
+                    </span>
+                    <div className="flex gap-2 flex-wrap ml-auto">
+                      {post.tags?.slice(0, 3).map((t) => (
+                        <span key={t} className="lab text-white/20 border border-rule px-1.5 py-0.5" style={{ fontSize: "0.4rem" }}>{t}</span>
+                      ))}
+                      {post.tags && post.tags.length > 3 && (
+                        <span className="lab text-white/20 px-1.5 py-0.5" style={{ fontSize: "0.4rem" }}>+{post.tags.length - 3}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={() => startEdit(post)} className="lab text-white/30 hover:text-signal transition-colors" style={{ fontSize: "0.5rem" }}>Edit</button>
                   <Link href={`/journal/${post.slug}`} target="_blank" className="lab text-white/20 hover:text-white transition-colors" style={{ fontSize: "0.5rem" }}>↗</Link>
                   <button onClick={() => handleDelete(post.slug, post.title)} disabled={isPending} className="lab text-white/20 hover:text-red-400 transition-colors" style={{ fontSize: "0.5rem" }}>Del</button>
@@ -185,17 +237,29 @@ export default function AdminJournal() {
         <span className="lab text-white/20" style={{ fontSize: "0.48rem" }}>{filtered.length} posts · page {page}/{totalPages}</span>
         <div className="flex items-center gap-1">
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="lab px-2 py-1 border border-rule hover:border-signal disabled:opacity-30" style={{ fontSize: "0.5rem", color: "rgba(240,240,238,0.5)" }}>←</button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button key={p} onClick={() => setPage(p)} className="lab px-2 py-1 border transition-colors"
-              style={{
-                fontSize: "0.5rem",
-                color: p === page ? "#080808" : "rgba(240,240,238,0.5)",
-                background: p === page ? "#ff3500" : "transparent",
-                border: `1px solid ${p === page ? "#ff3500" : "rgba(240,240,238,0.12)"}`,
-              }}>
-              {p}
-            </button>
-          ))}
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            let p;
+            if (totalPages <= 5) {
+              p = i + 1;
+            } else if (page <= 3) {
+              p = i + 1;
+            } else if (page >= totalPages - 2) {
+              p = totalPages - 4 + i;
+            } else {
+              p = page - 2 + i;
+            }
+            return (
+              <button key={p} onClick={() => setPage(p)} className="lab px-2 py-1 border transition-colors"
+                style={{
+                  fontSize: "0.5rem",
+                  color: p === page ? "#080808" : "rgba(240,240,238,0.5)",
+                  background: p === page ? "#ff3500" : "transparent",
+                  border: `1px solid ${p === page ? "#ff3500" : "rgba(240,240,238,0.12)"}`,
+                }}>
+                {p}
+              </button>
+            );
+          })}
           <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="lab px-2 py-1 border border-rule hover:border-signal disabled:opacity-30" style={{ fontSize: "0.5rem", color: "rgba(240,240,238,0.5)" }}>→</button>
         </div>
       </div>
@@ -215,6 +279,9 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
   const [form, setForm] = useState(initial);
   const [tagsStr, setTagsStr] = useState(initial.tags.join(", "));
   const [isDirty, setIsDirty] = useState(false);
+  const [generatingTitle, setGeneratingTitle] = useState(false);
+  const [generatingExcerpt, setGeneratingExcerpt] = useState(false);
+  const [generatingContent, setGeneratingContent] = useState(false);
 
   const set = (k: keyof JournalPost) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setIsDirty(true);
@@ -243,6 +310,57 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
 
   function generateSlug(title: string) {
     return title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  }
+
+  async function handleGenerateTitle() {
+    if (!form.excerpt.trim() && !form.content.trim()) { alert("Enter an excerpt or content first"); return; }
+    setGeneratingTitle(true);
+    try {
+      const res = await fetch("/api/admin/ai/title", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: (form.excerpt || form.content).trim(), category: "journal" }),
+      });
+      const data = await res.json();
+      if (data.title) {
+        setForm((p) => ({ ...p, title: data.title }));
+        if (isNew && !form.slug) setForm((p) => ({ ...p, slug: generateSlug(data.title) }));
+      } else alert(data.error || "Failed to generate");
+    } catch { alert("Failed to generate title"); }
+    finally { setGeneratingTitle(false); }
+  }
+
+  async function handleGenerateExcerpt() {
+    if (!form.title.trim()) { alert("Enter a title first"); return; }
+    setGeneratingExcerpt(true);
+    try {
+      const res = await fetch("/api/admin/ai/description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: form.title.trim(), type: "summary", category: "journal" }),
+      });
+      const data = await res.json();
+      if (data.result) setForm((p) => ({ ...p, excerpt: data.result }));
+      else alert(data.error || "Failed to generate");
+    } catch { alert("Failed to generate excerpt"); }
+    finally { setGeneratingExcerpt(false); }
+  }
+
+  async function handleGenerateContent() {
+    if (!form.title.trim()) { alert("Enter a title first"); return; }
+    setGeneratingContent(true);
+    try {
+      const res = await fetch("/api/admin/ai/journal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: form.title.trim() }),
+      });
+      const data = await res.json();
+      if (data.content) setForm((p) => ({ ...p, content: data.content }));
+      else if (data.error) alert(data.error);
+      else alert("Failed to generate content");
+    } catch { alert("Failed to generate content"); }
+    finally { setGeneratingContent(false); }
   }
 
   function submit(e: React.FormEvent) {
@@ -281,7 +399,12 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
         <div className="grid grid-cols-1 gap-5">
           <div>
             <label className={labelCls} style={fs}>Title *</label>
-            <input required value={form.title} onChange={(e) => { set("title")(e); if (isNew && !form.slug) setForm((p) => ({ ...p, slug: generateSlug(e.target.value) })); }} className={inputCls} style={fs} placeholder="Post title" />
+            <div className="flex items-center gap-2">
+              <input required value={form.title} onChange={(e) => { set("title")(e); if (isNew && !form.slug) setForm((p) => ({ ...p, slug: generateSlug(e.target.value) })); }} className={inputCls} style={fs} placeholder="Post title" />
+              <button type="button" onClick={handleGenerateTitle} disabled={generatingTitle || (!form.excerpt.trim() && !form.content.trim())} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap" title="Generate title from excerpt/content">
+                <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingTitle ? "..." : "✨ Title"}</span>
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-5">
             <div>
@@ -324,11 +447,21 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
           </div>
           <div>
             <label className={labelCls} style={fs}>Excerpt (1–2 sentences) *</label>
-            <textarea required rows={2} value={form.excerpt} onChange={set("excerpt")} className={inputCls} style={{ ...fs, resize: "none" }} placeholder="Short description shown in listing" />
+            <div className="flex items-center gap-2">
+              <textarea required rows={2} value={form.excerpt} onChange={set("excerpt")} className={inputCls} style={{ ...fs, resize: "none" }} placeholder="Short description shown in listing" />
+              <button type="button" onClick={handleGenerateExcerpt} disabled={generatingExcerpt || !form.title.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap self-start mt-1" title="Generate excerpt from title">
+                <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingExcerpt ? "..." : "✨ Excerpt"}</span>
+              </button>
+            </div>
           </div>
           <div>
             <label className={labelCls} style={fs}>Content (full article) *</label>
-            <textarea required rows={12} value={form.content} onChange={set("content")} className={inputCls} style={{ ...fs, resize: "vertical" }} placeholder="Full post content. Plain text or markdown." />
+            <div className="flex items-start gap-2">
+              <textarea required rows={12} value={form.content} onChange={set("content")} className={inputCls} style={{ ...fs, resize: "vertical" }} placeholder="Full post content. Plain text or markdown." />
+              <button type="button" onClick={handleGenerateContent} disabled={generatingContent || !form.title.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap self-start mt-1" title="Generate full content from title">
+                <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingContent ? "..." : "✨ Content"}</span>
+              </button>
+            </div>
           </div>
         </div>
 

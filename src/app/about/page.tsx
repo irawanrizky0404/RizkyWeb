@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { siteConfig } from "@/lib/data";
-import { buildMetadata, getCV, getServices } from "@/lib/store";
+import { buildMetadata, getCV, getServices, getContent } from "@/lib/store";
 import { Reveal } from "@/components/ui/reveal";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 
@@ -14,12 +14,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
-  const [cv, services] = await Promise.all([
+  const [cv, services, content] = await Promise.all([
     getCV(),
-    getServices().catch(() => [])
+    getServices().catch(() => []),
+    getContent().catch(() => null)
   ]);
 
   const { experiences = [], awards = [], education = [] } = cv;
+  const about = content?.about;
+
   return (
     <>
       {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
@@ -41,7 +44,7 @@ export default async function AboutPage() {
         <div className="border-b border-rule px-5 py-10 md:px-12 md:py-16">
           <MaskReveal delay={0.1}>
             <p className="dis text-white" style={{ fontSize: "clamp(2rem, 6vw, 8rem)", lineHeight: 0.88, maxWidth: "20ch" }}>
-              Every project begins with a feeling, not a brief.
+              {about?.story || "Every project begins with a feeling, not a brief."}
             </p>
           </MaskReveal>
           <div className="mt-6 h-px w-12 bg-signal/40" />
@@ -57,7 +60,7 @@ export default async function AboutPage() {
           <div className="md:col-span-9">
             <Reveal delay={0.1}>
               <p className="text-white/70 mb-6" style={{ fontSize: "clamp(1rem, 1.8vw, 1.35rem)", lineHeight: 1.7 }}>
-                5 years across 3D, motion, illustration, and identity. My work is informed by post-punk aesthetics, Swiss editorial discipline, and the atmospheric weight of brutalist architecture.
+                {about?.intro || "5 years across 3D, motion, illustration, and identity. My work is informed by post-punk aesthetics, Swiss editorial discipline, and the atmospheric weight of brutalist architecture."}
               </p>
             </Reveal>
             <Reveal delay={0.18}>
@@ -94,9 +97,41 @@ export default async function AboutPage() {
         />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.5) 0%, transparent 40%, rgba(8,8,8,0.7) 100%)" }} />
         <div className="absolute bottom-6 left-5 md:left-12">
-          <span className="fac" style={{ fontSize: "0.48rem" }}>Indonesia · Est. 2017</span>
+          <span className="fac" style={{ fontSize: "0.48rem" }}>{content?.homepage?.location || "Indonesia"} · Est. {content?.homepage?.established || "2017"}</span>
         </div>
       </div>
+
+      {/* ── STORY SECTION ──────────────────────────────────────────── */}
+      {about?.storyTitle && (
+        <section className="border-t border-rule">
+          <div className="border-b border-rule px-5 py-8 md:px-12">
+            <Reveal>
+              <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 02 — {about.storyTitle} ]</p>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="text-white/70 max-w-3xl" style={{ fontSize: "clamp(1rem, 1.8vw, 1.35rem)", lineHeight: 1.7 }}>
+                {about.story}
+              </p>
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {/* ── APPROACH SECTION ─────────────────────────────────────────── */}
+      {about?.approachTitle && (
+        <section className="border-t border-rule">
+          <div className="border-b border-rule px-5 py-8 md:px-12">
+            <Reveal>
+              <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 03 — {about.approachTitle} ]</p>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="text-white/70 max-w-3xl" style={{ fontSize: "clamp(1rem, 1.8vw, 1.35rem)", lineHeight: 1.7 }}>
+                {about.approach}
+              </p>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* ── DISCIPLINES ─────────────────────────────────────────────── */}
       <section className="border-t border-rule">

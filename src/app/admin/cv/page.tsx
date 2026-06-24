@@ -7,7 +7,7 @@ import type { CVData } from "@/lib/store";
 
 const EMPTY_CV: CVData = { experiences: [], skillGroups: [], tools: [], education: [], awards: [] };
 
-type Tab = "experience" | "skills" | "tools" | "education" | "awards";
+type Tab = "experience" | "skills" | "tools" | "education" | "awards" | "preview";
 
 const EMPTY_EXP: Experience = { role: "", organization: "", period: "", description: "", highlights: [] };
 const EMPTY_SKILL: SkillGroup = { category: "", items: [] };
@@ -21,6 +21,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "tools", label: "Tools" },
   { id: "education", label: "Education" },
   { id: "awards", label: "Awards" },
+  { id: "preview", label: "Preview" },
 ];
 
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
@@ -63,8 +64,46 @@ function ExperienceForm({ initial, onSave, onCancel, isNew }: { initial: Experie
   const [form, setForm] = useState(initial);
   const [highlightsStr, setHighlightsStr] = useState(initial.highlights.join("\n"));
   const [isDirty, setIsDirty] = useState(false);
+  const [generatingDesc, setGeneratingDesc] = useState(false);
+  const [generatingHighlights, setGeneratingHighlights] = useState(false);
 
   const set = (k: keyof Experience) => (v: string) => { setIsDirty(true); setForm((p) => ({ ...p, [k]: v })); };
+
+  async function handleGenerateDescription() {
+    if (!form.role.trim()) { alert("Enter a role title first"); return; }
+    setGeneratingDesc(true);
+    try {
+      const res = await fetch("/api/admin/ai/description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: `${form.role} at ${form.organization || "Company"}`, type: "description", category: "work experience" }),
+      });
+      const data = await res.json();
+      if (data.result) {
+        setForm((p) => ({ ...p, description: data.result }));
+        setIsDirty(true);
+      } else alert(data.error || "Failed to generate");
+    } catch { alert("Failed to generate description"); }
+    finally { setGeneratingDesc(false); }
+  }
+
+  async function handleGenerateHighlights() {
+    if (!form.role.trim() || !form.description.trim()) { alert("Enter role and description first"); return; }
+    setGeneratingHighlights(true);
+    try {
+      const res = await fetch("/api/admin/ai/utils", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "highlights", text: `${form.role} at ${form.organization}: ${form.description}` }),
+      });
+      const data = await res.json();
+      if (data.result) {
+        setHighlightsStr(data.result);
+        setIsDirty(true);
+      } else alert("Failed to generate highlights");
+    } catch { alert("Failed to generate highlights"); }
+    finally { setGeneratingHighlights(false); }
+  }
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -416,6 +455,9 @@ export default function AdminCV() {
         <div>
           <span className="lab text-signal" style={{ fontSize: "0.55rem" }}>FAC.ADM — CV</span>
           <h1 className="dis text-white mt-1" style={{ fontSize: "clamp(2rem, 5vw, 5rem)", lineHeight: 0.88 }}>CV</h1>
+          <p className="lab text-white/30 mt-2" style={{ fontSize: "0.55rem" }}>
+            {cv.experiences.length} experiences · {cv.skillGroups.length} skill categories · {cv.tools.length} tools · {cv.education.length} education · {cv.awards.length} awards
+          </p>
         </div>
         {msg && <span className="lab text-signal" style={{ fontSize: "0.55rem" }}>{msg}</span>}
       </div>
@@ -442,7 +484,10 @@ export default function AdminCV() {
       {tab === "experience" && (
         <>
           <div className="flex items-center justify-between mb-4">
-            <span className="lab text-white/30" style={{ fontSize: "0.55rem" }}>{cv.experiences.length} entries</span>
+            <div>
+              <span className="lab text-white/30" style={{ fontSize: "0.55rem" }}>{cv.experiences.length} entries</span>
+              <p className="lab text-white/20 mt-1" style={{ fontSize: "0.5rem" }}>Add your work history, freelance projects, and relevant positions.</p>
+            </div>
             <button onClick={() => { setMode("add"); setEditing(null); }} className="border border-signal px-3 py-1 hover:bg-signal transition-colors">
               <span className="lab text-white group-hover:text-black" style={{ fontSize: "0.52rem" }}>+ Add</span>
             </button>
@@ -669,6 +714,207 @@ export default function AdminCV() {
             ))}
           </div>
         </>
+      )}
+
+      {/* ── Preview ─────────────────────────────────────────────── */}
+      {tab === "preview" && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <span className="lab text-white/30" style={{ fontSize: "0.55rem" }}>Live Preview</span>
+              <p className="lab text-white/20 mt-1" style={{ fontSize: "0.5rem" }}>See how your CV will appear on the homepage and CV page.</p>
+            </div>
+            <div className="flex gap-3">
+              <a
+                href="/cv"
+                target="_blank"
+                className="border border-rule px-3 py-1 lab text-white/30 hover:text-white hover:border-white/30 transition-colors"
+                style={{ fontSize: "0.52rem" }}
+              >
+                View CV Page ↗
+              </a>
+              <a
+                href="/about"
+                target="_blank"
+                className="border border-rule px-3 py-1 lab text-white/30 hover:text-white hover:border-white/30 transition-colors"
+                style={{ fontSize: "0.52rem" }}
+              >
+                View About Page ↗
+              </a>
+            </div>
+          </div>
+
+          {/* Mini CV Preview */}
+          <div className="border border-rule overflow-hidden">
+            {/* Header Preview */}
+            <div className="border-b border-rule px-5 py-4 bg-white/[0.02]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="dis text-white" style={{ fontSize: "clamp(1.5rem, 5vw, 3rem)", lineHeight: 0.9 }}>Rizky Irawan</p>
+                  <p className="lab text-white/30 mt-1" style={{ fontSize: "0.55rem" }}>Multidisciplinary Visual Artist · Indonesia · Est. 2017</p>
+                </div>
+                <span className="lab text-signal border border-signal px-2 py-1" style={{ fontSize: "0.5rem" }}>Download PDF ↓</span>
+              </div>
+            </div>
+
+            {/* Experience Preview */}
+            <div className="border-b border-rule">
+              <div className="px-5 py-3 border-b border-rule">
+                <span className="lab text-signal" style={{ fontSize: "0.5rem" }}>FAC.CV — Experience</span>
+              </div>
+              {cv.experiences.length === 0 ? (
+                <div className="px-5 py-6 text-center">
+                  <p className="lab text-white/30" style={{ fontSize: "0.55rem" }}>No experience entries yet. Add some above.</p>
+                </div>
+              ) : (
+                cv.experiences.slice(0, 3).map((exp, i) => (
+                  <div key={exp.role} className="border-b border-rule last:border-b-0 px-5 py-4">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2">
+                      <div className="flex-1">
+                        <p className="dis text-white" style={{ fontSize: "clamp(1rem, 3vw, 1.5rem)", lineHeight: 0.9 }}>{exp.role}</p>
+                        <p className="lab text-white/30 mt-1" style={{ fontSize: "0.5rem" }}>{exp.organization}</p>
+                      </div>
+                      <span className="lab text-signal shrink-0" style={{ fontSize: "0.5rem" }}>{exp.period}</span>
+                    </div>
+                    <p className="lab text-white/40 mt-2" style={{ fontSize: "0.55rem" }}>{exp.description}</p>
+                  </div>
+                ))
+              )}
+              {cv.experiences.length > 3 && (
+                <div className="px-5 py-3 text-center border-t border-rule">
+                  <span className="lab text-white/30" style={{ fontSize: "0.5rem" }}>+ {cv.experiences.length - 3} more on CV page</span>
+                </div>
+              )}
+            </div>
+
+            {/* Skills + Tools Preview */}
+            <div className="border-b border-rule">
+              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-rule">
+                {/* Skills */}
+                <div>
+                  <div className="px-5 py-3 border-b border-rule">
+                    <span className="lab text-signal" style={{ fontSize: "0.5rem" }}>Skills</span>
+                  </div>
+                  {cv.skillGroups.length === 0 ? (
+                    <div className="px-5 py-6 text-center">
+                      <p className="lab text-white/30" style={{ fontSize: "0.55rem" }}>No skill categories yet.</p>
+                    </div>
+                  ) : (
+                    cv.skillGroups.slice(0, 3).map((g) => (
+                      <div key={g.category} className="border-b border-rule last:border-b-0 px-5 py-4">
+                        <p className="lab text-white/50 mb-2" style={{ fontSize: "0.5rem" }}>{g.category}</p>
+                        <div className="flex flex-wrap gap-1">
+                          {g.items.slice(0, 6).map((item) => (
+                            <span key={item} className="lab text-white/60 border border-rule px-2 py-0.5" style={{ fontSize: "0.48rem" }}>{item}</span>
+                          ))}
+                          {g.items.length > 6 && (
+                            <span className="lab text-white/30" style={{ fontSize: "0.48rem" }}>+{g.items.length - 6}</span>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Tools */}
+                <div>
+                  <div className="px-5 py-3 border-b border-rule">
+                    <span className="lab text-signal" style={{ fontSize: "0.5rem" }}>Tools</span>
+                  </div>
+                  {cv.tools.length === 0 ? (
+                    <div className="px-5 py-6 text-center">
+                      <p className="lab text-white/30" style={{ fontSize: "0.55rem" }}>No tool categories yet.</p>
+                    </div>
+                  ) : (
+                    cv.tools.slice(0, 3).map((g) => (
+                      <div key={g.category} className="border-b border-rule last:border-b-0 px-5 py-4">
+                        <p className="lab text-white/50 mb-2" style={{ fontSize: "0.5rem" }}>{g.category}</p>
+                        <div className="flex flex-wrap gap-1">
+                          {g.items.slice(0, 6).map((item) => (
+                            <span key={item} className="lab text-white/60 border border-rule px-2 py-0.5" style={{ fontSize: "0.48rem" }}>{item}</span>
+                          ))}
+                          {g.items.length > 6 && (
+                            <span className="lab text-white/30" style={{ fontSize: "0.48rem" }}>+{g.items.length - 6}</span>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Education + Awards Preview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-rule">
+              {/* Education */}
+              <div>
+                <div className="px-5 py-3 border-b border-rule">
+                  <span className="lab text-signal" style={{ fontSize: "0.5rem" }}>Education</span>
+                </div>
+                {cv.education.length === 0 ? (
+                  <div className="px-5 py-6 text-center">
+                    <p className="lab text-white/30" style={{ fontSize: "0.55rem" }}>No education entries yet.</p>
+                  </div>
+                ) : (
+                  cv.education.slice(0, 2).map((edu) => (
+                    <div key={edu.degree} className="border-b border-rule last:border-b-0 px-5 py-4">
+                      <p className="dis text-white" style={{ fontSize: "clamp(0.9rem, 2.5vw, 1.3rem)", lineHeight: 0.9 }}>{edu.degree}</p>
+                      <p className="lab text-white/30 mt-1" style={{ fontSize: "0.5rem" }}>{edu.institution} · {edu.period}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Awards */}
+              <div>
+                <div className="px-5 py-3 border-b border-rule">
+                  <span className="lab text-signal" style={{ fontSize: "0.5rem" }}>Recognition</span>
+                </div>
+                {cv.awards.length === 0 ? (
+                  <div className="px-5 py-6 text-center">
+                    <p className="lab text-white/30" style={{ fontSize: "0.55rem" }}>No awards yet.</p>
+                  </div>
+                ) : (
+                  cv.awards.slice(0, 2).map((award) => (
+                    <div key={award.title} className="border-b border-rule last:border-b-0 px-5 py-4">
+                      <p className="dis text-white" style={{ fontSize: "clamp(0.9rem, 2.5vw, 1.3rem)", lineHeight: 0.9 }}>{award.title}</p>
+                      <p className="lab text-white/30 mt-1" style={{ fontSize: "0.5rem" }}>{award.organization} · {award.year}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* CTA Preview */}
+            <div className="border-t-2 border-signal px-5 py-6">
+              <p className="dis text-white" style={{ fontSize: "clamp(1.5rem, 5vw, 3rem)", lineHeight: 0.88 }}>Let&apos;s work together.</p>
+            </div>
+          </div>
+
+          {/* Stats Summary */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="border border-rule p-4 text-center">
+              <p className="dis text-white" style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)", lineHeight: 0.9 }}>{cv.experiences.length}</p>
+              <p className="lab text-white/30" style={{ fontSize: "0.5rem" }}>Experiences</p>
+            </div>
+            <div className="border border-rule p-4 text-center">
+              <p className="dis text-white" style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)", lineHeight: 0.9 }}>{cv.skillGroups.length}</p>
+              <p className="lab text-white/30" style={{ fontSize: "0.5rem" }}>Skill Groups</p>
+            </div>
+            <div className="border border-rule p-4 text-center">
+              <p className="dis text-white" style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)", lineHeight: 0.9 }}>{cv.tools.length}</p>
+              <p className="lab text-white/30" style={{ fontSize: "0.5rem" }}>Tool Groups</p>
+            </div>
+            <div className="border border-rule p-4 text-center">
+              <p className="dis text-white" style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)", lineHeight: 0.9 }}>{cv.education.length}</p>
+              <p className="lab text-white/30" style={{ fontSize: "0.5rem" }}>Education</p>
+            </div>
+            <div className="border border-rule p-4 text-center">
+              <p className="dis text-white" style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)", lineHeight: 0.9 }}>{cv.awards.length}</p>
+              <p className="lab text-white/30" style={{ fontSize: "0.5rem" }}>Awards</p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

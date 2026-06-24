@@ -22,6 +22,7 @@ export interface Project {
   cover: string;
   gallery: string[];
   url?: string;
+  videoUrl?: string;
   featured: boolean;
   type?: "client" | "personal";
 }

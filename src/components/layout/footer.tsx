@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/lib/data";
 import { Magnetic } from "@/components/ui/magnetic";
+import { AmbientSound } from "@/components/ui/ambient-sound";
 
 const socials = [
   { label: "Instagram", href: siteConfig.social.instagram },
@@ -105,8 +106,11 @@ export function Footer() {
             </a>
           ))}
         </div>
-        {/* Status */}
-        <span className="lab text-signal shrink-0" style={{ fontSize: "0.58rem" }}>Open for Work</span>
+        {/* Status + Ambient Sound */}
+        <div className="flex items-center gap-6">
+          <AmbientSound />
+          <span className="lab text-signal shrink-0" style={{ fontSize: "0.58rem" }}>Open for Work</span>
+        </div>
       </div>
 
       {/* ── Ticker ────────────────────────────────────────────────── */}

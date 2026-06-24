@@ -6,18 +6,20 @@ import type { Service, ServiceCategory } from "@/lib/types";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const CATEGORIES: ServiceCategory[] = ["3D", "Animation", "Graphic Design", "Illustration"];
-const EMPTY: Service = { category: "3D", description: "", items: [] };
+const DEFAULT_CATEGORIES: ServiceCategory[] = ["3D", "Animation", "Graphic Design", "Illustration"];
+const EMPTY: Service = { category: "", description: "", items: [] };
 
-function ServiceForm({ initial, onSave, onCancel, isNew }: {
+function ServiceForm({ initial, onSave, onCancel, isNew, existingCategories }: {
   initial: Service;
   onSave: (s: Service) => void;
   onCancel: () => void;
   isNew: boolean;
+  existingCategories: string[];
 }) {
   const [form, setForm] = useState<Service>(initial);
   const [itemsStr, setItemsStr] = useState(initial.items.join(", "));
   const [isDirty, setIsDirty] = useState(false);
+  const [showNewCategory, setShowNewCategory] = useState(isNew);
 
   const set = (k: keyof Service) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setIsDirty(true);
@@ -46,8 +48,13 @@ function ServiceForm({ initial, onSave, onCancel, isNew }: {
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!form.category.trim()) {
+      alert("Please enter a category name");
+      return;
+    }
     onSave({
       ...form,
+      category: form.category.trim(),
       items: itemsStr.split(",").map((t) => t.trim()).filter(Boolean),
     });
   }
@@ -65,16 +72,49 @@ function ServiceForm({ initial, onSave, onCancel, isNew }: {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
           <label className={labelCls} style={fs}>Category *</label>
-          <select
-            required
-            value={form.category}
-            onChange={set("category")}
-            disabled={!isNew}
-            className={selectCls}
-            style={fs}
-          >
-            {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
+          <div className="flex gap-2">
+            <select
+              required
+              value={showNewCategory ? "" : form.category}
+              onChange={(e) => {
+                setIsDirty(true);
+                if (e.target.value === "__new__") {
+                  setShowNewCategory(true);
+                  setForm(prev => ({ ...prev, category: "" }));
+                } else {
+                  setShowNewCategory(false);
+                  setForm((prev) => ({ ...prev, category: e.target.value }));
+                }
+              }}
+              className={selectCls}
+              style={fs}
+            >
+              <option value="">Select category...</option>
+              {existingCategories.map((c) => <option key={c} value={c}>{c}</option>)}
+              <option value="__new__">+ Add new category</option>
+            </select>
+          </div>
+          {showNewCategory && (
+            <input
+              type="text"
+              value={form.category}
+              onChange={(e) => { setIsDirty(true); setForm((prev) => ({ ...prev, category: e.target.value })); }}
+              className={`${inputCls} mt-2`}
+              style={fs}
+              placeholder="Enter new category name"
+              autoFocus
+            />
+          )}
+          {!isNew && !showNewCategory && existingCategories.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowNewCategory(true)}
+              className="lab text-signal hover:text-white transition-colors mt-2"
+              style={{ fontSize: "0.5rem" }}
+            >
+              + Rename to new category
+            </button>
+          )}
         </div>
         <div className="md:col-span-2">
           <label className={labelCls} style={fs}>Description *</label>
@@ -183,6 +223,7 @@ export default function AdminServices() {
             onSave={handleSave}
             onCancel={() => { setMode("list"); setEditing(null); }}
             isNew={mode === "add"}
+            existingCategories={services.map(s => s.category)}
           />
         </div>
       )}

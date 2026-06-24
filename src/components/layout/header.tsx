@@ -5,6 +5,12 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { navLinks, siteConfig } from "@/lib/data";
+
+const socials = [
+  { label: "Instagram", href: siteConfig.social.instagram },
+  { label: "Behance", href: siteConfig.social.behance },
+  { label: "LinkedIn", href: siteConfig.social.linkedin },
+];
 import { cn } from "@/lib/utils";
 import { Magnetic } from "@/components/ui/magnetic";
 
@@ -117,7 +123,7 @@ export function Header() {
             <Link href="/" className="group">
               <span
                 className="lab text-white transition-colors group-hover:text-signal"
-                style={{ letterSpacing: "0.15em", fontSize: "0.7rem" }}
+                style={{ letterSpacing: "0.15em", fontSize: "0.85rem" }}
               >
                 Rizky Irawan
               </span>
@@ -140,6 +146,7 @@ export function Header() {
             onClick={() => setOpen(true)}
             className="lab text-white/40 hover:text-white transition-colors md:hidden"
             aria-label="Open menu"
+            style={{ fontSize: "0.85rem" }}
           >
             Menu
           </button>
@@ -151,7 +158,7 @@ export function Header() {
         )}
       </header>
 
-      {/* Mobile fullscreen overlay */}
+      {/* Mobile fullscreen overlay - cinematic */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -159,74 +166,110 @@ export function Header() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[60] flex flex-col bg-black"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <div className="flex items-center justify-between border-b border-rule px-5 py-4">
-              <span className="lab text-white/40" style={{ letterSpacing: "0.15em", fontSize: "0.7rem" }}>
-                Rizky Irawan
+            {/* Scanlines overlay */}
+            <div
+              className="pointer-events-none absolute inset-0 z-10"
+              style={{
+                backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)",
+              }}
+            />
+
+            {/* Vignette */}
+            <div
+              className="pointer-events-none absolute inset-0 z-[11]"
+              style={{ background: "radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(8,8,8,0.7) 100%)" }}
+            />
+
+            {/* Orange accent line top */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-signal z-20" />
+
+            {/* Header */}
+            <div className="relative z-20 flex items-center justify-between px-5 py-5 border-b border-white/5">
+              <span className="lab text-signal" style={{ letterSpacing: "0.2em", fontSize: "0.65rem" }}>
+                FAC.001
               </span>
               <button
                 onClick={() => setOpen(false)}
-                className="lab text-white/40 hover:text-white transition-colors"
+                className="lab text-white/60 hover:text-signal transition-colors tracking-widest"
                 aria-label="Close menu"
+                style={{ fontSize: "0.7rem" }}
               >
-                Close ×
+                CLOSE ×
               </button>
             </div>
 
-            <nav className="flex flex-1 flex-col justify-center px-5">
+            {/* Nav Links */}
+            <nav className="relative z-20 flex-1 flex flex-col justify-center px-5 py-6">
+              {/* Decorative side line */}
+              <div className="absolute left-5 top-1/2 -translate-y-1/2 w-px h-32 bg-gradient-to-b from-transparent via-signal/30 to-transparent" />
+
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.href}
-                  initial={{ opacity: 0, x: -12 }}
+                  initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
+                  transition={{ delay: i * 0.08, duration: 0.3 }}
                 >
                   <Link
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className="group flex items-baseline gap-5 border-b border-rule py-5"
+                    className="group flex items-center gap-6 py-5 border-b border-white/5 hover:border-signal/20 transition-colors"
                   >
-                    <span className="lab w-7 text-signal/40">
+                    <span
+                      className="lab text-signal/40 group-hover:text-signal transition-colors"
+                      style={{ fontSize: "0.5rem", letterSpacing: "0.1em" }}
+                    >
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span
                       className={cn(
-                        "dis flex-1 transition-colors",
+                        "dis tracking-wide transition-colors",
                         pathname === link.href
                           ? "text-signal"
-                          : "text-white group-hover:text-signal"
+                          : "text-white/90 group-hover:text-signal"
                       )}
-                      style={{ fontSize: "clamp(2.5rem, 12vw, 5.5rem)" }}
+                      style={{ fontSize: "clamp(2rem, 9vw, 4rem)", lineHeight: 1 }}
                     >
                       {link.label}
                     </span>
+                    <span className="ml-auto text-signal/0 group-hover:text-signal/30 transition-colors" style={{ fontSize: "1.5rem" }}>→</span>
                   </Link>
                 </motion.div>
               ))}
             </nav>
 
-            <div className="shrink-0 border-t border-rule px-5 py-4">
+            {/* Footer */}
+            <div className="relative z-20 border-t border-white/5 px-5 py-5">
               <a
                 href={`mailto:${siteConfig.email}`}
-                className="lab text-white/25 hover:text-signal transition-colors"
+                className="lab text-white/40 hover:text-signal transition-colors block mb-3"
+                style={{ fontSize: "0.6rem" }}
               >
                 {siteConfig.email}
               </a>
-            </div>
-
-            {/* Swipe hint */}
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-30">
-              <span className="lab text-white" style={{ fontSize: "0.45rem" }}>Swipe right to close</span>
-              <div className="flex gap-1">
-                <div className="w-8 h-px bg-white/50" />
-                <div className="w-2 h-px bg-white/50" />
-                <div className="w-2 h-px bg-white/50" />
+              <div className="flex items-center gap-5">
+                {socials.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="lab text-white/30 hover:text-signal transition-colors"
+                    style={{ fontSize: "0.55rem" }}
+                  >
+                    {s.label}
+                  </a>
+                ))}
               </div>
             </div>
+
+            {/* Bottom accent */}
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-signal/50 to-transparent" />
           </motion.div>
         )}
       </AnimatePresence>

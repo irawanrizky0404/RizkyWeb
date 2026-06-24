@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/data";
-import { buildMetadata } from "@/lib/store";
+import { buildMetadata, getContent } from "@/lib/store";
 import { ContactLinks } from "@/components/contact/contact-links";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 
@@ -11,7 +11,10 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const content = await getContent().catch(() => null);
+  const contact = content?.contact;
+
   return (
     <>
       {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
@@ -24,12 +27,12 @@ export default function ContactPage() {
         </MaskReveal>
         <div className="mt-5 flex items-center gap-3">
           <span className="h-2 w-2 bg-signal" style={{ animation: "pulse 2s ease-in-out infinite" }} />
-          <span className="lab text-signal" style={{ fontSize: "0.7rem" }}>Available for work — 2025</span>
+          <span className="lab text-signal" style={{ fontSize: "0.7rem" }}>{contact?.availability || "Available for work — 2025"}</span>
         </div>
       </div>
 
       {/* ── MAIN GRID ───────────────────────────────────────────────── */}
-      <ContactLinks email={siteConfig.email} social={siteConfig.social} />
+      <ContactLinks email={contact?.email || siteConfig.email} social={siteConfig.social} />
     </>
   );
 }

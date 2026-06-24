@@ -12,7 +12,7 @@ const META = [
   { label: "Response", value: "< 24h"     },
 ];
 
-export function Cta() {
+export function Cta({ ctaText }: { ctaText?: string }) {
   return (
     <section className="relative overflow-hidden border-t-2 border-signal bg-black">
 
@@ -46,7 +46,7 @@ export function Cta() {
           className="dis text-white"
           style={{ fontSize: "clamp(2.6rem, 8vw, 11rem)", lineHeight: 0.88, maxWidth: "14ch" }}
         >
-          Start the transmission.
+          {ctaText || "Start a Project"}
         </p>
 
         {/* Meta grid */}

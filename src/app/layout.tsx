@@ -116,7 +116,6 @@ export default async function RootLayout({
         <LenisProvider>
           <ProgressBar />
           {!isAdmin && <Cursor />}
-          {!isAdmin && <AmbientSound />}
           <Header />
           <main><PageTransition>{children}</PageTransition></main>
           <Footer />

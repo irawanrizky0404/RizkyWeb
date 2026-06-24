@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { saveDesign, getWorks, saveWorks, getJournal, saveJournal, getServices, saveServices, getClients, saveClients, getCV, saveCV, saveSEO } from "@/lib/store";
-import type { DesignConfig, CVData, SEOConfig } from "@/lib/store";
+import { saveDesign, getWorks, saveWorks, getJournal, saveJournal, getServices, saveServices, getClients, saveClients, getCV, saveCV, saveSEO, saveContent } from "@/lib/store";
+import type { DesignConfig, CVData, SEOConfig, PageContent } from "@/lib/store";
 import type { Project, JournalPost, Service, Experience, SkillGroup, Education, Award } from "@/lib/types";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import path from "path";
@@ -71,6 +71,19 @@ export async function updateSEO(seo: SEOConfig) {
     return { ok: true };
   } catch (err) {
     console.error("[updateSEO]", err);
+    return { ok: false, error: String(err) };
+  }
+}
+
+// ── Page Content ──────────────────────────────────────────────────────────────
+export async function updateContent(content: PageContent) {
+  try {
+    await saveContent(content);
+    revalidatePath("/");
+    await logActivity("content.update", "Page content updated");
+    return { ok: true };
+  } catch (err) {
+    console.error("[updateContent]", err);
     return { ok: false, error: String(err) };
   }
 }

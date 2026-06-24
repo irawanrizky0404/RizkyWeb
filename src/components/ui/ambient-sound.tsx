@@ -88,10 +88,10 @@ export function AmbientSound() {
       onClick={toggle}
       title={playing ? "Mute ambient" : "Play ambient"}
       aria-label={playing ? "Mute ambient sound" : "Play ambient sound"}
-      className="group fixed bottom-5 right-5 z-[99990] flex items-center gap-2 transition-opacity"
-      style={{ opacity: 0.5, }}
+      className="group flex items-center gap-2 transition-opacity ml-auto mr-4"
+      style={{ opacity: 0.4 }}
       onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-      onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.5")}
+      onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.4")}
     >
       {/* Waveform bars */}
       <div className="flex items-end gap-[2px]" style={{ height: "14px" }}>

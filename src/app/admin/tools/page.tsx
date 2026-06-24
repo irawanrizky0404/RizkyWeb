@@ -5,8 +5,9 @@ import { useState } from "react";
 type Result = { [key: string]: any };
 
 export default function AdminTools() {
-  const [mode, setMode] = useState<"content" | "visual" | "seo">("content");
+  const [mode, setMode] = useState<"content" | "visual" | "seo" | "title" | "describe" | "invoice" | "utils">("content");
   const [visualMode, setVisualMode] = useState<"palette" | "style" | "mood" | "composition" | "name">("palette");
+  const [utilsMode, setUtilsMode] = useState<"slug" | "hashtag" | "alttext" | "summary" | "email">("slug");
   const [contentMode, setContentMode] = useState<"single" | "bulk">("single");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
@@ -27,6 +28,32 @@ export default function AdminTools() {
   const [seoDesc, setSeoDesc] = useState("");
   const [seoType, setSeoType] = useState<"work" | "journal" | "page">("work");
   const [seoResult, setSeoResult] = useState<Result | null>(null);
+
+  // Title generation state
+  const [titleDesc, setTitleDesc] = useState("");
+  const [titleCategory, setTitleCategory] = useState<"3D" | "Illustration" | "Graphic Design" | "Animation">("3D");
+  const [titleResult, setTitleResult] = useState<Result | null>(null);
+
+  // Description generation state
+  const [descTitle, setDescTitle] = useState("");
+  const [descType, setDescType] = useState<"summary" | "description">("summary");
+  const [descCategory, setDescCategory] = useState<"3D" | "Illustration" | "Graphic Design" | "Animation">("3D");
+  const [descResult, setDescResult] = useState<Result | null>(null);
+
+  // Invoice generation state
+  const [invoiceClient, setInvoiceClient] = useState("");
+  const [invoiceEmail, setInvoiceEmail] = useState("");
+  const [invoiceAddress, setInvoiceAddress] = useState("");
+  const [invoiceProject, setInvoiceProject] = useState("");
+  const [invoiceProjectDesc, setInvoiceProjectDesc] = useState("");
+  const [invoiceItems, setInvoiceItems] = useState([{ description: "", quantity: "1", price: "" }]);
+  const [invoiceDueDate, setInvoiceDueDate] = useState("");
+  const [invoiceNotes, setInvoiceNotes] = useState("");
+  const [invoiceResult, setInvoiceResult] = useState<Result | null>(null);
+
+  // Utilities state
+  const [utilsInput, setUtilsInput] = useState("");
+  const [utilsContext, setUtilsContext] = useState("");
 
   function copy(text: string, key: string) {
     navigator.clipboard.writeText(text).then(() => {
@@ -149,6 +176,121 @@ export default function AdminTools() {
     }
   }
 
+  // Title Generation
+  async function generateTitle(e: React.FormEvent) {
+    e.preventDefault();
+    if (!titleDesc.trim()) return;
+
+    setLoading(true);
+    setTitleResult(null);
+
+    try {
+      const res = await fetch("/api/admin/ai/title", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: titleDesc.trim(), category: titleCategory }),
+      });
+      const data = await res.json();
+      setTitleResult(data);
+    } catch {
+      setTitleResult({ error: "Request failed" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Description Generation
+  async function generateDesc(e: React.FormEvent) {
+    e.preventDefault();
+    if (!descTitle.trim()) return;
+
+    setLoading(true);
+    setDescResult(null);
+
+    try {
+      const res = await fetch("/api/admin/ai/description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: descTitle.trim(), type: descType, category: descCategory }),
+      });
+      const data = await res.json();
+      setDescResult(data);
+    } catch {
+      setDescResult({ error: "Request failed" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Invoice Generation
+  async function generateInvoice(e: React.FormEvent) {
+    e.preventDefault();
+    if (!invoiceClient.trim() || !invoiceItems[0].description.trim()) return;
+
+    setLoading(true);
+    setInvoiceResult(null);
+
+    try {
+      const res = await fetch("/api/admin/ai/invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientName: invoiceClient.trim(),
+          clientEmail: invoiceEmail.trim() || null,
+          clientAddress: invoiceAddress.trim() || null,
+          projectTitle: invoiceProject.trim() || null,
+          projectDescription: invoiceProjectDesc.trim() || null,
+          items: invoiceItems.filter(item => item.description.trim()),
+          dueDate: invoiceDueDate.trim() || null,
+          notes: invoiceNotes.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      setInvoiceResult(data);
+    } catch {
+      setInvoiceResult({ error: "Request failed" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function addInvoiceItem() {
+    setInvoiceItems([...invoiceItems, { description: "", quantity: "1", price: "" }]);
+  }
+
+  function removeInvoiceItem(index: number) {
+    setInvoiceItems(invoiceItems.filter((_, i) => i !== index));
+  }
+
+  function updateInvoiceItem(index: number, field: "description" | "quantity" | "price", value: string) {
+    const updated = [...invoiceItems];
+    updated[index][field] = value;
+    setInvoiceItems(updated);
+  }
+
+  // Utilities
+  async function generateUtils(e: React.FormEvent) {
+    e.preventDefault();
+    if (!utilsInput.trim()) return;
+
+    setLoading(true);
+    setResult(null);
+
+    try {
+      const res = await fetch("/api/admin/ai/utils", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: utilsInput.trim(), context: utilsContext.trim() || null, type: utilsMode }),
+      });
+      const data = await res.json();
+      setResult(data);
+    } catch {
+      setResult({ error: "Request failed" });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const renderResult = (data: Result, _label: string, _parentKey?: string) => {
     if (data.error) {
       return <p className="lab text-red-400" style={{ fontSize: "0.6rem" }}>{data.error}</p>;
@@ -234,6 +376,10 @@ export default function AdminTools() {
     { id: "content" as const, label: "Content" },
     { id: "visual" as const, label: "Visual Analysis" },
     { id: "seo" as const, label: "SEO Meta" },
+    { id: "title" as const, label: "Title Gen" },
+    { id: "describe" as const, label: "Description" },
+    { id: "invoice" as const, label: "Invoice" },
+    { id: "utils" as const, label: "Utilities" },
   ];
 
   const visualLabels = [
@@ -242,6 +388,14 @@ export default function AdminTools() {
     { id: "mood" as const, label: "Mood" },
     { id: "composition" as const, label: "Composition" },
     { id: "name" as const, label: "Naming" },
+  ];
+
+  const utilsLabels = [
+    { id: "slug" as const, label: "Slug" },
+    { id: "hashtag" as const, label: "Hashtag" },
+    { id: "alttext" as const, label: "Alt Text" },
+    { id: "summary" as const, label: "Summary" },
+    { id: "email" as const, label: "Email" },
   ];
 
   return (
@@ -260,7 +414,7 @@ export default function AdminTools() {
         {modeLabels.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => { setMode(tab.id); setResult(null); setBulkResults([]); setSeoResult(null); }}
+            onClick={() => { setMode(tab.id); setResult(null); setBulkResults([]); setSeoResult(null); setTitleResult(null); setDescResult(null); setInvoiceResult(null); }}
             className="px-4 py-2 lab transition-colors border-b-2"
             style={{
               fontSize: "0.6rem",
@@ -597,6 +751,440 @@ export default function AdminTools() {
         </div>
       )}
 
+      {/* Utilities Mode */}
+      {mode === "utils" && (
+        <div>
+          <div className="flex gap-1 mb-6">
+            {utilsLabels.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => { setUtilsMode(tab.id); setResult(null); }}
+                className="lab px-3 py-1.5 border transition-colors"
+                style={{
+                  fontSize: "0.55rem",
+                  color: utilsMode === tab.id ? "#080808" : "rgba(240,240,238,0.4)",
+                  background: utilsMode === tab.id ? "#ff3500" : "transparent",
+                  borderColor: utilsMode === tab.id ? "#ff3500" : "rgba(240,240,238,0.12)",
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={generateUtils} className="flex flex-col gap-5 mb-6">
+            <div>
+              <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>
+                {utilsMode === "email" ? "Email Purpose" : utilsMode === "slug" ? "Text to Slugify" : "Input"} *
+              </label>
+              <input
+                type="text"
+                value={utilsInput}
+                onChange={(e) => setUtilsInput(e.target.value)}
+                required
+                placeholder={
+                  utilsMode === "slug" ? "My Project Title 2024" :
+                  utilsMode === "hashtag" ? "Visual artist portfolio" :
+                  utilsMode === "alttext" ? "Describe the image content" :
+                  utilsMode === "summary" ? "Topic or content to summarize" :
+                  "Purpose of the email"
+                }
+                className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+                style={{ fontSize: "0.6rem" }}
+              />
+            </div>
+            {utilsMode !== "slug" && (
+              <div>
+                <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>
+                  {utilsMode === "email" ? "Details/Context" : utilsMode === "hashtag" ? "Content Type" : "Additional Context"} (optional)
+                </label>
+                <input
+                  type="text"
+                  value={utilsContext}
+                  onChange={(e) => setUtilsContext(e.target.value)}
+                  placeholder={
+                    utilsMode === "hashtag" ? "Photography, Design, Art..." :
+                    utilsMode === "email" ? "Recipient name, tone preferences..." :
+                    "Any additional context"
+                  }
+                  className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+                  style={{ fontSize: "0.6rem" }}
+                />
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={loading || !utilsInput.trim()}
+              className="group inline-flex items-center gap-3 border border-signal px-6 py-3 hover:bg-signal transition-colors disabled:opacity-40 self-start"
+            >
+              <span className="lab text-white group-hover:text-black transition-colors" style={{ fontSize: "0.6rem" }}>
+                {loading ? "Generating…" : "Generate"}
+              </span>
+            </button>
+          </form>
+
+          {result && (
+            <div className="border border-rule">
+              <div className="px-5 py-4">
+                {result.error ? (
+                  <p className="lab text-red-400" style={{ fontSize: "0.6rem" }}>{result.error}</p>
+                ) : (
+                  <div>
+                    {utilsMode === "email" && typeof result.result === "string" ? (
+                      result.result.split("\n").map((line: string, i: number) => (
+                        <p key={i} className="text-white/80 mb-2" style={{ fontSize: "0.8rem" }}>{line}</p>
+                      ))
+                    ) : (
+                      <p className="text-white/80" style={{ fontSize: "0.8rem" }}>{result.result}</p>
+                    )}
+                    <button
+                      onClick={() => copy(typeof result.result === "string" ? result.result : "", "utils-result")}
+                      className="lab text-white/30 hover:text-signal mt-3"
+                      style={{ fontSize: "0.48rem" }}
+                    >
+                      {copied === "utils-result" ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Title Generation Mode */}
+      {mode === "title" && (
+        <div>
+          <form onSubmit={generateTitle} className="flex flex-col gap-5 mb-6">
+            <div>
+              <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Visual Description *</label>
+              <textarea
+                value={titleDesc}
+                onChange={(e) => setTitleDesc(e.target.value)}
+                required
+                rows={4}
+                placeholder="Describe the visual: mood, lighting, subjects, atmosphere, composition..."
+                className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors resize-none"
+                style={{ fontSize: "0.6rem" }}
+              />
+            </div>
+            <div>
+              <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Category</label>
+              <select
+                value={titleCategory}
+                onChange={(e) => setTitleCategory(e.target.value as typeof titleCategory)}
+                className="w-full bg-dim border border-rule px-3 py-2 lab text-white focus:outline-none focus:border-signal transition-colors"
+                style={{ fontSize: "0.6rem" }}
+              >
+                {(["3D", "Illustration", "Graphic Design", "Animation"] as const).map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="submit"
+              disabled={loading || !titleDesc.trim()}
+              className="group inline-flex items-center gap-3 border border-signal px-6 py-3 hover:bg-signal transition-colors disabled:opacity-40 self-start"
+            >
+              <span className="lab text-white group-hover:text-black transition-colors" style={{ fontSize: "0.6rem" }}>
+                {loading ? "Generating..." : "Generate Title"}
+              </span>
+            </button>
+          </form>
+
+          {titleResult && (
+            <div className="border border-rule">
+              <div className="px-5 py-4">
+                {titleResult.error ? (
+                  <p className="lab text-red-400" style={{ fontSize: "0.6rem" }}>{titleResult.error}</p>
+                ) : (
+                  <div>
+                    <p className="dis text-white" style={{ fontSize: "clamp(1.2rem, 3vw, 2rem)", lineHeight: 1.1 }}>{titleResult.title}</p>
+                    <button
+                      onClick={() => copy(titleResult.title || "", "title-result")}
+                      className="lab text-white/30 hover:text-signal mt-3"
+                      style={{ fontSize: "0.48rem" }}
+                    >
+                      {copied === "title-result" ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Description Generation Mode */}
+      {mode === "describe" && (
+        <div>
+          <form onSubmit={generateDesc} className="flex flex-col gap-5 mb-6">
+            <div>
+              <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Title *</label>
+              <input
+                type="text"
+                value={descTitle}
+                onChange={(e) => setDescTitle(e.target.value)}
+                required
+                placeholder="Enter a title to generate description from"
+                className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+                style={{ fontSize: "0.6rem" }}
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setDescType("summary")}
+                className="lab px-3 py-1.5 border transition-colors"
+                style={{
+                  fontSize: "0.55rem",
+                  color: descType === "summary" ? "#080808" : "rgba(240,240,238,0.4)",
+                  background: descType === "summary" ? "#ff3500" : "transparent",
+                  borderColor: descType === "summary" ? "#ff3500" : "rgba(240,240,238,0.12)",
+                }}
+              >
+                Summary (1 sentence)
+              </button>
+              <button
+                type="button"
+                onClick={() => setDescType("description")}
+                className="lab px-3 py-1.5 border transition-colors"
+                style={{
+                  fontSize: "0.55rem",
+                  color: descType === "description" ? "#080808" : "rgba(240,240,238,0.4)",
+                  background: descType === "description" ? "#ff3500" : "transparent",
+                  borderColor: descType === "description" ? "#ff3500" : "rgba(240,240,238,0.12)",
+                }}
+              >
+                Full Description
+              </button>
+            </div>
+            <div>
+              <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Category</label>
+              <select
+                value={descCategory}
+                onChange={(e) => setDescCategory(e.target.value as typeof descCategory)}
+                className="w-full bg-dim border border-rule px-3 py-2 lab text-white focus:outline-none focus:border-signal transition-colors"
+                style={{ fontSize: "0.6rem" }}
+              >
+                {(["3D", "Illustration", "Graphic Design", "Animation"] as const).map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="submit"
+              disabled={loading || !descTitle.trim()}
+              className="group inline-flex items-center gap-3 border border-signal px-6 py-3 hover:bg-signal transition-colors disabled:opacity-40 self-start"
+            >
+              <span className="lab text-white group-hover:text-black transition-colors" style={{ fontSize: "0.6rem" }}>
+                {loading ? "Generating..." : "Generate Description"}
+              </span>
+            </button>
+          </form>
+
+          {descResult && (
+            <div className="border border-rule">
+              <div className="px-5 py-4">
+                {descResult.error ? (
+                  <p className="lab text-red-400" style={{ fontSize: "0.6rem" }}>{descResult.error}</p>
+                ) : (
+                  <div>
+                    <p className="text-white/80 whitespace-pre-wrap" style={{ fontSize: "0.8rem", lineHeight: 1.6 }}>{descResult.result}</p>
+                    <button
+                      onClick={() => copy(descResult.result || "", "desc-result")}
+                      className="lab text-white/30 hover:text-signal mt-3"
+                      style={{ fontSize: "0.48rem" }}
+                    >
+                      {copied === "desc-result" ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Invoice Generation Mode */}
+      {mode === "invoice" && (
+        <div>
+          <form onSubmit={generateInvoice} className="flex flex-col gap-5 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Client Name *</label>
+                <input
+                  type="text"
+                  value={invoiceClient}
+                  onChange={(e) => setInvoiceClient(e.target.value)}
+                  required
+                  placeholder="Client or company name"
+                  className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+                  style={{ fontSize: "0.6rem" }}
+                />
+              </div>
+              <div>
+                <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Client Email</label>
+                <input
+                  type="email"
+                  value={invoiceEmail}
+                  onChange={(e) => setInvoiceEmail(e.target.value)}
+                  placeholder="client@example.com"
+                  className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+                  style={{ fontSize: "0.6rem" }}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Client Address</label>
+                <input
+                  type="text"
+                  value={invoiceAddress}
+                  onChange={(e) => setInvoiceAddress(e.target.value)}
+                  placeholder="123 Street Name, City, Country"
+                  className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+                  style={{ fontSize: "0.6rem" }}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Project Title</label>
+                <input
+                  type="text"
+                  value={invoiceProject}
+                  onChange={(e) => setInvoiceProject(e.target.value)}
+                  placeholder="Creative Services"
+                  className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+                  style={{ fontSize: "0.6rem" }}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Project Description</label>
+                <textarea
+                  value={invoiceProjectDesc}
+                  onChange={(e) => setInvoiceProjectDesc(e.target.value)}
+                  rows={2}
+                  placeholder="Brief description of the project..."
+                  className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors resize-none"
+                  style={{ fontSize: "0.6rem" }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="lab text-white/30 block mb-2" style={{ fontSize: "0.58rem" }}>Line Items *</label>
+              <div className="space-y-3">
+                {invoiceItems.map((item, index) => (
+                  <div key={index} className="flex gap-3 items-center">
+                    <input
+                      type="text"
+                      value={item.description}
+                      onChange={(e) => updateInvoiceItem(index, "description", e.target.value)}
+                      placeholder="Service or product description"
+                      className="flex-1 bg-transparent border border-rule px-3 py-2 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+                      style={{ fontSize: "0.6rem" }}
+                    />
+                    <input
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) => updateInvoiceItem(index, "quantity", e.target.value)}
+                      placeholder="Qty"
+                      min="1"
+                      className="w-16 bg-transparent border border-rule px-2 py-2 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors text-center"
+                      style={{ fontSize: "0.6rem" }}
+                    />
+                    <input
+                      type="number"
+                      value={item.price}
+                      onChange={(e) => updateInvoiceItem(index, "price", e.target.value)}
+                      placeholder="Price"
+                      min="0"
+                      step="0.01"
+                      className="w-24 bg-transparent border border-rule px-2 py-2 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors text-center"
+                      style={{ fontSize: "0.6rem" }}
+                    />
+                    {invoiceItems.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeInvoiceItem(index)}
+                        className="text-white/30 hover:text-red-400 transition-colors"
+                        style={{ fontSize: "0.8rem" }}
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addInvoiceItem}
+                className="mt-3 lab text-white/40 hover:text-signal transition-colors"
+                style={{ fontSize: "0.55rem" }}
+              >
+                + Add Line Item
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Due Date</label>
+                <input
+                  type="text"
+                  value={invoiceDueDate}
+                  onChange={(e) => setInvoiceDueDate(e.target.value)}
+                  placeholder="Net 30 or specific date"
+                  className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+                  style={{ fontSize: "0.6rem" }}
+                />
+              </div>
+              <div>
+                <label className="lab text-white/30 block mb-1" style={{ fontSize: "0.58rem" }}>Notes</label>
+                <input
+                  type="text"
+                  value={invoiceNotes}
+                  onChange={(e) => setInvoiceNotes(e.target.value)}
+                  placeholder="Additional notes or payment instructions"
+                  className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+                  style={{ fontSize: "0.6rem" }}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !invoiceClient.trim() || !invoiceItems[0].description.trim()}
+              className="group inline-flex items-center gap-3 border border-signal px-6 py-3 hover:bg-signal transition-colors disabled:opacity-40 self-start"
+            >
+              <span className="lab text-white group-hover:text-black transition-colors" style={{ fontSize: "0.6rem" }}>
+                {loading ? "Generating..." : "Generate Invoice"}
+              </span>
+            </button>
+          </form>
+
+          {invoiceResult && (
+            <div className="border border-rule">
+              <div className="px-5 py-4">
+                {invoiceResult.error ? (
+                  <p className="lab text-red-400" style={{ fontSize: "0.6rem" }}>{invoiceResult.error}</p>
+                ) : (
+                  <div>
+                    <pre className="text-white/80 whitespace-pre-wrap font-mono" style={{ fontSize: "0.7rem", lineHeight: 1.6 }}>
+                      {invoiceResult.invoice}
+                    </pre>
+                    <button
+                      onClick={() => copy(invoiceResult.invoice || "", "invoice-result")}
+                      className="lab text-white/30 hover:text-signal mt-4"
+                      style={{ fontSize: "0.48rem" }}
+                    >
+                      {copied === "invoice-result" ? "Copied!" : "Copy Invoice"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Tips */}
       <section className="mt-10">
         <h2 className="lab text-white/60 mb-4 border-b border-rule pb-2" style={{ fontSize: "0.62rem" }}>Tips</h2>
@@ -607,7 +1195,7 @@ export default function AdminTools() {
           </div>
           <div className="flex items-start gap-3">
             <span className="lab text-signal mt-[2px]" style={{ fontSize: "0.52rem" }}>02</span>
-            <p className="lab text-white/70" style={{ fontSize: "0.58rem" }}>Use Content mode for titles and descriptions, Visual mode for analyzing visual properties</p>
+            <p className="lab text-white/70" style={{ fontSize: "0.58rem" }}>Use Title Gen to create evocative titles from visual descriptions</p>
           </div>
           <div className="flex items-start gap-3">
             <span className="lab text-signal mt-[2px]" style={{ fontSize: "0.52rem" }}>03</span>

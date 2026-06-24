@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { getServices, buildMetadata } from "@/lib/store";
+import { getServices, buildMetadata, getContent } from "@/lib/store";
 import { Reveal } from "@/components/ui/reveal";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 
@@ -20,7 +20,12 @@ const serviceImages: Record<string, string> = {
 };
 
 export default async function ServicesPage() {
-  const services = await getServices().catch(() => []);
+  const [services, content] = await Promise.all([
+    getServices().catch(() => []),
+    getContent().catch(() => null)
+  ]);
+
+  const servicesContent = content?.services;
 
   return (
     <>
@@ -33,7 +38,7 @@ export default async function ServicesPage() {
           </h1>
         </MaskReveal>
         <p className="lab text-white/40 mt-5 max-w-xl" style={{ fontSize: "0.7rem" }}>
-          A multidisciplinary practice serving creative agencies, studios, labels, and publishers — concept to final delivery.
+          {servicesContent?.intro || "A multidisciplinary practice serving creative agencies, studios, labels, and publishers — concept to final delivery."}
         </p>
       </div>
 
@@ -93,6 +98,15 @@ export default async function ServicesPage() {
           </section>
         </Reveal>
       ))}
+
+      {/* ── OUTRO ─────────────────────────────────────────────────── */}
+      {servicesContent?.outro && (
+        <section className="border-t border-rule px-5 py-10 md:px-12">
+          <p className="text-white/50 max-w-2xl" style={{ fontSize: "0.9rem", lineHeight: 1.7 }}>
+            {servicesContent.outro}
+          </p>
+        </section>
+      )}
 
       {/* ── CTA ─────────────────────────────────────────────────────── */}
       <Reveal>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MaskReveal } from "@/components/ui/mask-reveal";
 import { LabsArchive } from "@/components/home/labs-archive";
+import { getContent } from "@/lib/store";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -9,7 +10,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function LabsPage() {
+export default async function LabsPage() {
+  const content = await getContent().catch(() => null);
+  const labsContent = content?.labs;
+
   return (
     <>
       {/* ── PAGE HEADER ─────────────────────────────────────────────── */}
@@ -21,7 +25,7 @@ export default function LabsPage() {
           </h1>
         </MaskReveal>
         <p className="lab text-white/40 mt-5 max-w-xl" style={{ fontSize: "0.7rem" }}>
-          Experiments, generative art, motion tests and creative explorations — where ideas become reality.
+          {labsContent?.intro || "Experiments, generative art, motion tests and creative explorations — where ideas become reality."}
         </p>
       </div>
 

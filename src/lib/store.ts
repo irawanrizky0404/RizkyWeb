@@ -10,6 +10,7 @@ const BIN_IDS = {
   clients: process.env.JSONBIN_CLIENTS_ID || "",
   cv: process.env.JSONBIN_CV_ID || "",
   seo: process.env.JSONBIN_SEO_ID || "",
+  content: process.env.JSONBIN_CONTENT_ID || "",
 } as const;
 
 type BlobKey = keyof typeof BIN_IDS;
@@ -101,16 +102,82 @@ async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
 
 export type DesignConfig = {
   colors: { signal: string; black: string; white: string; grey: string };
-  hero: { statement: string; bio: string; availableText: string };
+  hero: { statement: string; bio: string; availableText: string; heroImage: string };
   site: { name: string; role: string; tagline: string; email: string; location: string; timezone: string; established: string };
   social: { instagram: string; behance: string; linkedin: string };
+  fonts: {
+    display: string;
+    heading: string;
+    body: string;
+    accent: string;
+  };
+  favicon: string;
+  meta: {
+    title: string;
+    description: string;
+    keywords: string;
+    ogImage: string;
+  };
+  layout: {
+    containerWidth: string;
+    sectionPadding: string;
+    gridGap: string;
+    borderRadius: string;
+    headerHeight: string;
+    navStyle: string;
+    worksGridCols: number;
+    journalGridCols: number;
+  };
+  components: {
+    buttonStyle: string;
+    cardStyle: string;
+    badgeStyle: string;
+    inputStyle: string;
+    borderRadius: string;
+    buttonPadding: string;
+    cardPadding: string;
+    shadowStyle: string;
+  };
 };
 
 const defaultDesign: DesignConfig = {
   colors: { signal: "#ff3500", black: "#080808", white: "#f0f0ee", grey: "#7a7a76" },
-  hero: { statement: "Working at the frequency between signal and silence.", bio: "", availableText: "Available for Work" },
+  hero: { statement: "Working at the frequency between signal and silence.", bio: "", availableText: "Available for Work", heroImage: "/images/works/phantom-in-the-ruins/01.jpg" },
   site: { name: "Rizky Irawan", role: "Multidisciplinary Visual Artist", tagline: "Visual Archive", email: "rizkyirawan0404@gmail.com", location: "Indonesia", timezone: "UTC +7", established: "2017" },
   social: { instagram: "", behance: "", linkedin: "" },
+  fonts: {
+    display: "Bebas Neue",
+    heading: "IBM Plex Sans",
+    body: "IBM Plex Sans",
+    accent: "IBM Plex Mono",
+  },
+  favicon: "",
+  meta: {
+    title: "",
+    description: "",
+    keywords: "",
+    ogImage: "",
+  },
+  layout: {
+    containerWidth: "1280px",
+    sectionPadding: "80px 40px",
+    gridGap: "24px",
+    borderRadius: "4px",
+    headerHeight: "64px",
+    navStyle: "minimal",
+    worksGridCols: 3,
+    journalGridCols: 2,
+  },
+  components: {
+    buttonStyle: "bordered",
+    cardStyle: "bordered",
+    badgeStyle: "bordered",
+    inputStyle: "bordered",
+    borderRadius: "4px",
+    buttonPadding: "12px 24px",
+    cardPadding: "20px",
+    shadowStyle: "none",
+  },
 };
 
 export async function getDesign(): Promise<DesignConfig> {
@@ -215,6 +282,117 @@ export async function getSEO(): Promise<SEOConfig> {
 
 export async function saveSEO(seo: SEOConfig): Promise<void> {
   await saveJSONBin("seo", seo);
+}
+
+// ── Page Content ──────────────────────────────────────────────────────────────
+export type PageContent = {
+  homepage: {
+    statement: string;
+    bio: string;
+    location: string;
+    established: string;
+    showFilmStrip: boolean;
+    showWorks: boolean;
+    showCapabilities: boolean;
+    showClients: boolean;
+    showRecognition: boolean;
+    showCta: boolean;
+    ctaText: string;
+    metaTitle: string;
+    metaDescription: string;
+  };
+  about: {
+    intro: string;
+    storyTitle: string;
+    story: string;
+    approachTitle: string;
+    approach: string;
+    imageUrl: string;
+    metaTitle: string;
+    metaDescription: string;
+  };
+  services: {
+    intro: string;
+    outro: string;
+    metaTitle: string;
+    metaDescription: string;
+  };
+  labs: {
+    intro: string;
+    metaTitle: string;
+    metaDescription: string;
+  };
+  contact: {
+    intro: string;
+    email: string;
+    location: string;
+    availability: string;
+    metaTitle: string;
+    metaDescription: string;
+  };
+  cv: {
+    metaTitle: string;
+    metaDescription: string;
+  };
+};
+
+const defaultContent: PageContent = {
+  homepage: {
+    statement: "Working at the frequency between signal and silence.",
+    bio: "5 years across 3D, motion, illustration, and identity.",
+    location: "Indonesia",
+    established: "2017",
+    showFilmStrip: true,
+    showWorks: true,
+    showCapabilities: true,
+    showClients: true,
+    showRecognition: true,
+    showCta: true,
+    ctaText: "Start a Project",
+    metaTitle: "",
+    metaDescription: "",
+  },
+  about: {
+    intro: "I'm a multidisciplinary visual artist working across 3D, motion, illustration, and graphic design.",
+    storyTitle: "The Story",
+    story: "Every project begins with a feeling, not a brief. I work to translate atmosphere into form, to capture the weight of a moment in pixels and brushstrokes.",
+    approachTitle: "The Approach",
+    approach: "Aesthetic leads. Technique follows. I believe in the power of restraint, the importance of negative space, and the emotional resonance of light.",
+    imageUrl: "/images/hero/hero-a.jpg",
+    metaTitle: "",
+    metaDescription: "",
+  },
+  services: {
+    intro: "I offer creative services across 3D visualization, motion design, illustration, and graphic design.",
+    outro: "Each project is approached with fresh eyes and careful attention to the specific needs of the brief.",
+    metaTitle: "",
+    metaDescription: "",
+  },
+  labs: {
+    intro: "Experiments, explorations, and works in progress — a space for creative testing without the pressure of client expectations.",
+    metaTitle: "",
+    metaDescription: "",
+  },
+  contact: {
+    intro: "Have a project in mind? I'd love to hear about it.",
+    email: "rizkyirawan0404@gmail.com",
+    location: "Indonesia",
+    availability: "Available for new projects",
+    metaTitle: "",
+    metaDescription: "",
+  },
+  cv: {
+    metaTitle: "",
+    metaDescription: "",
+  },
+};
+
+export async function getContent(): Promise<PageContent> {
+  return fetchJSONBin("content", defaultContent);
+}
+
+export async function saveContent(content: PageContent): Promise<void> {
+  await saveJSONBin("content", content);
 }
 
 export async function buildMetadata(overrides: {
