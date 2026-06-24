@@ -55,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Mobile Navigation Overlay */}
       {menuOpen && (
         <div className="md:hidden fixed inset-0 top-[60px] bg-black z-40 overflow-auto">
-          <nav className="px-4 py-4 flex flex-col gap-1">
+          <nav className="px-4 py-3 flex flex-col gap-0.5">
             {navItems.map((item) => {
               const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
               return (
@@ -63,9 +63,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   key={item.href}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="lab px-4 py-3 rounded-sm transition-colors"
+                  className="lab px-4 py-2.5 rounded-sm transition-colors"
                   style={{
-                    fontSize: "0.7rem",
+                    fontSize: "0.6rem",
                     color: active ? "#080808" : "rgba(240,240,238,0.6)",
                     background: active ? "#ff3500" : "transparent",
                   }}
@@ -74,12 +74,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </Link>
               );
             })}
-            <div className="border-t border-rule mt-4 pt-4">
+            <div className="border-t border-rule mt-3 pt-3">
               <a
                 href="/"
                 target="_blank"
                 className="lab text-white/40 hover:text-white transition-colors block py-2"
-                style={{ fontSize: "0.6rem" }}
+                style={{ fontSize: "0.55rem" }}
               >
                 ↗ View site
               </a>
@@ -87,7 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 onClick={logout}
                 disabled={loggingOut}
                 className="lab text-white/40 hover:text-signal transition-colors py-2"
-                style={{ fontSize: "0.6rem" }}
+                style={{ fontSize: "0.55rem" }}
               >
                 {loggingOut ? "Logging out…" : "Log out"}
               </button>

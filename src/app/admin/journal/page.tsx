@@ -214,20 +214,47 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
 }) {
   const [form, setForm] = useState(initial);
   const [tagsStr, setTagsStr] = useState(initial.tags.join(", "));
+  const [isDirty, setIsDirty] = useState(false);
 
-  const set = (k: keyof JournalPost) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+  const set = (k: keyof JournalPost) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setIsDirty(true);
     setForm((prev) => ({ ...prev, [k]: e.target.value }));
+  };
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        document.getElementById("post-submit")?.click();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleCancel();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  function handleCancel() {
+    if (isDirty && !confirm("You have unsaved changes. Discard them?")) return;
+    onCancel();
+  }
+
+  function generateSlug(title: string) {
+    return title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     onSave({
       ...form,
-      slug: form.slug || form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+      slug: form.slug || generateSlug(form.title),
       tags: tagsStr.split(",").map((t) => t.trim()).filter(Boolean),
     });
   }
 
-  const inputCls = "w-full bg-transparent border-b border-rule py-2 lab text-white placeholder:text-white/15 focus:outline-none focus:border-signal transition-colors";
+  const inputCls = "w-full bg-dim border-b border-rule px-3 py-2 lab text-white placeholder:text-white/30 focus:outline-none focus:border-signal transition-colors";
   const labelCls = "lab text-white/30 block mb-1";
   const fs = { fontSize: "0.6rem" };
 
@@ -236,7 +263,7 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
       {/* Header */}
       <div className="sticky top-0 bg-black border-b border-rule z-10">
         <div className="flex items-center gap-4 px-5 py-3">
-          <button onClick={onCancel} className="lab text-white/30 hover:text-white transition-colors flex items-center gap-2" style={{ fontSize: "0.55rem" }}>
+          <button onClick={handleCancel} className="lab text-white/30 hover:text-white transition-colors flex items-center gap-2" style={{ fontSize: "0.55rem" }}>
             ← Back
           </button>
           <div className="h-4 w-px bg-rule" />
@@ -254,11 +281,11 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
         <div className="grid grid-cols-1 gap-5">
           <div>
             <label className={labelCls} style={fs}>Title *</label>
-            <input required value={form.title} onChange={set("title")} className={inputCls} style={fs} placeholder="Post title" />
+            <input required value={form.title} onChange={(e) => { set("title")(e); if (isNew && !form.slug) setForm((p) => ({ ...p, slug: generateSlug(e.target.value) })); }} className={inputCls} style={fs} placeholder="Post title" />
           </div>
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className={labelCls} style={fs}>Slug (auto if empty)</label>
+              <label className={labelCls} style={fs}>Slug {isNew && <span className="text-white/20">(auto-generated)</span>}</label>
               <input value={form.slug} onChange={set("slug")} className={inputCls} style={fs} placeholder="post-slug" />
             </div>
             <div>
@@ -306,11 +333,12 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
         </div>
 
         <div className="mt-8 flex items-center gap-4 border-t border-rule pt-5">
-          <button type="submit" disabled={isPending} className="group inline-flex items-center gap-3 border border-signal px-6 py-3 hover:bg-signal transition-colors disabled:opacity-40">
+          <button type="submit" id="post-submit" disabled={isPending} className="group inline-flex items-center gap-3 border border-signal px-6 py-3 hover:bg-signal transition-colors disabled:opacity-40">
             <span className="lab text-white group-hover:text-black transition-colors" style={fs}>{isPending ? "Saving..." : "Save Post"}</span>
           </button>
-          <button type="button" onClick={onCancel} className="lab text-white/30 hover:text-white transition-colors" style={fs}>Cancel</button>
+          <button type="button" onClick={handleCancel} className="lab text-white/30 hover:text-white transition-colors" style={fs}>Cancel</button>
           {!isNew && <Link href={`/journal/${initial.slug}`} target="_blank" className="lab text-white/20 hover:text-white ml-auto" style={{ fontSize: "0.55rem" }}>View live ↗</Link>}
+          <span className="lab text-white/20 ml-auto" style={{ fontSize: "0.5rem" }}>Ctrl+S to save</span>
         </div>
       </form>
     </div>

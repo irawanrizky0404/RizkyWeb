@@ -74,7 +74,7 @@ export default function AdminDesign() {
 
   if (!loaded || !config?.colors?.signal) return <div className="p-8"><span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>Loading…</span></div>;
 
-  const inputCls = "w-full bg-transparent border-b border-rule py-2 lab text-white placeholder:text-white/15 focus:outline-none focus:border-signal transition-colors";
+  const inputCls = "w-full bg-dim border-b border-rule px-3 py-2 lab text-white placeholder:text-white/30 focus:outline-none focus:border-signal transition-colors";
   const labelCls = "lab text-white/30 block mb-1";
   const fs = { fontSize: "0.6rem" };
 

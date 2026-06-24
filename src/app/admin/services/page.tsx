@@ -17,9 +17,32 @@ function ServiceForm({ initial, onSave, onCancel, isNew }: {
 }) {
   const [form, setForm] = useState<Service>(initial);
   const [itemsStr, setItemsStr] = useState(initial.items.join(", "));
+  const [isDirty, setIsDirty] = useState(false);
 
-  const set = (k: keyof Service) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+  const set = (k: keyof Service) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setIsDirty(true);
     setForm((prev) => ({ ...prev, [k]: e.target.value }));
+  };
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        document.getElementById("service-submit")?.click();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleCancel();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  function handleCancel() {
+    if (isDirty && !confirm("You have unsaved changes. Discard them?")) return;
+    onCancel();
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +52,8 @@ function ServiceForm({ initial, onSave, onCancel, isNew }: {
     });
   }
 
-  const inputCls = "w-full bg-transparent border-b border-rule py-2 lab text-white placeholder:text-white/15 focus:outline-none focus:border-signal transition-colors";
+  const inputCls = "w-full bg-dim border-b border-rule px-3 py-2 lab text-white placeholder:text-white/30 focus:outline-none focus:border-signal transition-colors";
+  const selectCls = "w-full bg-dim border border-rule px-3 py-2 lab text-white focus:outline-none focus:border-signal transition-colors";
   const labelCls = "lab text-white/30 block mb-1";
   const fs = { fontSize: "0.6rem" };
 
@@ -46,7 +70,7 @@ function ServiceForm({ initial, onSave, onCancel, isNew }: {
             value={form.category}
             onChange={set("category")}
             disabled={!isNew}
-            className={inputCls}
+            className={selectCls}
             style={fs}
           >
             {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -77,10 +101,11 @@ function ServiceForm({ initial, onSave, onCancel, isNew }: {
         </div>
       </div>
       <div className="mt-6 flex items-center gap-4">
-        <button type="submit" className="group inline-flex items-center gap-4 border border-signal px-5 py-3 hover:bg-signal transition-colors">
+        <button type="submit" id="service-submit" className="group inline-flex items-center gap-4 border border-signal px-5 py-3 hover:bg-signal transition-colors">
           <span className="lab text-white group-hover:text-black transition-colors" style={fs}>Save service</span>
         </button>
-        <button type="button" onClick={onCancel} className="lab text-white/30 hover:text-white transition-colors" style={fs}>Cancel</button>
+        <button type="button" onClick={handleCancel} className="lab text-white/30 hover:text-white transition-colors" style={fs}>Cancel</button>
+        <span className="lab text-white/20 ml-auto" style={{ fontSize: "0.5rem" }}>Ctrl+S to save</span>
       </div>
     </form>
   );

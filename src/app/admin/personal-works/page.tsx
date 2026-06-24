@@ -1,10 +1,26 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { addWork, updateWork, deleteWork, toggleFeatured } from "@/app/admin/actions";
+import { addWork, updateWork, deleteWork, toggleFeatured, reorderWorks } from "@/app/admin/actions";
 import type { Project } from "@/lib/types";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type SortKey = "newest" | "oldest" | "az" | "za" | "category";
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
@@ -23,6 +39,85 @@ const EMPTY: Project = {
   tags: [], cover: "", gallery: [], featured: false, type: "personal",
 };
 
+interface SortableItemProps {
+  p: Project;
+  isPending: boolean;
+  selected: Set<string>;
+  onToggleSelect: (slug: string) => void;
+  onStartEdit: (work: Project) => void;
+  onDelete: (slug: string, title: string) => void;
+  onToggleFeatured: (slug: string) => void;
+}
+
+function SortableItem({ p, isPending, selected, onToggleSelect, onStartEdit, onDelete, onToggleFeatured }: SortableItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: p.slug });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 999 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 border-b border-rule px-5 py-3 transition-colors ${isDragging ? "bg-signal/10" : "hover:bg-white/[0.02]"}`}
+    >
+      <div className="flex items-center gap-3 w-full md:w-auto">
+        <button
+          {...attributes}
+          {...listeners}
+          className="text-white/20 hover:text-signal transition-colors cursor-grab active:cursor-grabbing"
+          style={{ fontSize: "1rem", touchAction: "none" }}
+        >
+          ⠿
+        </button>
+        <input type="checkbox" checked={selected.has(p.slug)} onChange={() => onToggleSelect(p.slug)} className="accent-signal" />
+        <div className="relative w-12 h-10 md:w-16 md:h-12 bg-rule overflow-hidden shrink-0 rounded-sm">
+          {p.cover ? <Image src={p.cover} alt="" fill className="object-cover" unoptimized /> : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="lab text-white/15" style={{ fontSize: "0.5rem" }}>—</span>
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0 md:hidden">
+          <p className="lab text-white truncate" style={{ fontSize: "0.65rem" }}>{p.title}</p>
+          <p className="lab text-white/40 truncate" style={{ fontSize: "0.5rem", marginTop: "2px" }}>{p.client}</p>
+        </div>
+      </div>
+      <div className="hidden md:flex items-center gap-4 flex-1">
+        <div className="flex-1 min-w-0">
+          <p className="lab text-white truncate" style={{ fontSize: "0.65rem" }}>{p.title}</p>
+          <p className="lab text-white/40 truncate" style={{ fontSize: "0.55rem", marginTop: "2px" }}>{p.client}</p>
+        </div>
+        <span className="lab text-white/50 shrink-0" style={{ fontSize: "0.55rem", width: "100px" }}>{p.category}</span>
+        <span className="lab text-white/50 shrink-0" style={{ fontSize: "0.55rem", width: "60px" }}>{p.year}</span>
+        <button onClick={() => onToggleFeatured(p.slug)} disabled={isPending} style={{ fontSize: "1rem", width: "32px", color: p.featured ? "#ff3500" : "rgba(240,240,238,0.15)" }}>
+          {p.featured ? "★" : "☆"}
+        </button>
+        <div className="flex items-center gap-3" style={{ width: "120px" }}>
+          <button onClick={() => onStartEdit(p)} className="lab text-white/40 hover:text-signal transition-colors" style={{ fontSize: "0.55rem" }}>Edit</button>
+          <Link href={`/personal-works/${p.slug}`} target="_blank" className="lab text-white/30 hover:text-white transition-colors" style={{ fontSize: "0.55rem" }}>↗</Link>
+          <button onClick={() => onDelete(p.slug, p.title)} disabled={isPending} className="lab text-white/30 hover:text-red-400 transition-colors" style={{ fontSize: "0.55rem" }}>Del</button>
+        </div>
+      </div>
+      <div className="flex md:hidden items-center gap-3 w-full pl-4">
+        <span className="lab text-white/40" style={{ fontSize: "0.5rem" }}>{p.category}</span>
+        <span className="lab text-white/40" style={{ fontSize: "0.5rem" }}>{p.year}</span>
+        <button onClick={() => onToggleFeatured(p.slug)} disabled={isPending} style={{ fontSize: "0.9rem", color: p.featured ? "#ff3500" : "rgba(240,240,238,0.15)" }}>
+          {p.featured ? "★" : "☆"}
+        </button>
+        <div className="flex items-center gap-2 ml-auto">
+          <button onClick={() => onStartEdit(p)} className="lab text-white/40 hover:text-signal transition-colors" style={{ fontSize: "0.5rem" }}>Edit</button>
+          <Link href={`/personal-works/${p.slug}`} target="_blank" className="lab text-white/30 hover:text-white transition-colors" style={{ fontSize: "0.5rem" }}>↗</Link>
+          <button onClick={() => onDelete(p.slug, p.title)} disabled={isPending} className="lab text-white/30 hover:text-red-400 transition-colors" style={{ fontSize: "0.5rem" }}>Del</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPersonalWorks() {
   const [isPending, startTransition] = useTransition();
   const [works, setWorks] = useState<Project[]>([]);
@@ -35,7 +130,13 @@ export default function AdminPersonalWorks() {
   const [page, setPage] = useState(1);
   const [msg, setMsg] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [bulkAction, setBulkAction] = useState<"delete" | "">("");
+  const [bulkAction, setBulkAction] = useState<"set-category" | "set-year" | "delete" | "">("");
+  const [bulkValue, setBulkValue] = useState("");
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   useEffect(() => { setPage(1); }, [filter, search]);
 
@@ -82,10 +183,67 @@ export default function AdminPersonalWorks() {
     });
   }
 
+  async function handleBulkUpdate() {
+    if (!bulkAction || selected.size === 0) return;
+    if ((bulkAction === "set-category" || bulkAction === "set-year") && !bulkValue) {
+      alert("Please select a value first");
+      return;
+    }
+    startTransition(async () => {
+      if (bulkAction === "delete") {
+        if (!confirm(`Delete ${selected.size} works? This cannot be undone.`)) return;
+        for (const slug of selected) {
+          await deleteWork(slug);
+        }
+        setWorks((prev) => prev.filter((w) => !selected.has(w.slug)));
+        notify(`Deleted ${selected.size} works`);
+      } else if (bulkAction === "set-category") {
+        for (const slug of selected) {
+          const work = works.find((w) => w.slug === slug);
+          if (work) await updateWork(slug, { ...work, category: bulkValue as "3D" | "Illustration" | "Graphic Design" | "Animation" });
+        }
+        setWorks((prev) => prev.map((w) => selected.has(w.slug) ? { ...w, category: bulkValue as "3D" | "Illustration" | "Graphic Design" | "Animation" } : w));
+        notify(`Set category to "${bulkValue}" for ${selected.size} works`);
+      } else if (bulkAction === "set-year") {
+        for (const slug of selected) {
+          const work = works.find((w) => w.slug === slug);
+          if (work) await updateWork(slug, { ...work, year: bulkValue });
+        }
+        setWorks((prev) => prev.map((w) => selected.has(w.slug) ? { ...w, year: bulkValue } : w));
+        notify(`Set year to "${bulkValue}" for ${selected.size} works`);
+      }
+      setSelected(new Set());
+      setBulkAction("");
+      setBulkValue("");
+    });
+  }
+
   async function handleToggleFeatured(slug: string) {
     startTransition(async () => {
       await toggleFeatured(slug);
       setWorks((prev) => prev.map((w) => w.slug === slug ? { ...w, featured: !w.featured } : w));
+    });
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = paginated.findIndex((p) => p.slug === active.id);
+    const newIndex = paginated.findIndex((p) => p.slug === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    setWorks((prev) => {
+      const newWorks = [...prev];
+      const [removed] = newWorks.splice((page - 1) * PAGE_SIZE + oldIndex, 1);
+      newWorks.splice((page - 1) * PAGE_SIZE + newIndex, 0, removed);
+      return newWorks;
+    });
+
+    const newOrder = works.map((w) => w.slug);
+    startTransition(async () => {
+      await reorderWorks(newOrder);
+      notify("Order saved.");
     });
   }
 
@@ -173,28 +331,50 @@ export default function AdminPersonalWorks() {
 
       {/* Bulk Actions */}
       {selected.size > 0 && (
-        <div className="shrink-0 bg-signal/10 border-b border-rule px-5 py-3 flex items-center gap-4">
+        <div className="shrink-0 bg-signal/10 border-b border-rule px-5 py-3 flex flex-wrap items-center gap-3">
           <span className="lab text-white" style={{ fontSize: "0.6rem" }}>{selected.size} selected</span>
-          <button onClick={() => {
-            if (!confirm(`Delete ${selected.size} works?`)) return;
-            startTransition(async () => {
-              for (const slug of selected) {
-                await deleteWork(slug);
-              }
-              setWorks((prev) => prev.filter((w) => !selected.has(w.slug)));
-              notify(`Deleted ${selected.size} works`);
-              setSelected(new Set());
-            });
-          }} className="border border-red-500 px-4 py-1.5 hover:bg-red-500 transition-colors">
-            <span className="lab text-white" style={{ fontSize: "0.55rem" }}>Delete</span>
+          <select
+            value={bulkAction}
+            onChange={(e) => { setBulkAction(e.target.value as typeof bulkAction); setBulkValue(""); }}
+            className="bg-black border border-rule px-3 py-1.5 lab text-white"
+            style={{ fontSize: "0.55rem" }}
+          >
+            <option value="">Bulk actions…</option>
+            <option value="set-category">Set Category</option>
+            <option value="set-year">Set Year</option>
+            <option value="delete">Delete Selected</option>
+          </select>
+          {bulkAction === "set-category" && (
+            <select
+              value={bulkValue}
+              onChange={(e) => setBulkValue(e.target.value)}
+              className="bg-black border border-rule px-3 py-1.5 lab text-white"
+              style={{ fontSize: "0.55rem" }}
+            >
+              <option value="">Select category…</option>
+              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          )}
+          {bulkAction === "set-year" && (
+            <input
+              type="text"
+              value={bulkValue}
+              onChange={(e) => setBulkValue(e.target.value)}
+              placeholder="Year (e.g. 2024)"
+              className="bg-black border border-rule px-3 py-1.5 lab text-white"
+              style={{ fontSize: "0.55rem", width: "100px" }}
+            />
+          )}
+          <button onClick={handleBulkUpdate} disabled={!bulkAction || (bulkAction !== "delete" && bulkValue === "")} className="border border-signal px-4 py-1.5 hover:bg-signal transition-colors disabled:opacity-40">
+            <span className="lab text-white" style={{ fontSize: "0.55rem" }}>Apply</span>
           </button>
-          <button onClick={() => setSelected(new Set())} className="lab text-white/50 hover:text-white" style={{ fontSize: "0.55rem" }}>Clear</button>
+          <button onClick={() => { setSelected(new Set()); setBulkAction(""); setBulkValue(""); }} className="lab text-white/50 hover:text-white" style={{ fontSize: "0.55rem" }}>Clear</button>
         </div>
       )}
 
       {/* Table */}
       <div className="flex-1 overflow-auto">
-        <div className="flex items-center gap-4 border-b border-rule px-5 py-3 sticky top-0 bg-black z-10">
+        <div className="hidden md:flex items-center gap-4 border-b border-rule px-5 py-3 sticky top-0 bg-black z-10">
           <div className="w-8"><input type="checkbox" checked={selected.size === paginated.length && paginated.length > 0} onChange={toggleSelectAll} className="accent-signal" /></div>
           <span className="lab text-white/25" style={{ fontSize: "0.48rem", flexShrink: 0 }}>Image</span>
           <span className="lab text-white/25" style={{ fontSize: "0.48rem", flex: 1, minWidth: 0 }}>Title</span>
@@ -208,32 +388,24 @@ export default function AdminPersonalWorks() {
           <div className="px-5 py-12 text-center">
             <p className="lab text-white/20" style={fs}>No personal works found.</p>
           </div>
-        ) : paginated.map((p) => (
-          <div key={p.slug} className="flex items-center gap-4 border-b border-rule px-5 py-3 hover:bg-white/[0.02] transition-colors">
-            <div className="w-8"><input type="checkbox" checked={selected.has(p.slug)} onChange={() => toggleSelect(p.slug)} className="accent-signal" /></div>
-            <div className="relative w-16 h-12 bg-rule overflow-hidden shrink-0 rounded-sm">
-              {p.cover ? <Image src={p.cover} alt="" fill className="object-cover" unoptimized /> : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="lab text-white/15" style={{ fontSize: "0.5rem" }}>—</span>
-                </div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="lab text-white truncate" style={{ fontSize: "0.65rem" }}>{p.title}</p>
-              <p className="lab text-white/40 truncate" style={{ fontSize: "0.55rem", marginTop: "2px" }}>{p.client}</p>
-            </div>
-            <span className="lab text-white/50" style={{ fontSize: "0.55rem", width: "100px", flexShrink: 0 }}>{p.category}</span>
-            <span className="lab text-white/50" style={{ fontSize: "0.55rem", width: "60px", flexShrink: 0 }}>{p.year}</span>
-            <button onClick={() => handleToggleFeatured(p.slug)} disabled={isPending} style={{ fontSize: "1rem", width: "32px", flexShrink: 0, color: p.featured ? "#ff3500" : "rgba(240,240,238,0.15)" }}>
-              {p.featured ? "★" : "☆"}
-            </button>
-            <div className="flex items-center gap-3" style={{ width: "120px", flexShrink: 0 }}>
-              <button onClick={() => startEdit(p)} className="lab text-white/40 hover:text-signal transition-colors" style={{ fontSize: "0.55rem" }}>Edit</button>
-              <Link href={`/personal-works/${p.slug}`} target="_blank" className="lab text-white/30 hover:text-white transition-colors" style={{ fontSize: "0.55rem" }}>↗</Link>
-              <button onClick={() => handleDelete(p.slug, p.title)} disabled={isPending} className="lab text-white/30 hover:text-red-400 transition-colors" style={{ fontSize: "0.55rem" }}>Del</button>
-            </div>
-          </div>
-        ))}
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={paginated.map((p) => p.slug)} strategy={verticalListSortingStrategy}>
+              {paginated.map((p) => (
+                <SortableItem
+                  key={p.slug}
+                  p={p}
+                  isPending={isPending}
+                  selected={selected}
+                  onToggleSelect={toggleSelect}
+                  onStartEdit={startEdit}
+                  onDelete={handleDelete}
+                  onToggleFeatured={handleToggleFeatured}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        )}
       </div>
 
       {/* Pagination */}
@@ -265,9 +437,36 @@ function PersonalWorkEditor({ work: initial, isNew, onSave, onCancel, isPending,
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [generatingTags, setGeneratingTags] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
-  const set = (k: keyof Project) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+  const set = (k: keyof Project) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setIsDirty(true);
     setForm((prev) => ({ ...prev, [k]: e.target.value }));
+  };
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        document.getElementById("work-submit")?.click();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleCancel();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  function handleCancel() {
+    if (isDirty && !confirm("You have unsaved changes. Discard them?")) return;
+    onCancel();
+  }
+
+  function generateSlug(title: string) {
+    return title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  }
 
   async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -357,7 +556,8 @@ function PersonalWorkEditor({ work: initial, isNew, onSave, onCancel, isPending,
     onSave(work);
   }
 
-  const inputCls = "w-full bg-transparent border-b border-rule py-2 lab text-white placeholder:text-white/15 focus:outline-none focus:border-signal transition-colors";
+  const inputCls = "w-full bg-dim border-b border-rule px-3 py-2 lab text-white placeholder:text-white/30 focus:outline-none focus:border-signal transition-colors";
+  const selectCls = "w-full bg-dim border border-rule px-3 py-2 lab text-white focus:outline-none focus:border-signal transition-colors";
   const labelCls = "lab text-white/30 block mb-1";
   const fs = { fontSize: "0.6rem" };
 
@@ -366,7 +566,7 @@ function PersonalWorkEditor({ work: initial, isNew, onSave, onCancel, isPending,
       {/* Header */}
       <div className="sticky top-0 bg-black border-b border-rule z-10">
         <div className="flex items-center gap-4 px-5 py-3">
-          <button onClick={onCancel} className="lab text-white/30 hover:text-white transition-colors flex items-center gap-2" style={{ fontSize: "0.55rem" }}>
+          <button onClick={handleCancel} className="lab text-white/30 hover:text-white transition-colors flex items-center gap-2" style={{ fontSize: "0.55rem" }}>
             ← Back
           </button>
           <div className="h-4 w-px bg-rule" />
@@ -384,10 +584,10 @@ function PersonalWorkEditor({ work: initial, isNew, onSave, onCancel, isPending,
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div>
             <label className={labelCls} style={fs}>Title *</label>
-            <input required value={form.title} onChange={set("title")} className={inputCls} style={fs} placeholder="Project title" />
+            <input required value={form.title} onChange={(e) => { set("title")(e); if (isNew && !form.slug) setForm((p) => ({ ...p, slug: generateSlug(e.target.value) })); }} className={inputCls} style={fs} placeholder="Project title" />
           </div>
           <div>
-            <label className={labelCls} style={fs}>Slug (auto if empty)</label>
+            <label className={labelCls} style={fs}>Slug {isNew && <span className="text-white/20">(auto-generated)</span>}</label>
             <input value={form.slug} onChange={set("slug")} className={inputCls} style={fs} placeholder="project-slug" />
           </div>
           <div>
@@ -400,7 +600,7 @@ function PersonalWorkEditor({ work: initial, isNew, onSave, onCancel, isPending,
           </div>
           <div>
             <label className={labelCls} style={fs}>Category *</label>
-            <select required value={form.category} onChange={set("category")} className={inputCls} style={fs}>
+            <select required value={form.category} onChange={set("category")} className={selectCls} style={fs}>
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
@@ -416,8 +616,11 @@ function PersonalWorkEditor({ work: initial, isNew, onSave, onCancel, isPending,
               </label>
             </div>
             {form.cover && (
-              <div className="mt-2 relative w-32 h-20 bg-rule overflow-hidden rounded">
-                <img src={form.cover} alt="" className="object-cover w-full h-full" />
+              <div className="mt-2">
+                <span className="lab text-white/30" style={{ fontSize: "0.5rem" }}>Preview</span>
+                <div className="relative w-48 h-32 bg-rule overflow-hidden rounded mt-1">
+                  <img src={form.cover} alt="" className="object-cover w-full h-full" />
+                </div>
               </div>
             )}
           </div>
@@ -494,11 +697,12 @@ function PersonalWorkEditor({ work: initial, isNew, onSave, onCancel, isPending,
         </div>
 
         <div className="mt-8 flex items-center gap-4 border-t border-rule pt-5">
-          <button type="submit" disabled={isPending} className="group inline-flex items-center gap-3 border border-signal px-6 py-3 hover:bg-signal transition-colors disabled:opacity-40">
+          <button type="submit" id="work-submit" disabled={isPending} className="group inline-flex items-center gap-3 border border-signal px-6 py-3 hover:bg-signal transition-colors disabled:opacity-40">
             <span className="lab text-white group-hover:text-black transition-colors" style={fs}>{isPending ? "Saving..." : "Save Work"}</span>
           </button>
-          <button type="button" onClick={onCancel} className="lab text-white/30 hover:text-white transition-colors" style={fs}>Cancel</button>
+          <button type="button" onClick={handleCancel} className="lab text-white/30 hover:text-white transition-colors" style={fs}>Cancel</button>
           {!isNew && <Link href={`/personal-works/${initial.slug}`} target="_blank" className="lab text-white/20 hover:text-white ml-auto" style={{ fontSize: "0.55rem" }}>View live ↗</Link>}
+          <span className="lab text-white/20 ml-auto" style={{ fontSize: "0.5rem" }}>Ctrl+S to save</span>
         </div>
       </form>
     </div>

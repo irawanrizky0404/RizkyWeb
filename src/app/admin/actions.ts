@@ -146,6 +146,26 @@ export async function toggleFeatured(slug: string) {
   }
 }
 
+export async function reorderWorks(slugs: string[]) {
+  try {
+    const works = await getWorks();
+    const reordered: Project[] = [];
+    for (const slug of slugs) {
+      const work = works.find((w) => w.slug === slug);
+      if (work) reordered.push(work);
+    }
+    const remaining = works.filter((w) => !slugs.includes(w.slug));
+    await saveWorks([...reordered, ...remaining]);
+    revalidatePath("/works");
+    revalidatePath("/");
+    await logActivity("work.reorder", `Reordered ${slugs.length} works`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[reorderWorks]", err);
+    return { ok: false, error: String(err) };
+  }
+}
+
 // ── Journal ──────────────────────────────────────────────────────────────────
 export async function addPost(post: JournalPost) {
   try {

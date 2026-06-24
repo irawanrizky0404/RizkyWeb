@@ -62,8 +62,24 @@ function Textarea({ value, onChange, placeholder, rows = 3, ...props }: Omit<Rea
 function ExperienceForm({ initial, onSave, onCancel, isNew }: { initial: Experience; onSave: (e: Experience) => void; onCancel: () => void; isNew: boolean }) {
   const [form, setForm] = useState(initial);
   const [highlightsStr, setHighlightsStr] = useState(initial.highlights.join("\n"));
+  const [isDirty, setIsDirty] = useState(false);
 
-  const set = (k: keyof Experience) => (v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: keyof Experience) => (v: string) => { setIsDirty(true); setForm((p) => ({ ...p, [k]: v })); };
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        document.getElementById("exp-submit")?.click();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (!isDirty || confirm("You have unsaved changes. Discard them?")) onCancel();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isDirty, onCancel]);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -85,7 +101,7 @@ function ExperienceForm({ initial, onSave, onCancel, isNew }: { initial: Experie
         </div>
       </div>
       <div className="mt-6 flex items-center gap-4">
-        <button type="submit" className="group inline-flex items-center gap-4 border border-signal px-5 py-3 hover:bg-signal transition-colors">
+        <button type="submit" id="exp-submit" className="group inline-flex items-center gap-4 border border-signal px-5 py-3 hover:bg-signal transition-colors">
           <span className="lab text-white group-hover:text-black transition-colors" style={{ fontSize: "0.6rem" }}>Save</span>
         </button>
         <button type="button" onClick={onCancel} className="lab text-white/30 hover:text-white transition-colors" style={{ fontSize: "0.6rem" }}>Cancel</button>
@@ -97,8 +113,24 @@ function ExperienceForm({ initial, onSave, onCancel, isNew }: { initial: Experie
 function SkillGroupForm({ initial, onSave, onCancel, isNew }: { initial: SkillGroup; onSave: (s: SkillGroup) => void; onCancel: () => void; isNew: boolean }) {
   const [form, setForm] = useState(initial);
   const [itemsStr, setItemsStr] = useState(initial.items.join(", "));
+  const [isDirty, setIsDirty] = useState(false);
 
-  const set = (k: keyof SkillGroup) => (v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: keyof SkillGroup) => (v: string) => { setIsDirty(true); setForm((p) => ({ ...p, [k]: v })); };
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        document.getElementById("skill-submit")?.click();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (!isDirty || confirm("You have unsaved changes. Discard them?")) onCancel();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isDirty, onCancel]);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -115,7 +147,7 @@ function SkillGroupForm({ initial, onSave, onCancel, isNew }: { initial: SkillGr
         <FormField label="Items (comma separated)"><Textarea value={itemsStr} onChange={setItemsStr} placeholder="Archviz Interior, Product Render..." rows={3} /></FormField>
       </div>
       <div className="mt-6 flex items-center gap-4">
-        <button type="submit" className="group inline-flex items-center gap-4 border border-signal px-5 py-3 hover:bg-signal transition-colors">
+        <button type="submit" id="skill-submit" className="group inline-flex items-center gap-4 border border-signal px-5 py-3 hover:bg-signal transition-colors">
           <span className="lab text-white group-hover:text-black transition-colors" style={{ fontSize: "0.6rem" }}>Save</span>
         </button>
         <button type="button" onClick={onCancel} className="lab text-white/30 hover:text-white transition-colors" style={{ fontSize: "0.6rem" }}>Cancel</button>
@@ -126,8 +158,24 @@ function SkillGroupForm({ initial, onSave, onCancel, isNew }: { initial: SkillGr
 
 function EducationForm({ initial, onSave, onCancel, isNew }: { initial: Education; onSave: (e: Education) => void; onCancel: () => void; isNew: boolean }) {
   const [form, setForm] = useState(initial);
+  const [isDirty, setIsDirty] = useState(false);
 
-  const set = (k: keyof Education) => (v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: keyof Education) => (v: string) => { setIsDirty(true); setForm((p) => ({ ...p, [k]: v })); };
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        document.getElementById("edu-submit")?.click();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (!isDirty || confirm("You have unsaved changes. Discard them?")) onCancel();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isDirty, onCancel]);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -148,7 +196,7 @@ function EducationForm({ initial, onSave, onCancel, isNew }: { initial: Educatio
         </div>
       </div>
       <div className="mt-6 flex items-center gap-4">
-        <button type="submit" className="group inline-flex items-center gap-4 border border-signal px-5 py-3 hover:bg-signal transition-colors">
+        <button type="submit" id="edu-submit" className="group inline-flex items-center gap-4 border border-signal px-5 py-3 hover:bg-signal transition-colors">
           <span className="lab text-white group-hover:text-black transition-colors" style={{ fontSize: "0.6rem" }}>Save</span>
         </button>
         <button type="button" onClick={onCancel} className="lab text-white/30 hover:text-white transition-colors" style={{ fontSize: "0.6rem" }}>Cancel</button>
@@ -159,8 +207,24 @@ function EducationForm({ initial, onSave, onCancel, isNew }: { initial: Educatio
 
 function AwardForm({ initial, onSave, onCancel, isNew }: { initial: Award; onSave: (a: Award) => void; onCancel: () => void; isNew: boolean }) {
   const [form, setForm] = useState(initial);
+  const [isDirty, setIsDirty] = useState(false);
 
-  const set = (k: keyof Award) => (v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: keyof Award) => (v: string) => { setIsDirty(true); setForm((p) => ({ ...p, [k]: v })); };
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        document.getElementById("award-submit")?.click();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (!isDirty || confirm("You have unsaved changes. Discard them?")) onCancel();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isDirty, onCancel]);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -183,7 +247,7 @@ function AwardForm({ initial, onSave, onCancel, isNew }: { initial: Award; onSav
         </div>
       </div>
       <div className="mt-6 flex items-center gap-4">
-        <button type="submit" className="group inline-flex items-center gap-4 border border-signal px-5 py-3 hover:bg-signal transition-colors">
+        <button type="submit" id="award-submit" className="group inline-flex items-center gap-4 border border-signal px-5 py-3 hover:bg-signal transition-colors">
           <span className="lab text-white group-hover:text-black transition-colors" style={{ fontSize: "0.6rem" }}>Save</span>
         </button>
         <button type="button" onClick={onCancel} className="lab text-white/30 hover:text-white transition-colors" style={{ fontSize: "0.6rem" }}>Cancel</button>
