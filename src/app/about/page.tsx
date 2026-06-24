@@ -44,7 +44,7 @@ export default async function AboutPage() {
         <div className="border-b border-rule px-5 py-10 md:px-12 md:py-16">
           <MaskReveal delay={0.1}>
             <p className="dis text-white" style={{ fontSize: "clamp(2rem, 6vw, 8rem)", lineHeight: 0.88, maxWidth: "20ch" }}>
-              {about?.story || "Every project begins with a feeling, not a brief."}
+              {about?.story || "Aesthetic leads. Technique follows."}
             </p>
           </MaskReveal>
           <div className="mt-6 h-px w-12 bg-signal/40" />
@@ -60,7 +60,7 @@ export default async function AboutPage() {
           <div className="md:col-span-9">
             <Reveal delay={0.1}>
               <p className="text-white/70 mb-6" style={{ fontSize: "clamp(1rem, 1.8vw, 1.35rem)", lineHeight: 1.7 }}>
-                {about?.intro || "5 years across 3D, motion, illustration, and identity. My work is informed by post-punk aesthetics, Swiss editorial discipline, and the atmospheric weight of brutalist architecture."}
+                {about?.intro || "5 years across 3D, motion, illustration, and identity. Every project begins with a feeling, not a brief. Aesthetic leads. Technique follows."}
               </p>
             </Reveal>
             <Reveal delay={0.18}>
