@@ -28,6 +28,8 @@ export default function AdminWorks() {
   const [sort, setSort] = useState<SortKey>("newest");
   const [page, setPage] = useState(1);
   const [msg, setMsg] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkCategory, setBulkCategory] = useState<string>("");
 
   useEffect(() => {
     fetch("/api/admin/works?t=" + Date.now()).then((r) => r.json()).then((data) => {
@@ -37,7 +39,8 @@ export default function AdminWorks() {
     });
   }, []);
 
-  useEffect(() => { setPage(1); }, [filter, search, sort]);
+  useEffect(() => { setPage(1); setSelected(new Set()); }, [filter, search, sort]);
+  useEffect(() => { setSelected(new Set()); }, [page]);
 
   function notify(text: string) {
     setMsg(text);
@@ -70,6 +73,7 @@ export default function AdminWorks() {
         notify(editing ? "Work updated!" : "Work added!");
         setView("content");
         setEditing(null);
+        setFilter("All");
         const data = await fetch("/api/admin/works?t=" + Date.now()).then((r) => r.json());
         const clientWorks = (data as Project[]).filter((w: Project) => w.type === "client" || !w.type);
         setWorks(clientWorks);
@@ -92,6 +96,59 @@ export default function AdminWorks() {
     startTransition(async () => {
       await toggleFeatured(slug);
       setWorks((prev) => prev.map((w) => w.slug === slug ? { ...w, featured: !w.featured } : w));
+    });
+  }
+
+  function toggleSelect(slug: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug); else next.add(slug);
+      return next;
+    });
+  }
+
+  function selectAll() {
+    setSelected(new Set(paginated.map((w) => w.slug)));
+  }
+
+  function clearSelection() {
+    setSelected(new Set());
+  }
+
+  async function handleBulkDelete() {
+    if (!confirm(`Delete ${selected.size} selected work(s)?`)) return;
+    startTransition(async () => {
+      for (const slug of selected) {
+        await deleteWork(slug);
+      }
+      setWorks((prev) => prev.filter((w) => !selected.has(w.slug)));
+      clearSelection();
+      notify(`${selected.size} works deleted.`);
+    });
+  }
+
+  async function handleBulkCategory() {
+    if (!bulkCategory) return;
+    startTransition(async () => {
+      for (const slug of selected) {
+        const work = works.find((w) => w.slug === slug);
+        if (work) await updateWork(slug, { ...work, category: bulkCategory as Project["category"] });
+      }
+      setWorks((prev) => prev.map((w) => selected.has(w.slug) ? { ...w, category: bulkCategory as Project["category"] } : w));
+      notify(`Category updated for ${selected.size} works.`);
+      clearSelection();
+      setBulkCategory("");
+    });
+  }
+
+  async function handleBulkToggleFeatured() {
+    startTransition(async () => {
+      for (const slug of selected) {
+        await toggleFeatured(slug);
+      }
+      setWorks((prev) => prev.map((w) => selected.has(w.slug) ? { ...w, featured: !w.featured } : w));
+      notify(`Toggled featured for ${selected.size} works.`);
+      clearSelection();
     });
   }
 
@@ -213,6 +270,15 @@ export default function AdminWorks() {
         >
           List
         </button>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={selected.size === paginated.length && paginated.length > 0 ? clearSelection : selectAll}
+            className="lab px-3 py-1 border border-rule hover:border-signal transition-colors"
+            style={{ fontSize: "0.5rem", color: "color-mix(in srgb, var(--white) 50%, transparent)" }}
+          >
+            {selected.size === paginated.length && paginated.length > 0 ? "Deselect All" : "Select All"}
+          </button>
+        </div>
       </div>
 
       {/* Content */}
@@ -232,6 +298,8 @@ export default function AdminWorks() {
                 onDelete={() => handleDelete(work.slug, work.title)}
                 onToggleFeatured={() => handleToggleFeatured(work.slug)}
                 isPending={isPending}
+                isSelected={selected.has(work.slug)}
+                onToggleSelect={() => toggleSelect(work.slug)}
               />
             ))}
           </div>
@@ -245,6 +313,8 @@ export default function AdminWorks() {
                 onDelete={() => handleDelete(work.slug, work.title)}
                 onToggleFeatured={() => handleToggleFeatured(work.slug)}
                 isPending={isPending}
+                isSelected={selected.has(work.slug)}
+                onToggleSelect={() => toggleSelect(work.slug)}
               />
             ))}
           </div>
@@ -253,7 +323,7 @@ export default function AdminWorks() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="shrink-0 flex items-center justify-between gap-3 px-5 py-3 border-t border-rule bg-black">
+        <div className="shrink-0 flex items-center justify-between gap-3 px-5 py-3 border-t border-rule bg-black" style={{ paddingBottom: selected.size > 0 ? "3.5rem" : undefined }}>
           <span className="lab text-white/20" style={{ fontSize: "0.48rem" }}>{sorted.length} works · page {page}/{totalPages}</span>
           <div className="flex items-center gap-1">
             <button
@@ -302,23 +372,84 @@ export default function AdminWorks() {
           </div>
         </div>
       )}
+
+      {/* Bulk Action Toolbar */}
+      {selected.size > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-rule z-50 px-5 py-3 flex items-center gap-4">
+          <span className="lab" style={{ fontSize: "0.55rem", color: "var(--signal)" }}>{selected.size} selected</span>
+          <button
+            onClick={handleBulkDelete}
+            disabled={isPending}
+            className="lab px-3 py-1.5 border border-rule hover:border-red-400 hover:text-red-400 transition-colors disabled:opacity-40"
+            style={{ fontSize: "0.5rem", color: "color-mix(in srgb, var(--white) 50%, transparent)" }}
+          >
+            Delete selected
+          </button>
+          <div className="flex items-center gap-2">
+            <select
+              value={bulkCategory}
+              onChange={(e) => setBulkCategory(e.target.value)}
+              className="bg-black border border-rule px-3 py-1.5 lab text-white focus:outline-none focus:border-signal"
+              style={{ fontSize: "0.5rem" }}
+            >
+              <option value="">Change category…</option>
+              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            {bulkCategory && (
+              <button
+                onClick={handleBulkCategory}
+                disabled={isPending}
+                className="lab px-3 py-1.5 border border-rule hover:border-signal transition-colors disabled:opacity-40"
+                style={{ fontSize: "0.5rem", color: "color-mix(in srgb, var(--white) 50%, transparent)" }}
+              >
+                Apply
+              </button>
+            )}
+          </div>
+          <button
+            onClick={handleBulkToggleFeatured}
+            disabled={isPending}
+            className="lab px-3 py-1.5 border border-rule hover:border-signal transition-colors disabled:opacity-40"
+            style={{ fontSize: "0.5rem", color: "color-mix(in srgb, var(--white) 50%, transparent)" }}
+          >
+            Toggle featured
+          </button>
+          <button
+            onClick={clearSelection}
+            className="lab ml-auto px-2 py-1.5 border border-rule hover:border-signal transition-colors"
+            style={{ fontSize: "0.55rem", color: "color-mix(in srgb, var(--white) 40%, transparent)" }}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Work List Item ────────────────────────────────────────────────────────────
-function WorkListItem({ work, onEdit, onDelete, onToggleFeatured, isPending }: {
+function WorkListItem({ work, onEdit, onDelete, onToggleFeatured, isPending, isSelected, onToggleSelect }: {
   work: Project;
   onEdit: () => void;
   onDelete: () => void;
   onToggleFeatured: () => void;
   isPending: boolean;
+  isSelected: boolean;
+  onToggleSelect: () => void;
 }) {
   return (
     <div
-      className="group flex items-center gap-4 border border-rule hover:border-signal/50 transition-colors cursor-pointer bg-black p-3"
+      className="group flex items-center gap-4 border hover:border-signal/50 transition-colors cursor-pointer bg-black p-3"
+      style={{ borderColor: isSelected ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)" }}
       onClick={onEdit}
     >
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={onToggleSelect}
+        onClick={(e) => e.stopPropagation()}
+        className="shrink-0 accent-[var(--signal)] w-4 h-4 cursor-pointer"
+      />
       <div className="relative w-16 h-12 bg-rule overflow-hidden shrink-0">
         {work.cover ? (
           <Image src={work.cover} alt="" fill className="object-cover" unoptimized />
@@ -350,16 +481,19 @@ function WorkListItem({ work, onEdit, onDelete, onToggleFeatured, isPending }: {
 }
 
 // ── Work Card ─────────────────────────────────────────────────────────────────
-function WorkCard({ work, onEdit, onDelete, onToggleFeatured, isPending }: {
+function WorkCard({ work, onEdit, onDelete, onToggleFeatured, isPending, isSelected, onToggleSelect }: {
   work: Project;
   onEdit: () => void;
   onDelete: () => void;
   onToggleFeatured: () => void;
   isPending: boolean;
+  isSelected: boolean;
+  onToggleSelect: () => void;
 }) {
   return (
     <div
-      className="group border border-rule hover:border-signal/50 transition-all cursor-pointer bg-black"
+      className="group border hover:border-signal/50 transition-all cursor-pointer bg-black"
+      style={{ borderColor: isSelected ? "var(--signal)" : "color-mix(in srgb, var(--white) 12%, transparent)" }}
       onClick={onEdit}
     >
       {/* Cover Image */}
@@ -376,6 +510,14 @@ function WorkCard({ work, onEdit, onDelete, onToggleFeatured, isPending }: {
             <span className="lab text-signal bg-black/80 px-2 py-1" style={{ fontSize: "0.4rem" }}>★ FEATURED</span>
           </div>
         )}
+        <div className="absolute top-2 left-2" onClick={(e) => e.stopPropagation()}>
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={onToggleSelect}
+            className="accent-[var(--signal)] w-4 h-4 cursor-pointer"
+          />
+        </div>
       </div>
 
       {/* Info */}
