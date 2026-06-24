@@ -169,11 +169,11 @@ function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
       const res = await fetch("/api/admin/ai/description", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: form.title, type: "work" }),
+        body: JSON.stringify({ title: form.title, type: "description", category: form.category }),
       });
       const data = await res.json();
-      if (data.description) {
-        setForm((p) => ({ ...p, description: data.description }));
+      if (data.result) {
+        setForm((p) => ({ ...p, description: data.result }));
         setMsg("Description generated!");
       } else { setMsg("Generation failed"); }
     } catch { setMsg("Generation failed"); }
@@ -199,17 +199,17 @@ function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
   }
 
   async function handleGenerateTags() {
-    if (!form.description.trim()) { setMsg("Add description first"); return; }
+    if (!form.title.trim()) { setMsg("Add title first"); return; }
     setGeneratingTags(true);
     try {
-      const res = await fetch("/api/admin/ai/utils", {
+      const res = await fetch("/api/admin/ai/tags", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "hashtags", text: `${form.title} ${form.description}` }),
+        body: JSON.stringify({ title: form.title, description: form.description, category: form.category }),
       });
       const data = await res.json();
-      if (data.result) {
-        setForm((p) => ({ ...p, tags: data.result }));
+      if (data.tags) {
+        setForm((p) => ({ ...p, tags: data.tags }));
         setMsg("Tags generated!");
       } else { setMsg("Generation failed"); }
     } catch { setMsg("Generation failed"); }
@@ -490,11 +490,11 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
       const res = await fetch("/api/admin/ai/description", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: form.title, type: "work" }),
+        body: JSON.stringify({ title: form.title, type: "description", category: form.category }),
       });
       const data = await res.json();
-      if (data.description) {
-        setForm((p) => ({ ...p, description: data.description }));
+      if (data.result) {
+        setForm((p) => ({ ...p, description: data.result }));
         setMsg("Description generated!");
       } else { setMsg("Generation failed"); }
     } catch { setMsg("Generation failed"); }
@@ -520,17 +520,17 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
   }
 
   async function handleGenerateTags() {
-    if (!form.description.trim()) { setMsg("Add description first"); return; }
+    if (!form.title.trim()) { setMsg("Add title first"); return; }
     setGeneratingTags(true);
     try {
-      const res = await fetch("/api/admin/ai/utils", {
+      const res = await fetch("/api/admin/ai/tags", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "hashtags", text: `${form.title} ${form.description}` }),
+        body: JSON.stringify({ title: form.title, description: form.description, category: form.category }),
       });
       const data = await res.json();
-      if (data.result) {
-        setForm((p) => ({ ...p, tags: data.result }));
+      if (data.tags) {
+        setForm((p) => ({ ...p, tags: data.tags }));
         setMsg("Tags generated!");
       } else { setMsg("Generation failed"); }
     } catch { setMsg("Generation failed"); }
@@ -738,8 +738,8 @@ function InlineJournalForm({ onCancel, onSuccess }: { onCancel: () => void; onSu
         body: JSON.stringify({ title: form.title, type: "journal" }),
       });
       const data = await res.json();
-      if (data.description) {
-        setForm((p) => ({ ...p, excerpt: data.description }));
+      if (data.result) {
+        setForm((p) => ({ ...p, excerpt: data.result }));
         setMsg("Excerpt generated!");
       } else { setMsg("Generation failed"); }
     } catch { setMsg("Generation failed"); }
