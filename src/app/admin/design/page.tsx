@@ -2017,7 +2017,7 @@ export default function AdminDesign() {
                     onClick={() => setSocialStyle({
                       selectedPreset: preset.name,
                       style: preset.style,
-                      size: preset.size,
+                      size: preset.size as "small" | "medium" | "large",
                     })}
                     className="flex flex-col items-center gap-2 border p-4 transition-all hover:scale-[1.02]"
                     style={{
