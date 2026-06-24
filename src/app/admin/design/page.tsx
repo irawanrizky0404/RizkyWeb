@@ -399,10 +399,6 @@ export default function AdminDesign() {
     setConfig((prev) => ({ ...prev, meta: { ...prev.meta, [key]: value } }));
   }
 
-  function setHero(key: keyof DesignConfig["hero"], value: string) {
-    setConfig((prev) => ({ ...prev, hero: { ...prev.hero, [key]: value } }));
-  }
-
   function setSite(key: keyof DesignConfig["site"], value: string) {
     setConfig((prev) => ({ ...prev, site: { ...prev.site, [key]: value } }));
   }
