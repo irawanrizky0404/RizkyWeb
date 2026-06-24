@@ -145,16 +145,16 @@ export default function AdminWorks() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:gap-3">
           <input
             type="text"
             placeholder="Search works..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent border border-rule px-3 py-2 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
-            style={{ fontSize: "0.55rem", width: "160px" }}
+            className="bg-transparent border border-rule px-3 py-2 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors w-full md:w-auto"
+            style={{ fontSize: "0.55rem", minWidth: "0", maxWidth: "200px" }}
           />
-          <div className="flex gap-1">
+          <div className="flex gap-1 flex-wrap">
             {["All", ...CATEGORIES].map((c) => (
               <button
                 key={c}
@@ -626,7 +626,7 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
           </div>
 
           {/* Slug & Client */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="lab text-white/40 block mb-2" style={{ fontSize: "0.55rem" }}>Slug {isNew && <span className="text-white/20">(auto)</span>}</label>
               <input
@@ -651,7 +651,7 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
           </div>
 
           {/* Year, Category, Featured */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <label className="lab text-white/40 block mb-2" style={{ fontSize: "0.55rem" }}>Year *</label>
               <input

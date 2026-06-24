@@ -90,8 +90,8 @@ export function Footer() {
       </div>
 
       {/* ── Bottom strip: socials + copyright ─────────────────────── */}
-      <div className="relative border-t border-rule px-5 py-4 flex items-center justify-between gap-6 md:px-8">
-        {/* Socials — 3 max, never wraps */}
+      <div className="relative border-t border-rule px-5 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6 md:px-8">
+        {/* Socials */}
         <div className="flex items-center gap-5 shrink-0">
           {socials.map((s) => (
             <a

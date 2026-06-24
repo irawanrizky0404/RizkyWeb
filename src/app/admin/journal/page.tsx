@@ -406,7 +406,7 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className={labelCls} style={fs}>Slug {isNew && <span className="text-white/20">(auto-generated)</span>}</label>
               <input value={form.slug} onChange={set("slug")} className={inputCls} style={fs} placeholder="post-slug" />

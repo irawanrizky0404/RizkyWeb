@@ -1429,7 +1429,7 @@ export default function AdminDesign() {
               {/* Card Preview */}
               <div className="mt-6 p-5 border border-rule" style={{ background: "rgba(255,255,255,0.02)" }}>
                 <p className="lab text-white/30 mb-3" style={{ fontSize: "0.5rem", textTransform: "uppercase" }}>Preview</p>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div
                     className="border p-4 transition-all hover:border-signal"
                     style={{

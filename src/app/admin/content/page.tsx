@@ -204,7 +204,7 @@ export default function AdminContent() {
                     placeholder="5 years across 3D, motion, illustration, and identity."
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls} style={fs}>Location</label>
                     <input
