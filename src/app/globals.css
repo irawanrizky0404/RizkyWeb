@@ -118,8 +118,10 @@ a { color: inherit; text-decoration: none; }
   outline: none;
 }
 
-/* ─── ACCENT CURSOR FOR ADMIN ────────────────────────────────────── */
-.admin-page, .admin-page * { cursor: auto !important; }
+/* ─── CURSOR FOR ADMIN ───────────────────────────────────────────── */
+.admin-page { cursor: auto; }
+.admin-page a, .admin-page button, .admin-page [role="button"], .admin-page label, .admin-page select, .admin-page input[type="checkbox"], .admin-page input[type="radio"] { cursor: pointer; }
+.admin-page input:not([type="checkbox"]):not([type="radio"]), .admin-page textarea { cursor: text; }
 
 /* ─── IMAGE HOVER EFFECTS ───────────────────────────────────────── */
 .img-distort {

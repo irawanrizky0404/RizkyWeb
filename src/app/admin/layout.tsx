@@ -112,7 +112,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.href}
                 href={item.href}
-                className="lab px-3 py-2 rounded-sm transition-colors"
+                className="lab px-3 py-2 rounded-sm transition-colors cursor-pointer"
                 style={{
                   fontSize: "0.62rem",
                   color: active ? "#080808" : "rgba(240,240,238,0.4)",
@@ -130,7 +130,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <a
             href="/"
             target="_blank"
-            className="lab text-white/25 hover:text-white transition-colors block mb-3"
+            className="lab text-white/25 hover:text-white transition-colors block mb-3 cursor-pointer"
             style={{ fontSize: "0.52rem" }}
           >
             ↗ View site
@@ -138,7 +138,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <button
             onClick={logout}
             disabled={loggingOut}
-            className="lab text-white/25 hover:text-signal transition-colors"
+            className="lab text-white/25 hover:text-signal transition-colors cursor-pointer"
             style={{ fontSize: "0.52rem" }}
           >
             {loggingOut ? "Logging out…" : "Log out"}
