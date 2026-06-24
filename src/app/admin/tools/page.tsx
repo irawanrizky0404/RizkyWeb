@@ -410,12 +410,12 @@ export default function AdminTools() {
       </div>
 
       {/* Mode Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-rule">
+      <div className="flex gap-1 mb-6 border-b border-rule overflow-x-auto pb-px scrollbar-none">
         {modeLabels.map((tab) => (
           <button
             key={tab.id}
             onClick={() => { setMode(tab.id); setResult(null); setBulkResults([]); setSeoResult(null); setTitleResult(null); setDescResult(null); setInvoiceResult(null); }}
-            className="px-4 py-2 lab transition-colors border-b-2"
+            className="px-3 py-2 lab transition-colors border-b-2 whitespace-nowrap shrink-0"
             style={{
               fontSize: "0.6rem",
               color: mode === tab.id ? "#ff3500" : "rgba(240,240,238,0.4)",
@@ -754,7 +754,7 @@ export default function AdminTools() {
       {/* Utilities Mode */}
       {mode === "utils" && (
         <div>
-          <div className="flex gap-1 mb-6">
+          <div className="flex flex-wrap gap-1 mb-6">
             {utilsLabels.map((tab) => (
               <button
                 key={tab.id}
@@ -1073,7 +1073,7 @@ export default function AdminTools() {
               <label className="lab text-white/30 block mb-2" style={{ fontSize: "0.58rem" }}>Line Items *</label>
               <div className="space-y-3">
                 {invoiceItems.map((item, index) => (
-                  <div key={index} className="flex gap-3 items-center">
+                  <div key={index} className="flex flex-wrap gap-2 items-center">
                     <input
                       type="text"
                       value={item.description}
