@@ -35,7 +35,7 @@ export function ProgressBar() {
           left: 0,
           height: "3px",
           width: `${progress * 100}%`,
-          background: "#ff3500",
+          background: "var(--signal)",
           zIndex: 99997,
           willChange: "width",
           pointerEvents: "none",
@@ -58,7 +58,8 @@ export function ProgressBar() {
         <div
           style={{
             height: `${progress * 100}%`,
-            background: "rgba(255,53,0,0.15)",
+            background: "var(--signal)",
+            opacity: 0.15,
             transition: "height 0.1s",
           }}
         />
@@ -69,10 +70,10 @@ export function ProgressBar() {
             right: 0,
             width: "8px",
             height: "8px",
-            background: "#ff3500",
+            background: "var(--signal)",
             borderRadius: "50%",
             transform: "translate(50%, -50%)",
-            boxShadow: "0 0 12px rgba(255,53,0,0.6)",
+            boxShadow: "0 0 12px color-mix(in srgb, var(--signal) 60%, transparent)",
             transition: "opacity 0.3s",
             opacity: isScrolling ? 1 : 0.6,
           }}

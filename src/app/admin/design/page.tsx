@@ -291,6 +291,7 @@ export default function AdminDesign() {
   const [genMsg, setGenMsg] = useState("");
 
   const [selectedFontPreset, setSelectedFontPreset] = useState<string | null>(null);
+  const [selectedLayoutPreset, setSelectedLayoutPreset] = useState<string | null>(null);
 
   const [heroStyle, setHeroStyle] = useState({
     selectedPreset: "Full Screen",
@@ -926,14 +927,15 @@ export default function AdminDesign() {
                   <button
                     key={preset.name}
                     onClick={() => {
+                      setSelectedLayoutPreset(preset.name);
                       setLayout("containerWidth", preset.containerWidth);
                       setLayout("gridGap", preset.gap);
                       setLayout("navStyle", preset.navStyle);
                     }}
                     className="flex flex-col items-center gap-2 border p-4 transition-all hover:scale-[1.02]"
                     style={{
-                      borderColor: config.layout.containerWidth === preset.containerWidth ? config.colors.signal : "rgba(240,240,238,0.1)",
-                      background: config.layout.containerWidth === preset.containerWidth ? `${config.colors.signal}10` : "transparent",
+                      borderColor: selectedLayoutPreset === preset.name ? config.colors.signal : "rgba(240,240,238,0.1)",
+                      background: selectedLayoutPreset === preset.name ? `${config.colors.signal}10` : "transparent",
                     }}
                   >
                     <div className="flex flex-col gap-0.5 w-full">

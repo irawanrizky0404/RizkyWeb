@@ -9,8 +9,13 @@
   --color-signal: var(--signal);
 
   --font-display: var(--font-display);
+  --font-heading: var(--font-heading);
   --font-body:    var(--font-body);
   --font-mono:    var(--font-mono);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
 }
 
 :root {

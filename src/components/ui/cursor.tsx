@@ -78,7 +78,7 @@ export function Cursor() {
         ref={ringRef}
         className="pointer-events-none fixed left-0 top-0 rounded-full"
         style={{
-          border: "2px solid #ff3500",
+          border: "2px solid var(--signal)",
           willChange: "transform, width, height",
           transition: "width 0.2s ease, height 0.2s ease",
           zIndex: 9999998,

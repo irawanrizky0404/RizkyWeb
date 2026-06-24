@@ -34,8 +34,8 @@ const ibmMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-function buildGoogleFontsUrl(fonts: { display?: string; body?: string; accent?: string }) {
-  const families = [...new Set([fonts.display, fonts.body, fonts.accent].filter(Boolean) as string[])];
+function buildGoogleFontsUrl(fonts: { display?: string; heading?: string; body?: string; accent?: string }) {
+  const families = [...new Set([fonts.display, fonts.heading, fonts.body, fonts.accent].filter(Boolean) as string[])];
   const params = families
     .map((f) => `family=${encodeURIComponent(f)}:wght@300;400;500;700`)
     .join("&");
@@ -99,10 +99,11 @@ export default async function RootLayout({
   const design = await getDesign();
 
   const displayFont = design?.fonts?.display || "Bebas Neue";
+  const headingFont = design?.fonts?.heading || "IBM Plex Sans";
   const bodyFont = design?.fonts?.body || "IBM Plex Sans";
   const accentFont = design?.fonts?.accent || "IBM Plex Mono";
 
-  const googleFontsUrl = buildGoogleFontsUrl({ display: displayFont, body: bodyFont, accent: accentFont });
+  const googleFontsUrl = buildGoogleFontsUrl({ display: displayFont, heading: headingFont, body: bodyFont, accent: accentFont });
 
   const cssVars = {
     "--signal": design?.colors?.signal ?? "#ff3500",
@@ -110,6 +111,7 @@ export default async function RootLayout({
     "--white": design?.colors?.white ?? "#f0f0ee",
     "--grey": design?.colors?.grey ?? "#7a7a76",
     "--font-display": `'${displayFont}', sans-serif`,
+    "--font-heading": `'${headingFont}', sans-serif`,
     "--font-body": `'${bodyFont}', sans-serif`,
     "--font-mono": `'${accentFont}', monospace`,
     "--border-radius": design?.layout?.borderRadius ?? "4px",

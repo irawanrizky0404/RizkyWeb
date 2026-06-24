@@ -74,8 +74,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     className="lab px-5 py-3 rounded-sm transition-colors"
                     style={{
                       fontSize: "0.72rem",
-                      color: active ? "#080808" : "rgba(240,240,238,0.6)",
-                      background: active ? "#ff3500" : "transparent",
+                      color: active ? "var(--black)" :"rgba(240,240,238,0.6)",
+                      background: active ? "var(--signal)" : "transparent",
                     }}
                   >
                     {item.label}
@@ -124,8 +124,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className="lab px-3 py-2 rounded-sm transition-colors cursor-pointer"
                 style={{
                   fontSize: "0.62rem",
-                  color: active ? "#080808" : "rgba(240,240,238,0.4)",
-                  background: active ? "#ff3500" : "transparent",
+                  color: active ? "var(--black)" :"rgba(240,240,238,0.4)",
+                  background: active ? "var(--signal)" : "transparent",
                 }}
               >
                 {item.label}
