@@ -315,7 +315,7 @@ function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
           <label className={labelCls} style={fs}>Tags (comma separated)</label>
           <div className="flex items-center gap-2">
             <input value={form.tags} onChange={set("tags")} className={inputCls} style={fs} placeholder="3D, Animation, Character" />
-            <button type="button" onClick={handleGenerateTags} disabled={generatingTags || !form.description.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap">
+            <button type="button" onClick={handleGenerateTags} disabled={generatingTags || !form.title.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap">
               <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingTags ? "..." : "✨ AI"}</span>
             </button>
           </div>
@@ -637,7 +637,7 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
           <label className={labelCls} style={fs}>Tags (comma separated)</label>
           <div className="flex items-center gap-2">
             <input value={form.tags} onChange={set("tags")} className={inputCls} style={fs} placeholder="3D, Animation, Personal Project" />
-            <button type="button" onClick={handleGenerateTags} disabled={generatingTags || !form.description.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap">
+            <button type="button" onClick={handleGenerateTags} disabled={generatingTags || !form.title.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap">
               <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingTags ? "..." : "✨ AI"}</span>
             </button>
           </div>
