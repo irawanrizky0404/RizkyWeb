@@ -32,6 +32,18 @@ export function Hero() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const getBrightness = (hex: string) => {
+    if (!hex) return 0;
+    hex = hex.replace("#", "");
+    if (hex.length === 3) hex = hex.split("").map((x) => x + x).join("");
+    if (hex.length !== 6) return 0;
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000;
+  };
+  const isLight = getBrightness(design?.colors?.black || "#080808") > 128;
+
   const onMove = useCallback((e: React.MouseEvent) => {
     const el = ref.current; if (!el) return;
     const r = el.getBoundingClientRect();
@@ -65,7 +77,7 @@ export function Hero() {
             style={{
               objectPosition: "50% 36%",
               filter: `grayscale(1) contrast(${1.2 + scrollProgress * 0.3}) brightness(${(0.62 - scrollProgress * 0.3) * (imageOverlay / 0.6)}) blur(${scrollProgress * 6}px)`,
-              mixBlendMode: "screen",
+              mixBlendMode: isLight ? "multiply" : "screen",
               transform: `scale(${1 + scrollProgress * 0.06})`,
             }}
             sizes="100vw"
