@@ -10,8 +10,8 @@ export function Preloader() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Only show preloader on first session visit
-    if (sessionStorage.getItem("fac_preloader_seen")) {
+    // Only show preloader on first session visit, and bypass for admin
+    if (pathname.startsWith("/admin") || sessionStorage.getItem("fac_preloader_seen")) {
       setLoading(false);
       return;
     }

@@ -299,6 +299,7 @@ export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
               >
                 <Link
                   href={`/works/${p.slug}`}
+                  data-cursor-text={p.hoverVideoUrl ? "PLAY" : "VIEW"}
                   className="group relative block aspect-square overflow-hidden border-b border-r border-rule bg-black"
                 >
                   <Image
