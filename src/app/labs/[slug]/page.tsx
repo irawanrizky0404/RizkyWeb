@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { getLabs } from "@/lib/store";
-
-const FluidSim = dynamic(() => import("@/components/labs/fluid-sim").then(m => m.FluidSim), { ssr: false });
-const WireframeCube = dynamic(() => import("@/components/labs/wireframe-cube").then(m => m.WireframeCube), { ssr: false });
+import { LabCanvas } from "@/components/labs/lab-canvas";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -45,8 +42,7 @@ export default async function LabDetailPage(props: PageProps) {
 
       {/* ── CANVAS ──────────────────────────────────────────────────────── */}
       <div className="absolute inset-0">
-        {lab.componentName === "FluidSim" && <FluidSim />}
-        {lab.componentName === "WireframeCube" && <WireframeCube />}
+        <LabCanvas componentName={lab.componentName} />
       </div>
     </div>
   );
