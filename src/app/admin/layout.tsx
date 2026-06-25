@@ -13,7 +13,7 @@ const navItems = [
   { label: "Labs", href: "/admin/labs" },
   { label: "Journal", href: "/admin/journal" },
   { label: "Services", href: "/admin/services" },
-  { label: "CV", href: "/admin/cv" },
+  { label: "CV & Tools", href: "/admin/cv" },
   { label: "Upload", href: "/admin/upload" },
   { label: "Design", href: "/admin/design" },
   { label: "AI Tools", href: "/admin/tools" },

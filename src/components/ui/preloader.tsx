@@ -5,9 +5,10 @@ import { motion, AnimatePresence } from "motion/react";
 import { usePathname } from "next/navigation";
 
 export function Preloader() {
-  const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
   const pathname = usePathname();
+  // Prevent hydration flash by initializing based on pathname when possible
+  const [loading, setLoading] = useState(!pathname?.startsWith("/admin"));
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     // Only show preloader on first session visit, and bypass for admin
@@ -31,7 +32,9 @@ export function Preloader() {
     }, 150);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [pathname]);
+
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <AnimatePresence>
