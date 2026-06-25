@@ -73,79 +73,119 @@ export default async function PersonalProjectDetailPage(props: PageProps) {
         </div>
       </div>
 
-      {/* ── META STRIP ──────────────────────────────────────────── */}
-      <div className="border-b border-rule">
-        <div className="flex flex-wrap gap-0 divide-x divide-rule">
-          {[
-            { label: "Client", value: project.client },
-            { label: "Category", value: project.category },
-            { label: "Year", value: String(project.year) },
-          ].map(({ label, value }) => value ? (
-            <div key={label} className="px-5 py-5 md:px-8 md:py-6">
-              <p className="lab text-white/25 mb-1" style={{ fontSize: "0.48rem" }}>{label}</p>
-              <p className="lab text-white" style={{ fontSize: "0.7rem" }}>{value}</p>
-            </div>
-          ) : null)}
-          {project.url && (
-            <div className="px-5 py-5 md:px-8 md:py-6">
-              <p className="lab text-white/25 mb-1" style={{ fontSize: "0.48rem" }}>Live</p>
-              <a href={project.url} target="_blank" rel="noopener noreferrer"
-                className="lab text-signal hover:text-white transition-colors" style={{ fontSize: "0.7rem" }}>
-                View ↗
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* ── SPLIT LAYOUT ─────────────────────────────────────────── */}
+      <section className="border-b border-rule">
+        <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[400px_1fr]">
+          
+          {/* Sticky Sidebar (Left) */}
+          <div className="border-b border-rule md:border-b-0 md:border-r border-rule">
+            <div className="sticky top-16 flex flex-col min-h-[calc(100vh-4rem)] p-5 md:p-8 lg:p-12">
+              
+              <div className="flex-1">
+                <Reveal>
+                  <p className="lab text-signal/70 mb-8" style={{ fontSize: "0.55rem" }}>[ Project Details ]</p>
+                </Reveal>
 
-      {/* ── DESCRIPTION ─────────────────────────────────────────── */}
-      <Reveal>
-        <section className="border-b border-rule px-5 py-12 md:px-12 md:py-16">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-[1fr_280px]">
-            <div>
-              <p className="dis text-white mb-6" style={{ fontSize: "clamp(1.4rem, 3vw, 2.8rem)", lineHeight: 0.92 }}>
-                {project.summary}
-              </p>
-              <div className="h-px w-8 bg-signal/40 mb-6" />
-              <p className="text-sm leading-loose text-white/45 max-w-2xl">
-                {project.description}
-              </p>
-            </div>
-            {/* Sidebar */}
-            <div className="border-t border-rule pt-6 md:border-t-0 md:border-l md:border-rule md:pt-0 md:pl-8">
-              {project.tags.length > 0 && (
-                <div className="mb-6">
-                  <p className="lab text-white/25 mb-3" style={{ fontSize: "0.5rem" }}>Tags</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span key={tag} className="lab text-white/40 border border-rule px-2 py-1 hover:border-signal/50 hover:text-signal transition-colors" style={{ fontSize: "0.5rem" }}>
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                <div className="space-y-6">
+                  {[
+                    { label: "Client", value: project.client },
+                    { label: "Category", value: project.category },
+                    { label: "Year", value: String(project.year) },
+                  ].map(({ label, value }, i) => value ? (
+                    <Reveal key={label} delay={i * 0.1}>
+                      <div>
+                        <p className="lab text-white/25 mb-1" style={{ fontSize: "0.48rem" }}>{label}</p>
+                        <p className="lab text-white" style={{ fontSize: "0.7rem" }}>{value}</p>
+                      </div>
+                    </Reveal>
+                  ) : null)}
+
+                  {project.tags.length > 0 && (
+                    <Reveal delay={0.3}>
+                      <div>
+                        <p className="lab text-white/25 mb-3" style={{ fontSize: "0.48rem" }}>Tags</p>
+                        <div className="flex flex-wrap gap-2">
+                          {project.tags.map((tag) => (
+                            <span key={tag} className="lab text-white/40 border border-rule px-2 py-1 hover:border-signal/50 hover:text-signal transition-colors" style={{ fontSize: "0.5rem" }}>
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </Reveal>
+                  )}
+
+                  {project.url && (
+                    <Reveal delay={0.4}>
+                      <div>
+                        <p className="lab text-white/25 mb-1" style={{ fontSize: "0.48rem" }}>Live</p>
+                        <a href={project.url} target="_blank" rel="noopener noreferrer"
+                          className="lab text-signal hover:text-white transition-colors" style={{ fontSize: "0.7rem" }}>
+                          View ↗
+                        </a>
+                      </div>
+                    </Reveal>
+                  )}
                 </div>
-              )}
-              <div>
-                <p className="lab text-white/25 mb-2" style={{ fontSize: "0.5rem" }}>Index</p>
-                <p className="dis text-white/20" style={{ fontSize: "clamp(3rem, 8vw, 6rem)", lineHeight: 0.85 }}>
-                  {String(currentIndex + 1).padStart(2, "0")}
-                </p>
               </div>
+
+              <Reveal delay={0.5}>
+                <div className="mt-12 pt-8 border-t border-rule/50">
+                  <p className="lab text-white/25 mb-2" style={{ fontSize: "0.5rem" }}>Index</p>
+                  <p className="dis text-white/20" style={{ fontSize: "clamp(4rem, 8vw, 6rem)", lineHeight: 0.85 }}>
+                    {String(currentIndex + 1).padStart(2, "0")}
+                  </p>
+                </div>
+              </Reveal>
             </div>
           </div>
-        </section>
-      </Reveal>
 
-      {/* ── GALLERY ─────────────────────────────────────────────── */}
-      {project.gallery.length > 0 && (
-        <section className="border-b border-rule">
-          <div className="border-b border-rule px-5 py-3 md:px-12 flex items-center justify-between">
-            <span className="fac">Gallery</span>
-            <span className="lab text-white/30" style={{ fontSize: "0.58rem" }}>{project.gallery.length} frame{project.gallery.length > 1 ? "s" : ""}</span>
+          {/* Scrolling Content (Right) */}
+          <div className="flex flex-col">
+            
+            {/* Description Block */}
+            <div className="p-5 py-12 md:p-12 lg:p-16 lg:py-24 border-b border-rule bg-black relative z-10">
+              <Reveal>
+                <p className="dis text-white mb-8" style={{ fontSize: "clamp(1.4rem, 3.5vw, 3.2rem)", lineHeight: 0.95 }}>
+                  {project.summary}
+                </p>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <div className="h-px w-12 bg-signal/40 mb-8" />
+                <p className="text-sm md:text-base leading-loose text-white/50 max-w-2xl">
+                  {project.description}
+                </p>
+              </Reveal>
+              
+              {/* Video Support (if added to data) */}
+              {project.videoUrl && (
+                <Reveal delay={0.2}>
+                  <div className="mt-12 aspect-video w-full bg-dim/50 border border-rule overflow-hidden">
+                    <iframe 
+                      src={project.videoUrl} 
+                      className="w-full h-full"
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </Reveal>
+              )}
+            </div>
+
+            {/* Gallery Block */}
+            {project.gallery.length > 0 && (
+              <div className="flex-1 bg-black">
+                <div className="border-b border-rule px-5 py-3 md:px-12 flex items-center justify-between bg-black/80 backdrop-blur sticky top-16 z-20">
+                  <span className="fac">Gallery</span>
+                  <span className="lab text-white/30" style={{ fontSize: "0.58rem" }}>{project.gallery.length} frame{project.gallery.length > 1 ? "s" : ""}</span>
+                </div>
+                <GalleryLightbox images={project.gallery} projectTitle={project.title} />
+              </div>
+            )}
           </div>
-          <GalleryLightbox images={project.gallery} projectTitle={project.title} />
-        </section>
-      )}
+
+        </div>
+      </section>
 
       {/* ── NEXT PROJECT — full bleed ────────────────────────────── */}
       <div className="relative overflow-hidden bg-black" style={{ minHeight: "340px" }}>

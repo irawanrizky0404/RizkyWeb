@@ -51,27 +51,28 @@ export default async function AboutPage() {
         </div>
 
         {/* Body copy */}
-        <div className="grid grid-cols-1 md:grid-cols-12 px-5 py-10 gap-8 md:px-12 md:py-14">
-          <div className="md:col-span-3">
+        <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
+          <div className="border-b border-rule md:border-b-0 md:border-r border-rule p-5 md:p-12 sticky top-16 h-fit z-10 bg-black/80 backdrop-blur">
             <Reveal>
-              <p className="lab text-signal/70" style={{ fontSize: "0.55rem" }}>[ 01 — Biography ]</p>
+              <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 01 — Biography ]</p>
+              <h2 className="dis text-white" style={{ fontSize: "clamp(2rem, 5vw, 4rem)", lineHeight: 0.9 }}>Profile</h2>
             </Reveal>
           </div>
-          <div className="md:col-span-9">
+          <div className="p-5 py-8 md:p-12 md:py-16">
             <Reveal delay={0.1}>
-              <p className="text-white/70 mb-6" style={{ fontSize: "clamp(1rem, 1.8vw, 1.35rem)", lineHeight: 1.7 }}>
+              <p className="text-white/70 mb-6 leading-relaxed" style={{ fontSize: "clamp(1rem, 1.8vw, 1.35rem)" }}>
                 {about?.intro || "5 years across 3D, motion, illustration, and identity. Every project begins with a feeling, not a brief. Aesthetic leads. Technique follows."}
               </p>
             </Reveal>
             <Reveal delay={0.18}>
-              <p className="text-sm leading-relaxed text-white/45 max-w-2xl">
+              <p className="text-sm md:text-base leading-relaxed text-white/45 max-w-2xl">
                 Based in Indonesia, working globally with creative agencies, architecture studios, product companies, music labels, and publishers — helping them translate ideas into visual experiences that are both precise and atmospheric.
               </p>
             </Reveal>
             <Reveal delay={0.26}>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-12 flex flex-wrap gap-3">
                 {["Indonesia", "UTC +7", "Est. 2017", "Open to Collaborate"].map((tag) => (
-                  <span key={tag} className="lab border border-rule px-3 py-1 text-white/40" style={{ fontSize: "0.55rem" }}>
+                  <span key={tag} className="lab border border-rule px-4 py-2 text-white/40" style={{ fontSize: "0.55rem" }}>
                     {tag}
                   </span>
                 ))}
@@ -104,15 +105,20 @@ export default async function AboutPage() {
       {/* ── STORY SECTION ──────────────────────────────────────────── */}
       {about?.storyTitle && (
         <section className="border-t border-rule">
-          <div className="border-b border-rule px-5 py-8 md:px-12">
-            <Reveal>
-              <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 02 — {about.storyTitle} ]</p>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <p className="text-white/70 max-w-3xl" style={{ fontSize: "clamp(1rem, 1.8vw, 1.35rem)", lineHeight: 1.7 }}>
-                {about.story}
-              </p>
-            </Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
+            <div className="border-b border-rule md:border-b-0 md:border-r border-rule p-5 md:p-12 sticky top-16 h-fit z-10 bg-black/80 backdrop-blur">
+              <Reveal>
+                <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 02 — Story ]</p>
+                <h2 className="dis text-white" style={{ fontSize: "clamp(2rem, 5vw, 4rem)", lineHeight: 0.9 }}>{about.storyTitle}</h2>
+              </Reveal>
+            </div>
+            <div className="p-5 py-8 md:p-12 md:py-16">
+              <Reveal delay={0.1}>
+                <p className="text-white/70 max-w-3xl leading-relaxed" style={{ fontSize: "clamp(1rem, 1.8vw, 1.35rem)" }}>
+                  {about.story}
+                </p>
+              </Reveal>
+            </div>
           </div>
         </section>
       )}
@@ -120,120 +126,158 @@ export default async function AboutPage() {
       {/* ── APPROACH SECTION ─────────────────────────────────────────── */}
       {about?.approachTitle && (
         <section className="border-t border-rule">
-          <div className="border-b border-rule px-5 py-8 md:px-12">
-            <Reveal>
-              <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 03 — {about.approachTitle} ]</p>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <p className="text-white/70 max-w-3xl" style={{ fontSize: "clamp(1rem, 1.8vw, 1.35rem)", lineHeight: 1.7 }}>
-                {about.approach}
-              </p>
-            </Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
+            <div className="border-b border-rule md:border-b-0 md:border-r border-rule p-5 md:p-12 sticky top-16 h-fit z-10 bg-black/80 backdrop-blur">
+              <Reveal>
+                <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 03 — Approach ]</p>
+                <h2 className="dis text-white" style={{ fontSize: "clamp(2rem, 5vw, 4rem)", lineHeight: 0.9 }}>{about.approachTitle}</h2>
+              </Reveal>
+            </div>
+            <div className="p-5 py-8 md:p-12 md:py-16">
+              <Reveal delay={0.1}>
+                <p className="text-white/70 max-w-3xl leading-relaxed" style={{ fontSize: "clamp(1rem, 1.8vw, 1.35rem)" }}>
+                  {about.approach}
+                </p>
+              </Reveal>
+            </div>
           </div>
         </section>
       )}
 
       {/* ── DISCIPLINES ─────────────────────────────────────────────── */}
       <section className="border-t border-rule">
-        <div className="flex items-center justify-between border-b border-rule px-5 py-3 md:px-12">
-          <span className="fac">Disciplines</span>
-          <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>{services.length} fields</span>
-        </div>
-        {services.map((s, i) => (
-          <Reveal key={s.category} delay={i * 0.05}>
-            <details className="group border-b border-rule">
-              <summary className="flex cursor-pointer items-baseline gap-5 px-5 py-5 transition-colors hover:bg-white/[0.03] md:px-12 md:py-7 list-none">
-                <span className="lab text-signal shrink-0 w-7">{String(i + 1).padStart(2, "0")}</span>
-                <span className="dis flex-1 text-white" style={{ fontSize: "clamp(1.6rem, 7vw, 9rem)", lineHeight: 0.88 }}>
-                  {s.category}
-                </span>
-                <span className="lab text-white/40 group-open:rotate-45 transition-transform duration-200 shrink-0">+</span>
-              </summary>
-              <div className="border-t border-rule/40 px-5 pb-8 pt-5 md:px-12 md:pl-[4.5rem]">
-                <p className="text-sm leading-relaxed text-white/55 max-w-xl mb-5">{s.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {s.items.map((item) => (
-                    <span key={item} className="lab text-white/50 border border-rule px-3 py-1 hover:border-signal/40 hover:text-signal transition-colors" style={{ fontSize: "0.58rem" }}>
-                      {item}
+        <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
+          <div className="border-b border-rule md:border-b-0 md:border-r border-rule p-5 md:p-12 sticky top-16 h-fit z-10 bg-black/80 backdrop-blur">
+            <Reveal>
+              <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 04 — Disciplines ]</p>
+              <h2 className="dis text-white" style={{ fontSize: "clamp(2rem, 5vw, 4rem)", lineHeight: 0.9 }}>Capabilities</h2>
+              <p className="lab text-white/30 mt-4" style={{ fontSize: "0.6rem" }}>{services.length} fields of expertise</p>
+            </Reveal>
+          </div>
+          <div className="flex flex-col">
+            {services.map((s, i) => (
+              <Reveal key={s.category} delay={i * 0.05}>
+                <details className="group border-b border-rule last:border-b-0">
+                  <summary className="flex cursor-pointer items-baseline gap-5 px-5 py-8 transition-colors hover:bg-white/[0.03] md:px-12 md:py-10 list-none">
+                    <span className="lab text-signal shrink-0 w-7">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="dis flex-1 text-white" style={{ fontSize: "clamp(2rem, 6vw, 6rem)", lineHeight: 0.88 }}>
+                      {s.category}
                     </span>
-                  ))}
-                </div>
-              </div>
-            </details>
-          </Reveal>
-        ))}
+                    <span className="lab text-white/40 group-open:rotate-45 transition-transform duration-200 shrink-0">+</span>
+                  </summary>
+                  <div className="border-t border-rule/40 px-5 pb-12 pt-8 md:px-12 md:pl-[4.5rem]">
+                    <p className="text-sm md:text-base leading-relaxed text-white/55 max-w-xl mb-8">{s.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {s.items.map((item) => (
+                        <span key={item} className="lab text-white/50 border border-rule px-4 py-2 hover:border-signal/40 hover:text-signal transition-colors" style={{ fontSize: "0.58rem" }}>
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </details>
+              </Reveal>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ── EXPERIENCE ──────────────────────────────────────────────── */}
       <section className="border-t border-rule">
-        <div className="flex items-center justify-between border-b border-rule px-5 py-3 md:px-12">
-          <span className="fac">Experience</span>
-          <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>{experiences.length} positions</span>
-        </div>
-        {experiences.map((exp, i) => (
-          <Reveal key={exp.role} delay={i * 0.05}>
-            <div className="border-b border-rule px-5 py-6 md:px-12 md:py-8">
-              <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between md:gap-8">
-                <div>
-                  <h3 className="dis text-white mb-1" style={{ fontSize: "clamp(1.2rem, 4vw, 2.5rem)", lineHeight: 0.9 }}>
-                    {exp.role}
-                  </h3>
-                  <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>{exp.organization}</span>
+        <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
+          <div className="border-b border-rule md:border-b-0 md:border-r border-rule p-5 md:p-12 sticky top-16 h-fit z-10 bg-black/80 backdrop-blur">
+            <Reveal>
+              <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 05 — Experience ]</p>
+              <h2 className="dis text-white" style={{ fontSize: "clamp(2rem, 5vw, 4rem)", lineHeight: 0.9 }}>Timeline</h2>
+              <p className="lab text-white/30 mt-4" style={{ fontSize: "0.6rem" }}>{experiences.length} positions</p>
+            </Reveal>
+          </div>
+          <div className="flex flex-col">
+            {experiences.map((exp, i) => (
+              <Reveal key={exp.role} delay={i * 0.05}>
+                <div className="border-b border-rule last:border-b-0 px-5 py-8 md:px-12 md:py-12 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-baseline md:justify-between md:gap-8">
+                    <div>
+                      <h3 className="dis text-white mb-2" style={{ fontSize: "clamp(1.5rem, 4vw, 3rem)", lineHeight: 0.9 }}>
+                        {exp.role}
+                      </h3>
+                      <span className="lab text-white/40" style={{ fontSize: "0.65rem" }}>{exp.organization}</span>
+                    </div>
+                    <span className="lab text-signal border border-signal/30 px-3 py-1 rounded-full shrink-0" style={{ fontSize: "0.55rem" }}>{exp.period}</span>
+                  </div>
+                  <p className="mt-6 max-w-2xl text-sm md:text-base leading-relaxed text-white/50">{exp.description}</p>
                 </div>
-                <span className="lab text-signal shrink-0" style={{ fontSize: "0.6rem" }}>{exp.period}</span>
-              </div>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/50">{exp.description}</p>
-            </div>
-          </Reveal>
-        ))}
+              </Reveal>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ── EDUCATION ───────────────────────────────────────────────── */}
       <section className="border-t border-rule">
-        <div className="flex items-center justify-between border-b border-rule px-5 py-3 md:px-12">
-          <span className="fac">Education</span>
-          <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>{education.length}</span>
-        </div>
-        {education.map((edu, i) => (
-          <Reveal key={edu.degree} delay={i * 0.05}>
-            <div className="border-b border-rule px-5 py-6 md:px-12 md:py-8">
-              <div className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between md:gap-8">
-                <div>
-                  <h3 className="dis text-white mb-1" style={{ fontSize: "clamp(1.2rem, 4vw, 2.5rem)", lineHeight: 0.9 }}>
-                    {edu.degree}
-                  </h3>
-                  <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>{edu.institution}</span>
+        <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
+          <div className="border-b border-rule md:border-b-0 md:border-r border-rule p-5 md:p-12 sticky top-16 h-fit z-10 bg-black/80 backdrop-blur">
+            <Reveal>
+              <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 06 — Education ]</p>
+              <h2 className="dis text-white" style={{ fontSize: "clamp(2rem, 5vw, 4rem)", lineHeight: 0.9 }}>Academic</h2>
+              <p className="lab text-white/30 mt-4" style={{ fontSize: "0.6rem" }}>{education.length} degrees</p>
+            </Reveal>
+          </div>
+          <div className="flex flex-col">
+            {education.map((edu, i) => (
+              <Reveal key={edu.degree} delay={i * 0.05}>
+                <div className="border-b border-rule last:border-b-0 px-5 py-8 md:px-12 md:py-12 hover:bg-white/[0.02] transition-colors">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-baseline md:justify-between md:gap-8">
+                    <div>
+                      <h3 className="dis text-white mb-2" style={{ fontSize: "clamp(1.5rem, 4vw, 3rem)", lineHeight: 0.9 }}>
+                        {edu.degree}
+                      </h3>
+                      <span className="lab text-white/40" style={{ fontSize: "0.65rem" }}>{edu.institution}</span>
+                    </div>
+                    <span className="lab text-signal border border-signal/30 px-3 py-1 rounded-full shrink-0" style={{ fontSize: "0.55rem" }}>{edu.period}</span>
+                  </div>
+                  {edu.description && (
+                    <p className="mt-6 max-w-2xl text-sm md:text-base leading-relaxed text-white/50">{edu.description}</p>
+                  )}
                 </div>
-                <span className="lab text-signal shrink-0" style={{ fontSize: "0.6rem" }}>{edu.period}</span>
-              </div>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/50">{edu.description}</p>
-            </div>
-          </Reveal>
-        ))}
+              </Reveal>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ── RECOGNITION ─────────────────────────────────────────────── */}
       {awards.length > 0 && (
         <section className="border-t border-rule">
-          <div className="flex items-center justify-between border-b border-rule px-5 py-3 md:px-12">
-            <span className="fac">Recognition</span>
-          </div>
-          {awards.map((award, i) => (
-            <Reveal key={award.title} delay={i * 0.05}>
-              <div className="border-b border-rule px-5 py-6 md:px-12 md:py-8">
-                <div className="flex items-start gap-5 md:gap-8">
-                  <span className="lab text-signal shrink-0 mt-1">{award.year}</span>
-                  <div>
-                    <h3 className="dis text-white mb-2" style={{ fontSize: "clamp(1rem, 3vw, 2rem)", lineHeight: 0.9 }}>
-                      {award.title}
-                    </h3>
-                    <span className="lab text-white/30" style={{ fontSize: "0.6rem" }}>{award.organization}</span>
-                    <p className="mt-3 text-sm text-white/50 leading-relaxed">{award.description}</p>
+          <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[400px_1fr]">
+            <div className="border-b border-rule md:border-b-0 md:border-r border-rule p-5 md:p-12 sticky top-16 h-fit z-10 bg-black/80 backdrop-blur">
+              <Reveal>
+                <p className="lab text-signal/70 mb-4" style={{ fontSize: "0.55rem" }}>[ 07 — Recognition ]</p>
+                <h2 className="dis text-white" style={{ fontSize: "clamp(2rem, 5vw, 4rem)", lineHeight: 0.9 }}>Awards</h2>
+                <p className="lab text-white/30 mt-4" style={{ fontSize: "0.6rem" }}>{awards.length} selected</p>
+              </Reveal>
+            </div>
+            <div className="flex flex-col">
+              {awards.map((award, i) => (
+                <Reveal key={award.title} delay={i * 0.05}>
+                  <div className="border-b border-rule last:border-b-0 px-5 py-8 md:px-12 md:py-12 hover:bg-white/[0.02] transition-colors">
+                    <div className="flex flex-col md:flex-row items-start gap-4 md:gap-12">
+                      <span className="lab text-signal border border-signal/30 px-3 py-1 rounded-full shrink-0 md:mt-2" style={{ fontSize: "0.55rem" }}>{award.year}</span>
+                      <div>
+                        <h3 className="dis text-white mb-2" style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.5rem)", lineHeight: 0.9 }}>
+                          {award.title}
+                        </h3>
+                        <span className="lab text-white/40" style={{ fontSize: "0.65rem" }}>{award.organization}</span>
+                        {award.description && (
+                          <p className="mt-4 text-sm md:text-base text-white/50 leading-relaxed max-w-2xl">{award.description}</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
+                </Reveal>
+              ))}
+            </div>
+          </div>
         </section>
       )}
 
