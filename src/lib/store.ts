@@ -1,4 +1,4 @@
-import type { Project, JournalPost, Service, Experience, SkillGroup, Education, Award } from "@/lib/types";
+import type { Project, JournalPost, Service, Experience, SkillGroup, Education, Award, LabExperiment } from "@/lib/types";
 import { projects as defaultProjects, journalPosts as defaultPosts, services as defaultServices, clientList as defaultClients, experiences as defaultExperiences, skillGroups as defaultSkillGroups, tools as defaultTools, education as defaultEducation, awards as defaultAwards } from "@/lib/data";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import path from "path";
@@ -13,6 +13,7 @@ const BIN_IDS = {
   cv: process.env.JSONBIN_CV_ID || "",
   seo: process.env.JSONBIN_SEO_ID || "",
   content: process.env.JSONBIN_CONTENT_ID || "",
+  labs: process.env.JSONBIN_LABS_ID || "",
 } as const;
 
 type BlobKey = keyof typeof BIN_IDS;
@@ -229,6 +230,33 @@ export async function getJournal(includeUnpublished = false): Promise<JournalPos
 
 export async function saveJournal(posts: JournalPost[]): Promise<void> {
   await saveJSONBin("journal", posts);
+}
+
+// ── Labs ──────────────────────────────────────────────────────────────────────
+const defaultLabs: LabExperiment[] = [
+  {
+    slug: "fluid-sim",
+    title: "WebGL Fluid Simulation",
+    year: "2024",
+    description: "Real-time fluid dynamics computed in a custom GLSL shader.",
+    componentName: "FluidSim"
+  },
+  {
+    slug: "wireframe-cube",
+    title: "Reactive Wireframe",
+    year: "2024",
+    description: "A three.js cube that reacts to mouse velocity and scroll position.",
+    componentName: "WireframeCube"
+  }
+];
+
+export async function getLabs(): Promise<LabExperiment[]> {
+  const result = await fetchJSONBin<LabExperiment[]>("labs", defaultLabs);
+  return Array.isArray(result) ? result : defaultLabs;
+}
+
+export async function saveLabs(labs: LabExperiment[]): Promise<void> {
+  await saveJSONBin("labs", labs);
 }
 
 // ── Services ──────────────────────────────────────────────────────────────────

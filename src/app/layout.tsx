@@ -9,6 +9,8 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { getDesign, getSEO } from "@/lib/store";
 import { DesignProvider } from "@/lib/design-context";
 import { PageTransition } from "@/components/ui/page-transition";
+import { Preloader } from "@/components/ui/preloader";
+import { SoundProvider } from "@/components/ui/sound-provider";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -149,15 +151,18 @@ export default async function RootLayout({
         <link href={googleFontsUrl} rel="stylesheet" />
       </head>
       <body className="bg-black text-white antialiased min-h-screen" suppressHydrationWarning>
-        <DesignProvider design={design}>
-          <LenisProvider>
-            <ProgressBar />
-            {!isAdmin && <Cursor />}
-            <Header />
-            <main><PageTransition>{children}</PageTransition></main>
-            <Footer />
-          </LenisProvider>
-        </DesignProvider>
+        <SoundProvider>
+          <Preloader />
+          <DesignProvider design={design}>
+            <LenisProvider>
+              <ProgressBar />
+              {!isAdmin && <Cursor />}
+              <Header />
+              <main><PageTransition>{children}</PageTransition></main>
+              <Footer />
+            </LenisProvider>
+          </DesignProvider>
+        </SoundProvider>
       </body>
     </html>
   );

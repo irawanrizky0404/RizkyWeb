@@ -23,8 +23,17 @@ export interface Project {
   gallery: string[];
   url?: string;
   videoUrl?: string;
+  hoverVideoUrl?: string;
   featured: boolean;
   type?: "client" | "personal";
+}
+
+export interface LabExperiment {
+  slug: string;
+  title: string;
+  year: string;
+  description: string;
+  componentName: string;
 }
 
 export interface Award {

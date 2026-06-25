@@ -249,14 +249,26 @@ export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
                     transition={{ duration: 0.15 }}
                     className="relative w-full h-full"
                   >
-                    <Image
-                      src={activeProject.cover}
-                      alt=""
-                      fill
-                      sizes="300px"
-                      className="object-cover"
-                      style={{ filter: "grayscale(1) contrast(1.15) brightness(0.6)", mixBlendMode: "screen" }}
-                    />
+                    {activeProject.hoverVideoUrl ? (
+                      <video
+                        src={activeProject.hoverVideoUrl}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="object-cover absolute inset-0 w-full h-full"
+                        style={{ filter: "grayscale(1) contrast(1.15) brightness(0.6)", mixBlendMode: "screen" }}
+                      />
+                    ) : (
+                      <Image
+                        src={activeProject.cover}
+                        alt=""
+                        fill
+                        sizes="300px"
+                        className="object-cover"
+                        style={{ filter: "grayscale(1) contrast(1.15) brightness(0.6)", mixBlendMode: "screen" }}
+                      />
+                    )}
                     <div className="absolute inset-0" style={{ background: "linear-gradient(to top, color-mix(in srgb, var(--black) 80%, transparent) 0%, transparent 55%)" }} />
                     <div className="absolute bottom-3 left-3 right-3">
                       <p className="fac" style={{ fontSize: "0.42rem" }}>{activeProject.category}</p>
@@ -294,9 +306,20 @@ export function WorkArchive({ projects, typeFilter }: WorkArchiveProps) {
                     alt={p.title}
                     fill
                     sizes="(max-width: 768px) 50vw, 25vw"
-                    className="img-distort object-cover"
+                    className="img-distort object-cover absolute inset-0 transition-opacity duration-300 group-hover:opacity-0"
                     style={{ filter: "grayscale(1) contrast(1.15) brightness(0.55)", mixBlendMode: "screen" }}
                   />
+                  {p.hoverVideoUrl && (
+                    <video
+                      src={p.hoverVideoUrl}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="object-cover absolute inset-0 w-full h-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      style={{ filter: "grayscale(1) contrast(1.15) brightness(0.55)", mixBlendMode: "screen" }}
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <p className="fac" style={{ fontSize: "0.4rem" }}>{p.category}</p>
