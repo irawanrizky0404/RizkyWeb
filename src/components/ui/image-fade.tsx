@@ -7,7 +7,7 @@ export function ImageFade({ className = "", ...props }: ImageProps) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <div className={`relative overflow-hidden bg-white/5 ${className}`}>
+    <div className={`${props.fill ? "absolute inset-0" : "relative"} overflow-hidden bg-white/5 ${className}`}>
       {/* Brutalist loading grid / shimmer */}
       {!loaded && (
         <div 
