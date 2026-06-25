@@ -186,7 +186,7 @@ export function GalleryLightbox({ images, projectTitle }: GalleryLightboxProps) 
                 onClick={() => openAt(idx)}
                 className={`group relative aspect-[4/3] overflow-hidden bg-black${j === 0 ? " border-r border-rule" : ""}`}
               >
-                <Image
+                <ImageFade
                   src={images[idx]}
                   alt={`${projectTitle} — ${idx + 1}`}
                   fill
@@ -209,7 +209,7 @@ export function GalleryLightbox({ images, projectTitle }: GalleryLightboxProps) 
             onClick={() => openAt(idx)}
             className="group relative aspect-[16/9] w-full overflow-hidden bg-black border-b border-rule block"
           >
-            <Image
+            <ImageFade
               src={images[idx]}
               alt={`${projectTitle} — ${idx + 1}`}
               fill
