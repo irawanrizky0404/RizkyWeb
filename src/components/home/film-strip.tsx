@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Project } from "@/lib/types";
+import { useDesign } from "@/lib/design-context";
 
 interface FilmStripProps {
   projects: Project[];
@@ -11,6 +12,19 @@ interface FilmStripProps {
 }
 
 export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
+  const design = useDesign();
+  const getBrightness = (hex: string) => {
+    if (!hex) return 0;
+    hex = hex.replace("#", "");
+    if (hex.length === 3) hex = hex.split("").map((x) => x + x).join("");
+    if (hex.length !== 6) return 0;
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000;
+  };
+  const isLight = getBrightness(design?.colors?.black || "#080808") > 128;
+
   const filteredProjects = typeFilter === "personal" ? projects.filter((p) => p.type === "personal") :
                            typeFilter === "client" ? projects.filter((p) => p.type === "client" || !p.type) :
                            projects;
@@ -168,7 +182,7 @@ export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
               style={{
                 filter: "grayscale(1) contrast(1.15) brightness(0.55)",
-                mixBlendMode: "screen",
+                mixBlendMode: isLight ? "multiply" : "screen",
               }}
               draggable={false}
             />

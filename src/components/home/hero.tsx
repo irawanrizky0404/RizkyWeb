@@ -149,13 +149,11 @@ export function Hero() {
         </div>
 
         {/* Series title */}
-        <p className="dis text-white/50" style={{ fontSize: "clamp(0.9rem, 5vw, 1.4rem)", lineHeight: 0.9, letterSpacing: "0.04em" }}>
-          Phantom<br />in the Ruins
-        </p>
+        <p className="dis text-white/50" style={{ fontSize: "clamp(0.9rem, 5vw, 1.4rem)", lineHeight: 0.9, letterSpacing: "0.04em" }} dangerouslySetInnerHTML={{ __html: (design?.hero?.imageTitle || "Phantom<br/>in the Ruins").replace(/\n/g, '<br/>') }} />
 
         {/* Data row */}
         <div className="mt-3 flex items-center justify-between border-t border-white/[0.06] pt-2">
-          <span className="lab text-white/22" style={{ fontSize: "0.46rem" }}>Personal Series</span>
+          <span className="lab text-white/22" style={{ fontSize: "0.46rem" }}>{design?.hero?.imageSubtitle?.split('·')[0]?.trim() || "Personal Series"}</span>
           <span className="lab text-white/22" style={{ fontSize: "0.46rem" }}>2024</span>
         </div>
       </div>

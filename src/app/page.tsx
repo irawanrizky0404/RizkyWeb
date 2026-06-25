@@ -56,7 +56,7 @@ export default async function Home() {
       <Hero />
 
       {/* ── Statement ── FAC.02 ─────────────────────────────────── */}
-      <section className="border-t-2 border-signal px-5 py-14 md:px-8 md:py-20 mx-auto max-w-container">
+      <section className="border-t-2 border-signal px-5 py-14 md:px-8 md:py-20">
         <div className="flex items-start gap-5 md:gap-8">
           <RevealText delay={0.05}>
             <span className="fac shrink-0 mt-2">FAC.02</span>
