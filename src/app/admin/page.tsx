@@ -52,7 +52,7 @@ function EmptyState({ message, action }: { message: string; action?: { label: st
   );
 }
 
-// ── Inline Work Form with Full Features ────────────────────────────────────────
+// -- Inline Work Form with Full Features ----------------------------------------
 function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSuccess: () => void }) {
   const [isPending, startTransition] = useTransition();
   const [msg, setMsg] = useState("");
@@ -378,7 +378,7 @@ function InlineWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
   );
 }
 
-// ── Inline Personal Work Form ───────────────────────────────────────────────────
+// -- Inline Personal Work Form ---------------------------------------------------
 function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void; onSuccess: () => void }) {
   const [isPending, startTransition] = useTransition();
   const [msg, setMsg] = useState("");
@@ -700,7 +700,7 @@ function InlinePersonalWorkForm({ onCancel, onSuccess }: { onCancel: () => void;
   );
 }
 
-// ── Inline Journal Form with AI ────────────────────────────────────────────────
+// -- Inline Journal Form with AI ------------------------------------------------
 function InlineJournalForm({ onCancel, onSuccess }: { onCancel: () => void; onSuccess: () => void }) {
   const [isPending, startTransition] = useTransition();
   const [msg, setMsg] = useState("");
@@ -897,7 +897,7 @@ export default function AdminDashboard() {
   const [mediaCount, setMediaCount] = useState(0);
   const [totalMediaSize, setTotalMediaSize] = useState(0);
   const [activity, setActivity] = useState<any[]>([]);
-  const [cvEntries, setCvEntries] = useState<any[]>([]);
+  const [cvEntries, setCvEntries] = useState<any>(null);
   const [loaded, setLoaded] = useState(false);
 
   const loadData = useCallback(() => {
@@ -1197,7 +1197,7 @@ export default function AdminDashboard() {
         </>
       )}
 
-      {/* ── TOOLS TAB ────────────────────────────────────────────── */}
+      {/* -- TOOLS TAB ---------------------------------------------- */}
       {activeTab === "tools" && (
         <ToolsManager 
           tools={cvEntries?.tools || []} 

@@ -338,7 +338,7 @@ export default function AdminCV() {
     );
   }
 
-  // ── Experience ──────────────────────────────────────────────
+  // -- Experience ----------------------------------------------
   async function handleSaveExp(exp: Experience, key: string) {
     startTransition(async () => {
       const result: { ok: boolean; error?: string } = mode === "edit" && editing
@@ -360,7 +360,7 @@ export default function AdminCV() {
     });
   }
 
-  // ── Skills ─────────────────────────────────────────────────
+  // -- Skills -------------------------------------------------
   async function handleSaveSkill(group: SkillGroup, key: string) {
     startTransition(async () => {
       const result: { ok: boolean; error?: string } = mode === "edit" && editing
@@ -382,29 +382,7 @@ export default function AdminCV() {
     });
   }
 
-  // ── Tools ──────────────────────────────────────────────────
-  async function handleSaveTool(group: SkillGroup, key: string) {
-    startTransition(async () => {
-      const result: { ok: boolean; error?: string } = mode === "edit" && editing
-        ? await updateToolGroup(key, group)
-        : await addToolGroup(group);
-      if (result.ok) {
-        notify(mode === "add" ? "Tool group added!" : "Tool group updated!");
-        setMode("list"); setEditing(null);
-        setTimeout(() => window.location.reload(), 500);
-      } else { notify(`Error: ${result.error}`); }
-    });
-  }
-  async function handleDeleteTool(category: string) {
-    if (!confirm(`Delete "${category}"?`)) return;
-    startTransition(async () => {
-      await deleteToolGroup(category);
-      setCV((p) => p ? { ...p, tools: p.tools.filter((g) => g.category !== category) } : p);
-      notify("Deleted.");
-    });
-  }
-
-  // ── Education ───────────────────────────────────────────────
+  // -- Education -----------------------------------------------
   async function handleSaveEdu(edu: Education, key: string) {
     startTransition(async () => {
       const result: { ok: boolean; error?: string } = mode === "edit" && editing
@@ -426,7 +404,7 @@ export default function AdminCV() {
     });
   }
 
-  // ── Awards ─────────────────────────────────────────────────
+  // -- Awards -------------------------------------------------
   async function handleSaveAward(award: Award, key: string) {
     startTransition(async () => {
       const result: { ok: boolean; error?: string } = mode === "edit" && editing
@@ -480,7 +458,7 @@ export default function AdminCV() {
         ))}
       </div>
 
-      {/* ── Experience ──────────────────────────────────────── */}
+      {/* -- Experience ---------------------------------------- */}
       {tab === "experience" && (
         <>
           <div className="flex items-center justify-between mb-4">
@@ -528,7 +506,7 @@ export default function AdminCV() {
         </>
       )}
 
-      {/* ── Skills ──────────────────────────────────────────── */}
+      {/* -- Skills -------------------------------------------- */}
       {tab === "skills" && (
         <>
           <div className="flex items-center justify-between mb-4">
@@ -577,12 +555,12 @@ export default function AdminCV() {
         </>
       )}
 
-      {/* ── Tools ────────────────────────────────────────────── */}
+      {/* -- Tools ---------------------------------------------- */}
       {tab === "tools" && (
-        <ToolsManager tools={cv.tools} onUpdate={(newTools) => setCv((prev) => ({ ...prev, tools: newTools }))} />
+        <ToolsManager tools={cv.tools} onUpdate={(newTools) => setCV((prev) => prev ? { ...prev, tools: newTools } : prev)} />
       )}
 
-      {/* ── Education ───────────────────────────────────────── */}
+      {/* -- Education ----------------------------------------- */}
       {tab === "education" && (
         <>
           <div className="flex items-center justify-between mb-4">
@@ -627,7 +605,7 @@ export default function AdminCV() {
         </>
       )}
 
-      {/* ── Awards ──────────────────────────────────────────── */}
+      {/* -- Awards -------------------------------------------- */}
       {tab === "awards" && (
         <>
           <div className="flex items-center justify-between mb-4">
@@ -672,7 +650,7 @@ export default function AdminCV() {
         </>
       )}
 
-      {/* ── Preview ─────────────────────────────────────────────── */}
+      {/* -- Preview ----------------------------------------------- */}
       {tab === "preview" && (
         <div className="space-y-6">
           <div className="flex items-center justify-between mb-4">
