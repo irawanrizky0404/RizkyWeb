@@ -4,13 +4,13 @@ export const dynamic = "force-dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { getWorks, buildMetadata } from "@/lib/store";
 import { Reveal } from "@/components/ui/reveal";
 import { ReadingProgress } from "@/components/ui/reading-progress";
 
-const GalleryLightbox = dynamic(() => import("@/components/works/gallery-lightbox").then((m) => m.GalleryLightbox));
-const ParallaxHero = dynamic(() => import("@/components/works/parallax-hero").then((m) => m.ParallaxHero));
+const GalleryLightbox = nextDynamic(() => import("@/components/works/gallery-lightbox").then((m) => m.GalleryLightbox));
+const ParallaxHero = nextDynamic(() => import("@/components/works/parallax-hero").then((m) => m.ParallaxHero));
 
 type PageProps = { params: Promise<{ slug: string }> };
 
