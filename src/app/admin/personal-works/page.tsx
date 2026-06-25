@@ -10,7 +10,7 @@ const CATEGORIES = ["3D", "Illustration", "Graphic Design", "Animation"] as cons
 const EMPTY: Project = {
   slug: "", title: "", year: new Date().getFullYear().toString(),
   category: "3D", client: "", summary: "", description: "",
-  tags: [], cover: "", gallery: [], featured: false, type: "personal", videoUrl: "",
+  tags: [], cover: "", gallery: [], featured: false, type: "personal", videoUrl: "", hoverVideoUrl: "",
 };
 
 type SortKey = "newest" | "oldest" | "az" | "za";
@@ -972,6 +972,18 @@ function PersonalWorkEditor({ work: initial, isNew, onSave, onCancel, isPending,
               className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
               style={{ fontSize: "0.65rem" }}
               placeholder="https://www.youtube.com/embed/..."
+            />
+          </div>
+
+          {/* Hover Video URL */}
+          <div>
+            <label className="lab text-white/40 block mb-2" style={{ fontSize: "0.55rem" }}>Hover Video URL <span className="text-white/20">(for grid/list preview)</span></label>
+            <input
+              value={form.hoverVideoUrl || ""}
+              onChange={set("hoverVideoUrl")}
+              className="w-full bg-transparent border border-rule px-4 py-3 lab text-white placeholder:text-white/20 focus:outline-none focus:border-signal transition-colors"
+              style={{ fontSize: "0.65rem" }}
+              placeholder="/videos/preview.mp4"
             />
           </div>
         </div>

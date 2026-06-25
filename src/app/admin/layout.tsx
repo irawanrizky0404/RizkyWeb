@@ -10,6 +10,7 @@ const navItems = [
   { label: "Content", href: "/admin/content" },
   { label: "Works", href: "/admin/works" },
   { label: "Personal Works", href: "/admin/personal-works" },
+  { label: "Labs", href: "/admin/labs" },
   { label: "Journal", href: "/admin/journal" },
   { label: "Services", href: "/admin/services" },
   { label: "CV", href: "/admin/cv" },

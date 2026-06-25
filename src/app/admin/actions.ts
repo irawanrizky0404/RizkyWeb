@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { saveDesign, getWorks, saveWorks, getJournal, saveJournal, getServices, saveServices, getClients, saveClients, getCV, saveCV, saveSEO, saveContent } from "@/lib/store";
+import { saveDesign, getWorks, saveWorks, getJournal, saveJournal, getServices, saveServices, getClients, saveClients, getCV, saveCV, saveSEO, saveContent, getLabs, saveLabs } from "@/lib/store";
 import type { DesignConfig, CVData, SEOConfig, PageContent } from "@/lib/store";
-import type { Project, JournalPost, Service, Experience, SkillGroup, Education, Award } from "@/lib/types";
+import type { Project, JournalPost, Service, Experience, SkillGroup, Education, Award, LabExperiment } from "@/lib/types";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import path from "path";
 
@@ -559,6 +559,47 @@ export async function deleteAward(title: string) {
     return { ok: true };
   } catch (err) {
     console.error("[deleteAward]", err);
+    return { ok: false, error: String(err) };
+  }
+}
+
+// ── LABS ───────────────────────────────────────────────────────────────────
+
+export async function addLab(data: LabExperiment) {
+  try {
+    const labs = await getLabs();
+    if (labs.some((l) => l.slug === data.slug)) return { ok: false, error: "Slug exists" };
+    labs.push(data);
+    await saveLabs(labs);
+    revalidatePath("/labs");
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+export async function updateLab(slug: string, data: LabExperiment) {
+  try {
+    const labs = await getLabs();
+    const idx = labs.findIndex((l) => l.slug === slug);
+    if (idx === -1) return { ok: false, error: "Not found" };
+    labs[idx] = { ...labs[idx], ...data };
+    await saveLabs(labs);
+    revalidatePath("/labs");
+    revalidatePath(`/labs/${slug}`);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+export async function deleteLab(slug: string) {
+  try {
+    const labs = await getLabs();
+    await saveLabs(labs.filter((l) => l.slug !== slug));
+    revalidatePath("/labs");
+    return { ok: true };
+  } catch (err) {
     return { ok: false, error: String(err) };
   }
 }
