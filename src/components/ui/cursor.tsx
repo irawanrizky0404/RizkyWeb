@@ -116,7 +116,7 @@ export function Cursor() {
     <>
       <div
         ref={dotRef}
-        className="pointer-events-none fixed left-0 top-0 rounded-full bg-signal flex items-center justify-center overflow-hidden"
+        className="custom-cursor pointer-events-none fixed left-0 top-0 rounded-full bg-signal flex items-center justify-center overflow-hidden"
         style={{ 
           willChange: "transform, width, height", 
           zIndex: 9999999,
@@ -131,7 +131,7 @@ export function Cursor() {
       </div>
       <div
         ref={ringRef}
-        className="pointer-events-none fixed left-0 top-0"
+        className="custom-cursor pointer-events-none fixed left-0 top-0"
         style={{
           border: "2px solid var(--signal)",
           willChange: "transform, width, height, border-radius, opacity",

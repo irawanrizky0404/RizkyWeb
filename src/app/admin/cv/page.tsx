@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { addExperience, updateExperience, deleteExperience, addSkillGroup, updateSkillGroup, deleteSkillGroup, addToolGroup, updateToolGroup, deleteToolGroup, addEducation, updateEducation, deleteEducation, addAward, updateAward, deleteAward } from "@/app/admin/actions";
+import { addExperience, updateExperience, deleteExperience, addSkillGroup, updateSkillGroup, deleteSkillGroup, addEducation, updateEducation, deleteEducation, addAward, updateAward, deleteAward } from "@/app/admin/actions";
+import { ToolsManager } from "@/components/admin/tools-manager";
 import type { Experience, SkillGroup, Education, Award } from "@/lib/types";
 import type { CVData } from "@/lib/store";
 
@@ -11,7 +12,6 @@ type Tab = "experience" | "skills" | "tools" | "education" | "awards" | "preview
 
 const EMPTY_EXP: Experience = { role: "", organization: "", period: "", description: "", highlights: [] };
 const EMPTY_SKILL: SkillGroup = { category: "", items: [] };
-const EMPTY_TOOL: SkillGroup = { category: "", items: [] };
 const EMPTY_EDU: Education = { degree: "", institution: "", period: "", description: "" };
 const EMPTY_AWARD: Award = { title: "", organization: "", year: "", description: "" };
 
@@ -579,51 +579,7 @@ export default function AdminCV() {
 
       {/* ── Tools ────────────────────────────────────────────── */}
       {tab === "tools" && (
-        <>
-          <div className="flex items-center justify-between mb-4">
-            <span className="lab text-white/30" style={{ fontSize: "0.55rem" }}>{cv.tools.length} categories</span>
-            <button onClick={() => { setMode("add"); setEditing(null); }} className="border border-signal px-3 py-1 hover:bg-signal transition-colors">
-              <span className="lab text-white" style={{ fontSize: "0.52rem" }}>+ Add</span>
-            </button>
-          </div>
-          {mode === "add" && (
-            <SkillGroupForm
-              initial={EMPTY_TOOL}
-              onSave={(g) => handleSaveTool(g, "")}
-              onCancel={() => { setMode("list"); }}
-              isNew={true}
-            />
-          )}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {cv.tools.map((g) => (
-              <div key={g.category} className="border border-rule p-5">
-                {editing === g.category && mode === "edit" ? (
-                  <SkillGroupForm
-                    initial={g}
-                    onSave={(sg) => handleSaveTool(sg, g.category)}
-                    onCancel={() => { setMode("list"); setEditing(null); }}
-                    isNew={false}
-                  />
-                ) : (
-                  <>
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="dis text-white" style={{ fontSize: "clamp(1rem, 3vw, 1.8rem)", lineHeight: 0.9 }}>{g.category}</h3>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button onClick={() => { setEditing(g.category); setMode("edit"); }} className="lab text-white/30 hover:text-signal transition-colors" style={{ fontSize: "0.48rem" }}>Edit</button>
-                        <button onClick={() => handleDeleteTool(g.category)} disabled={isPending} className="lab text-white/20 hover:text-red-400 transition-colors" style={{ fontSize: "0.48rem" }}>Del</button>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {g.items.map((item) => (
-                        <span key={item} className="lab text-white/50 border border-rule px-2 py-1" style={{ fontSize: "0.48rem" }}>{item}</span>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        </>
+        <ToolsManager tools={cv.tools} onUpdate={(newTools) => setCv((prev) => ({ ...prev, tools: newTools }))} />
       )}
 
       {/* ── Education ───────────────────────────────────────── */}

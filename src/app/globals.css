@@ -44,6 +44,13 @@ html {
   scroll-behavior: auto;
 }
 
+/* Hide custom cursor on true touch devices */
+@media (pointer: coarse) {
+  .custom-cursor {
+    display: none !important;
+  }
+}
+
 body {
   background: var(--black);
   color: var(--white);

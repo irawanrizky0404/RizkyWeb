@@ -247,6 +247,13 @@ const defaultLabs: LabExperiment[] = [
     year: "2024",
     description: "A three.js cube that reacts to mouse velocity and scroll position.",
     componentName: "WireframeCube"
+  },
+  {
+    slug: "hologram-torus",
+    title: "Holographic Ascii Torus",
+    year: "2024",
+    description: "A glowing wireframe torus that reacts to pointer movement.",
+    componentName: "HologramTorus"
   }
 ];
 

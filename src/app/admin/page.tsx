@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from "react";
 import Link from "next/link";
+import { ToolsManager } from "@/components/admin/tools-manager";
 import type { Project, JournalPost } from "@/lib/types";
 
 const CATEGORIES = ["3D", "Illustration", "Graphic Design", "Animation"] as const;
@@ -919,7 +920,7 @@ export default function AdminDashboard() {
       const total = (mediaData.images || []).reduce((acc: number, img: any) => acc + img.size, 0);
       setTotalMediaSize(total);
       setActivity(activityData.entries?.slice(0, 12) || []);
-      setCvEntries(cvData || []);
+      setCvEntries(cvData || { tools: [] });
       setLoaded(true);
     });
   }, []);
@@ -1195,6 +1196,15 @@ export default function AdminDashboard() {
           </div>
         </>
       )}
+
+      {/* ── TOOLS TAB ────────────────────────────────────────────── */}
+      {activeTab === "tools" && (
+        <ToolsManager 
+          tools={cvEntries?.tools || []} 
+          onUpdate={(newTools) => setCvEntries((prev: any) => ({ ...prev, tools: newTools }))} 
+        />
+      )}
+
 
       {activeTab === "create" && (
         <div className="space-y-6">

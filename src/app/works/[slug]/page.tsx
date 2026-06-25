@@ -80,7 +80,7 @@ export default async function ProjectDetailPage(props: PageProps) {
           
           {/* Sticky Sidebar (Left) */}
           <div className="border-b border-rule md:border-b-0 md:border-r border-rule">
-            <div className="sticky top-16 flex flex-col min-h-[calc(100vh-4rem)] p-5 md:p-8 lg:p-12">
+            <div className="sticky top-16 flex flex-col md:min-h-[calc(100vh-4rem)] p-5 md:p-8 lg:p-12">
               
               <div className="flex-1">
                 <Reveal>
