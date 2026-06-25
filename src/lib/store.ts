@@ -1,5 +1,7 @@
 import type { Project, JournalPost, Service, Experience, SkillGroup, Education, Award } from "@/lib/types";
 import { projects as defaultProjects, journalPosts as defaultPosts, services as defaultServices, clientList as defaultClients, experiences as defaultExperiences, skillGroups as defaultSkillGroups, tools as defaultTools, education as defaultEducation, awards as defaultAwards } from "@/lib/data";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import path from "path";
 
 const JSONBIN_BASE = "https://api.jsonbin.io/v3";
 const BIN_IDS = {
@@ -15,7 +17,6 @@ const BIN_IDS = {
 
 type BlobKey = keyof typeof BIN_IDS;
 
-const memoryCache: Record<string, string> = {};
 
 export type CVData = {
   experiences: Experience[];
@@ -26,17 +27,20 @@ export type CVData = {
 };
 
 async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
-  if (memoryCache[key]) {
-    try {
-      return JSON.parse(memoryCache[key]) as T;
-    } catch {
-      delete memoryCache[key];
-    }
-  }
 
   const binId = BIN_IDS[key];
   if (!binId) {
-    console.warn(`[store] No bin ID for ${key}`);
+    console.warn(`[store] No bin ID for ${key}, falling back to local file`);
+    try {
+      const filePath = path.join(process.cwd(), "src", "data", `${key}.json`);
+      if (existsSync(filePath)) {
+        const fileData = readFileSync(filePath, "utf-8");
+        const parsed = JSON.parse(fileData);
+        return parsed as T;
+      }
+    } catch (err) {
+      console.error(`[store] Local read error for ${key}:`, err);
+    }
     return fallback;
   }
 
@@ -45,6 +49,7 @@ async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
       headers: {
         "X-Access-Key": process.env.JSONBIN_ACCESS_KEY || "",
       },
+      next: { tags: [key] },
     });
 
     if (!response.ok) {
@@ -68,7 +73,6 @@ async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
       }
     }
     
-    memoryCache[key] = JSON.stringify(value);
     return value as T;
   } catch (err) {
     console.error(`[store] ${key} error:`, err);
@@ -76,14 +80,21 @@ async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
   }
 }
 
+import { revalidateTag } from "next/cache";
+
 async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
   const binId = BIN_IDS[key];
-  if (!binId) {
-    throw new Error(`No bin ID configured for ${key}. Set ${key.toUpperCase()}_ID in environment variables.`);
-  }
-
   const json = JSON.stringify(data, null, 2);
-  delete memoryCache[key];
+
+  if (!binId) {
+    console.warn(`[store] No bin ID for ${key}, saving to local file`);
+    const dir = path.join(process.cwd(), "src", "data");
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
+    writeFileSync(path.join(dir, `${key}.json`), json, "utf-8");
+    return;
+  }
 
   const response = await fetch(`${JSONBIN_BASE}/b/${binId}`, {
     method: "PUT",
@@ -98,6 +109,8 @@ async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
     const errorText = await response.text();
     throw new Error(`Failed to save ${key}: ${response.status} - ${errorText}`);
   }
+
+  revalidateTag(key);
 }
 
 export type DesignConfig = {
