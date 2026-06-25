@@ -86,15 +86,15 @@ export default async function JournalPostPage(props: PageProps) {
       </Reveal>
 
       {/* ── ARTICLE BODY ──────────────────────────────────────────── */}
-      <div className="border-t border-rule px-5 py-12 md:px-12 md:py-16">
-        <div className="mx-auto max-w-[68ch] space-y-8">
+      <div className="border-t border-rule px-5 py-12 md:px-12 md:py-24">
+        <div className="mx-auto max-w-[65ch] prose prose-invert prose-lg prose-p:text-white/50 prose-p:leading-relaxed prose-headings:font-heading prose-headings:text-white prose-a:text-signal hover:prose-a:text-signal/80 prose-strong:text-white/90">
           {paragraphs.map((para, i) => (
             <Reveal key={i} delay={Math.min(i * 0.03, 0.2)}>
               <p
                 className={
                   i === 0
-                    ? "text-[1.15rem] leading-[1.85] text-white/70 md:text-[1.25rem]"
-                    : "text-[1rem] leading-[1.85] text-white/45 md:text-[1.1rem]"
+                    ? "text-[1.15rem] leading-[1.85] text-white/70 md:text-[1.35rem]"
+                    : ""
                 }
                 style={i === 0 ? {
                   // Drop cap on first paragraph

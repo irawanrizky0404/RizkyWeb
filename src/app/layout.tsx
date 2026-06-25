@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Bebas_Neue, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { LenisProvider } from "@/components/providers/lenis-provider";
@@ -12,6 +12,14 @@ import { PageTransition } from "@/components/ui/page-transition";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
+
+export const viewport: Viewport = {
+  themeColor: "#080808",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 const bebas = Bebas_Neue({
   variable: "--font-display",

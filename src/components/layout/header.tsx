@@ -193,7 +193,7 @@ export function Header() {
             <div className="absolute top-0 left-0 right-0 h-px bg-signal z-20" />
 
             {/* Header */}
-            <div className="relative z-20 flex items-center justify-between px-5 py-5 border-b border-white/5">
+            <div className="relative z-20 flex items-center justify-between px-5 py-5 pt-[max(1.25rem,env(safe-area-inset-top))] border-b border-white/5">
               <span className="lab text-signal" style={{ letterSpacing: "0.2em", fontSize: "0.65rem" }}>
                 FAC.001
               </span>
@@ -248,7 +248,7 @@ export function Header() {
             </nav>
 
             {/* Footer */}
-            <div className="relative z-20 border-t border-white/5 px-5 py-5">
+            <div className="relative z-20 border-t border-white/5 px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
               <a
                 href={`mailto:${email}`}
                 className="lab text-white/40 hover:text-signal transition-colors block mb-3"
