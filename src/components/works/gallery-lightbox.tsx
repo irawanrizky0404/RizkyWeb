@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import Image from "next/image";
+import { ImageFade } from "@/components/ui/image-fade";
 
 interface GalleryLightboxProps {
   images: string[];
@@ -73,13 +73,12 @@ function LightboxModal({
             className="absolute inset-0 flex items-center justify-center p-8 md:p-14"
           >
             <div className="relative w-full h-full">
-              <Image
+              <ImageFade
                 src={images[index]}
                 alt={`${projectTitle} — ${index + 1}`}
                 fill
                 sizes="(max-width: 768px) 95vw, 85vw"
                 className="object-contain"
-                priority
               />
             </div>
           </motion.div>
@@ -120,7 +119,7 @@ function LightboxModal({
               border: i === index ? "1px solid var(--signal)" : "1px solid transparent",
             }}
           >
-            <Image src={img} alt="" fill sizes="44px" className="object-cover" />
+            <ImageFade src={img} alt="" fill sizes="44px" className="object-cover" />
           </button>
         ))}
       </div>

@@ -11,6 +11,8 @@ import { DesignProvider } from "@/lib/design-context";
 import { PageTransition } from "@/components/ui/page-transition";
 import { Preloader } from "@/components/ui/preloader";
 import { SoundProvider } from "@/components/ui/sound-provider";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -162,6 +164,8 @@ export default async function RootLayout({
             </LenisProvider>
           </DesignProvider>
         </SoundProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

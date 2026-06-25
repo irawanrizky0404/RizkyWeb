@@ -254,6 +254,13 @@ const defaultLabs: LabExperiment[] = [
     year: "2024",
     description: "A glowing wireframe torus that reacts to pointer movement.",
     componentName: "HologramTorus"
+  },
+  {
+    slug: "audio-visualizer",
+    title: "Audio Reactive Mesh",
+    year: "2024",
+    description: "A 3D geometry that deforms in real-time based on microphone audio frequencies using the Web Audio API.",
+    componentName: "AudioVisualizer"
   }
 ];
 

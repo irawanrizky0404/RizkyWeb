@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ImageFade } from "@/components/ui/image-fade";
 import Link from "next/link";
 import { motion } from "motion/react";
 import type { Project } from "@/lib/types";
@@ -62,7 +62,7 @@ function WorkRow({
             reversed ? "md:order-2 md:col-span-7" : "md:col-span-7"
           )}
         >
-          <Image
+          <ImageFade
             src={project.cover}
             alt={project.title}
             fill

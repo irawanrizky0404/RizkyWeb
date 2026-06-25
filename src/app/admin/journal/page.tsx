@@ -4,6 +4,7 @@ import { useState, useEffect, useTransition } from "react";
 import { addPost, updatePost, deletePost } from "@/app/admin/actions";
 import type { JournalPost } from "@/lib/types";
 import Link from "next/link";
+import { MarkdownEditor } from "@/components/admin/markdown-editor";
 
 const PAGE_SIZE = 12;
 const EMPTY: JournalPost = {
@@ -456,11 +457,11 @@ function PostEditor({ post: initial, isNew, onSave, onCancel, isPending, msg }: 
           </div>
           <div>
             <label className={labelCls} style={fs}>Content (full article) *</label>
-            <div className="flex items-start gap-2">
-              <textarea required rows={12} value={form.content} onChange={set("content")} className={inputCls} style={{ ...fs, resize: "vertical" }} placeholder="Full post content. Plain text or markdown." />
-              <button type="button" onClick={handleGenerateContent} disabled={generatingContent || !form.title.trim()} className="border border-rule px-3 py-2 hover:border-signal transition-colors disabled:opacity-40 whitespace-nowrap self-start mt-1" title="Generate full content from title">
-                <span className="lab text-white/50" style={{ fontSize: "0.5rem" }}>{generatingContent ? "..." : "✨ Content"}</span>
-              </button>
+            <div className="mt-1">
+              <MarkdownEditor 
+                value={form.content} 
+                onChange={(val) => setForm(p => ({ ...p, content: val }))} 
+              />
             </div>
           </div>
         </div>

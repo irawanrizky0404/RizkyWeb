@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useTransition } from "react";
 import Link from "next/link";
 import { ToolsManager } from "@/components/admin/tools-manager";
+import { AnalyticsChart } from "@/components/admin/analytics-chart";
 import type { Project, JournalPost } from "@/lib/types";
 
 const CATEGORIES = ["3D", "Illustration", "Graphic Design", "Animation"] as const;
@@ -1193,6 +1194,10 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
+          </div>
+          
+          <div className="mb-6">
+            <AnalyticsChart />
           </div>
         </>
       )}
