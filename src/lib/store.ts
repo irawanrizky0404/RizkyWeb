@@ -110,7 +110,7 @@ async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
     throw new Error(`Failed to save ${key}: ${response.status} - ${errorText}`);
   }
 
-  revalidateTag(key);
+  revalidateTag(key, { expire: 0 });
 }
 
 export type DesignConfig = {

@@ -15,11 +15,11 @@ function filterPosts(posts: JournalPost[], includeUnpublished: boolean): Journal
 }
 
 const mockPosts: JournalPost[] = [
-  { slug: "post-1", title: "Published Post", date: "2024-01-01", excerpt: "", content: "", status: "published" },
-  { slug: "post-2", title: "Draft Post", date: "2024-01-02", excerpt: "", content: "", status: "draft" },
-  { slug: "post-3", title: "Scheduled Past", date: "2024-01-03", excerpt: "", content: "", status: "scheduled", scheduledAt: "2020-01-01" },
-  { slug: "post-4", title: "Scheduled Future", date: "2024-01-04", excerpt: "", content: "", status: "scheduled", scheduledAt: "2099-01-01" },
-  { slug: "post-5", title: "No Status", date: "2024-01-05", excerpt: "", content: "" },
+  { slug: "post-1", title: "Published Post", date: "2024-01-01", excerpt: "", content: "", tags: [], status: "published" },
+  { slug: "post-2", title: "Draft Post", date: "2024-01-02", excerpt: "", content: "", tags: [], status: "draft" },
+  { slug: "post-3", title: "Scheduled Past", date: "2024-01-03", excerpt: "", content: "", tags: [], status: "scheduled", scheduledAt: "2020-01-01" },
+  { slug: "post-4", title: "Scheduled Future", date: "2024-01-04", excerpt: "", content: "", tags: [], status: "scheduled", scheduledAt: "2099-01-01" },
+  { slug: "post-5", title: "No Status", date: "2024-01-05", excerpt: "", content: "", tags: [] },
 ];
 
 describe("Journal Post Filtering", () => {

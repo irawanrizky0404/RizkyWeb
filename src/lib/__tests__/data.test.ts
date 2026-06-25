@@ -68,6 +68,7 @@ describe("CV Data Structure", () => {
       date: "2024-01-01",
       excerpt: "",
       content: "",
+      tags: [],
       status: "draft",
     };
     const published: import("@/lib/types").JournalPost = {
@@ -76,6 +77,7 @@ describe("CV Data Structure", () => {
       date: "2024-01-01",
       excerpt: "",
       content: "",
+      tags: [],
       status: "published",
     };
     const scheduled: import("@/lib/types").JournalPost = {
@@ -84,6 +86,7 @@ describe("CV Data Structure", () => {
       date: "2024-01-01",
       excerpt: "",
       content: "",
+      tags: [],
       status: "scheduled",
       scheduledAt: "2099-01-01",
     };
