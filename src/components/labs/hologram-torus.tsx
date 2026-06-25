@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-export function HologramTorus() {
+function TorusMesh() {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.MeshPhysicalMaterial>(null);
 
@@ -46,5 +46,15 @@ export function HologramTorus() {
         metalness={0.8}
       />
     </mesh>
+  );
+}
+
+export function HologramTorus() {
+  return (
+    <Canvas camera={{ position: [0, 0, 15] }}>
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 10]} intensity={1} />
+      <TorusMesh />
+    </Canvas>
   );
 }
