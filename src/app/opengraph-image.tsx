@@ -35,7 +35,7 @@ export default async function OGImage() {
             {design.site.location} — {design.site.timezone}
           </span>
           <span style={{ color: "rgba(240,240,238,0.5)", fontSize: "14px", letterSpacing: "0.2em", textTransform: "uppercase" }}>
-            rizkyirawan.com
+            rizkyirawan.xyz
           </span>
         </div>
       </div>

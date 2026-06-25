@@ -4,7 +4,7 @@ import { getSEO } from "@/lib/store";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [seo, works] = await Promise.all([getSEO(), getWorks()]);
-  const baseUrl = seo.canonicalBaseUrl || "https://rizkyirawan.com";
+  const baseUrl = seo.canonicalBaseUrl || "https://rizkyirawan.xyz";
 
   const staticPages = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 1 },

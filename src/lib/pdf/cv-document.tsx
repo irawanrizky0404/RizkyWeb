@@ -258,7 +258,7 @@ export function CVPDF({ cv }: CVPDFProps) {
         {/* Footer */}
         <View style={{ marginTop: 30, paddingTop: 10, borderTop: "1px solid #ddd" }}>
           <Text style={{ fontSize: 8, color: "#999", textAlign: "center" }}>
-            {siteConfig.name} · {siteConfig.email} · {Object.values(siteConfig.social).find(Boolean) || "rizkyirawan.com"}
+            {siteConfig.name} · {siteConfig.email} · {Object.values(siteConfig.social).find(Boolean) || "rizkyirawan.xyz"}
           </Text>
         </View>
       </Page>

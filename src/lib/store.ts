@@ -455,7 +455,7 @@ export async function buildMetadata(overrides: {
 } = {}): Promise<import("next").Metadata> {
   const seo = await getSEO().catch(() => null);
   const siteName = seo?.siteName ?? "Rizky Irawan";
-  const base = seo?.canonicalBaseUrl || "https://rizkyirawan.com";
+  const base = seo?.canonicalBaseUrl || "https://rizkyirawan.xyz";
 
   const metadataBase = overrides.canonical ? undefined : new URL(base);
 

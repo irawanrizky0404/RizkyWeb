@@ -54,7 +54,7 @@ function buildGoogleFontsUrl(fonts: { display?: string; heading?: string; body?:
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSEO();
-  const canonicalBase = seo.canonicalBaseUrl || "https://rizkyirawan.com";
+  const canonicalBase = seo.canonicalBaseUrl || "https://rizkyirawan.xyz";
   return {
     metadataBase: new URL(canonicalBase),
     title: {

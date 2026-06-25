@@ -25,7 +25,7 @@ const jsonLd = {
     "@type": "Person",
     name: siteConfig.name,
     description: siteConfig.description,
-    url: "https://rizkyirawan.com",
+    url: "https://rizkyirawan.xyz",
     sameAs: Object.values(siteConfig.social),
     knowsAbout: ["3D Visualization", "Motion Design", "Illustration", "Graphic Design"],
     alumniOf: [],
