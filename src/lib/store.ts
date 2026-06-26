@@ -3,21 +3,10 @@ import { projects as defaultProjects, journalPosts as defaultPosts, services as 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import path from "path";
 
-const JSONBIN_BASE = "https://api.jsonbin.io/v3";
-const BIN_IDS = {
-  design: process.env.JSONBIN_DESIGN_ID || "",
-  works: process.env.JSONBIN_WORKS_ID || "",
-  journal: process.env.JSONBIN_JOURNAL_ID || "",
-  services: process.env.JSONBIN_SERVICES_ID || "",
-  clients: process.env.JSONBIN_CLIENTS_ID || "",
-  cv: process.env.JSONBIN_CV_ID || "",
-  seo: process.env.JSONBIN_SEO_ID || "",
-  content: process.env.JSONBIN_CONTENT_ID || "",
-  labs: process.env.JSONBIN_LABS_ID || "",
-} as const;
+import { kv } from "@vercel/kv";
+import { revalidateTag } from "next/cache";
 
-type BlobKey = keyof typeof BIN_IDS;
-
+type BlobKey = "design" | "works" | "journal" | "services" | "clients" | "cv" | "seo" | "content" | "labs";
 
 export type CVData = {
   experiences: Experience[];
@@ -27,11 +16,11 @@ export type CVData = {
   awards: Award[];
 };
 
-async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
-
-  const binId = BIN_IDS[key];
-  if (!binId) {
-    console.warn(`[store] No bin ID for ${key}, falling back to local file`);
+async function fetchData<T>(key: BlobKey, fallback: T): Promise<T> {
+  const isKvConfigured = process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN;
+  
+  if (!isKvConfigured) {
+    console.warn(`[store] No KV config for ${key}, falling back to local file`);
     try {
       const filePath = path.join(process.cwd(), "src", "data", `${key}.json`);
       if (existsSync(filePath)) {
@@ -46,49 +35,34 @@ async function fetchJSONBin<T>(key: BlobKey, fallback: T): Promise<T> {
   }
 
   try {
-    const response = await fetch(`${JSONBIN_BASE}/b/${binId}/latest`, {
-      headers: {
-        "X-Access-Key": process.env.JSONBIN_ACCESS_KEY || "",
-      },
-      next: { tags: [key] },
-    });
-
-    if (!response.ok) {
-      console.error(`[store] ${key} fetch failed:`, response.status);
-      return fallback;
-    }
-
-    const data = await response.json();
-    const value = data.record || data;
+    const data = await kv.get<T>(key);
     
-    if (value === null || value === undefined) {
+    if (data === null || data === undefined) {
       console.warn(`[store] ${key} returned null, using fallback`);
       return fallback;
     }
     
-    if (typeof value === 'object') {
-      const keys = Object.keys(value);
-      if (keys.length === 0 || (keys.length === 1 && value[keys[0]] === null)) {
+    if (typeof data === 'object') {
+      const keys = Object.keys(data);
+      if (keys.length === 0 || (keys.length === 1 && (data as any)[keys[0]] === null)) {
         console.warn(`[store] ${key} returned empty object or {"data": null}, using fallback`);
         return fallback;
       }
     }
     
-    return value as T;
+    return data;
   } catch (err) {
     console.error(`[store] ${key} error:`, err);
     return fallback;
   }
 }
 
-import { revalidateTag } from "next/cache";
-
-async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
-  const binId = BIN_IDS[key];
+async function saveData(key: BlobKey, data: unknown): Promise<void> {
   const json = JSON.stringify(data, null, 2);
+  const isKvConfigured = process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN;
 
-  if (!binId) {
-    console.warn(`[store] No bin ID for ${key}, saving to local file`);
+  if (!isKvConfigured) {
+    console.warn(`[store] No KV config for ${key}, saving to local file`);
     const dir = path.join(process.cwd(), "src", "data");
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
@@ -97,20 +71,7 @@ async function saveJSONBin(key: BlobKey, data: unknown): Promise<void> {
     return;
   }
 
-  const response = await fetch(`${JSONBIN_BASE}/b/${binId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Access-Key": process.env.JSONBIN_ACCESS_KEY || "",
-    },
-    body: json,
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to save ${key}: ${response.status} - ${errorText}`);
-  }
-
+  await kv.set(key, data);
   revalidateTag(key, { expire: 0 });
 }
 
@@ -195,26 +156,26 @@ const defaultDesign: DesignConfig = {
 };
 
 export async function getDesign(): Promise<DesignConfig> {
-  return fetchJSONBin("design", defaultDesign);
+  return fetchData("design", defaultDesign);
 }
 
 export async function saveDesign(config: DesignConfig): Promise<void> {
-  await saveJSONBin("design", config);
+  await saveData("design", config);
 }
 
 // ── Works ────────────────────────────────────────────────────────────────────
 export async function getWorks(): Promise<Project[]> {
-  const result = await fetchJSONBin<Project[]>("works", defaultProjects);
+  const result = await fetchData<Project[]>("works", defaultProjects);
   return Array.isArray(result) ? result : defaultProjects;
 }
 
 export async function saveWorks(works: Project[]): Promise<void> {
-  await saveJSONBin("works", works);
+  await saveData("works", works);
 }
 
 // ── Journal ──────────────────────────────────────────────────────────────────
 export async function getJournal(includeUnpublished = false): Promise<JournalPost[]> {
-  const result = await fetchJSONBin<JournalPost[]>("journal", defaultPosts);
+  const result = await fetchData<JournalPost[]>("journal", defaultPosts);
   const posts = Array.isArray(result) ? result : defaultPosts;
   if (includeUnpublished) return posts;
 
@@ -229,7 +190,7 @@ export async function getJournal(includeUnpublished = false): Promise<JournalPos
 }
 
 export async function saveJournal(posts: JournalPost[]): Promise<void> {
-  await saveJSONBin("journal", posts);
+  await saveData("journal", posts);
 }
 
 // ── Labs ──────────────────────────────────────────────────────────────────────
@@ -265,32 +226,32 @@ const defaultLabs: LabExperiment[] = [
 ];
 
 export async function getLabs(): Promise<LabExperiment[]> {
-  const result = await fetchJSONBin<LabExperiment[]>("labs", defaultLabs);
+  const result = await fetchData<LabExperiment[]>("labs", defaultLabs);
   return Array.isArray(result) ? result : defaultLabs;
 }
 
 export async function saveLabs(labs: LabExperiment[]): Promise<void> {
-  await saveJSONBin("labs", labs);
+  await saveData("labs", labs);
 }
 
 // ── Services ──────────────────────────────────────────────────────────────────
 export async function getServices(): Promise<Service[]> {
-  const result = await fetchJSONBin<Service[]>("services", defaultServices);
+  const result = await fetchData<Service[]>("services", defaultServices);
   return Array.isArray(result) ? result : defaultServices;
 }
 
 export async function saveServices(services: Service[]): Promise<void> {
-  await saveJSONBin("services", services);
+  await saveData("services", services);
 }
 
 // ── Clients ──────────────────────────────────────────────────────────────────
 export async function getClients(): Promise<string[]> {
-  const result = await fetchJSONBin<string[]>("clients", defaultClients);
+  const result = await fetchData<string[]>("clients", defaultClients);
   return Array.isArray(result) ? result : defaultClients;
 }
 
 export async function saveClients(clients: string[]): Promise<void> {
-  await saveJSONBin("clients", clients);
+  await saveData("clients", clients);
 }
 
 // ── CV ────────────────────────────────────────────────────────────────────
@@ -303,11 +264,11 @@ const defaultCV: CVData = {
 };
 
 export async function getCV(): Promise<CVData> {
-  return fetchJSONBin("cv", defaultCV);
+  return fetchData("cv", defaultCV);
 }
 
 export async function saveCV(cv: CVData): Promise<void> {
-  await saveJSONBin("cv", cv);
+  await saveData("cv", cv);
 }
 
 // ── SEO ────────────────────────────────────────────────────────────────────
@@ -332,11 +293,11 @@ const defaultSEO: SEOConfig = {
 };
 
 export async function getSEO(): Promise<SEOConfig> {
-  return fetchJSONBin("seo", defaultSEO);
+  return fetchData("seo", defaultSEO);
 }
 
 export async function saveSEO(seo: SEOConfig): Promise<void> {
-  await saveJSONBin("seo", seo);
+  await saveData("seo", seo);
 }
 
 // ── Page Content ──────────────────────────────────────────────────────────────
@@ -443,11 +404,11 @@ const defaultContent: PageContent = {
 };
 
 export async function getContent(): Promise<PageContent> {
-  return fetchJSONBin("content", defaultContent);
+  return fetchData("content", defaultContent);
 }
 
 export async function saveContent(content: PageContent): Promise<void> {
-  await saveJSONBin("content", content);
+  await saveData("content", content);
 }
 
 export async function buildMetadata(overrides: {
