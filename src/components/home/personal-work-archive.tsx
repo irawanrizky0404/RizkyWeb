@@ -11,7 +11,7 @@ interface PersonalWorkArchiveProps {
 }
 
 export function PersonalWorkArchive({ projects }: PersonalWorkArchiveProps) {
-  const personalProjects = projects.filter((p) => p.type === "personal" || p.tags.includes("Personal"));
+  const personalProjects = projects.filter((p) => p.type === "personal");
   const filmRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

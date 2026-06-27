@@ -25,7 +25,7 @@ export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
   };
   const isLight = getBrightness(design?.colors?.black || "#080808") > 128;
 
-  const filteredProjects = typeFilter === "personal" ? projects.filter((p) => p.type === "personal" || p.tags?.includes("Personal")) :
+  const filteredProjects = typeFilter === "personal" ? projects.filter((p) => p.type === "personal") :
                            typeFilter === "client" ? projects.filter((p) => p.type === "client" || !p.type) :
                            projects;
   const featured = filteredProjects.filter((p) => p.featured);
