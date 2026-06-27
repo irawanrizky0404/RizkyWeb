@@ -12,10 +12,6 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         allow: "/",
         disallow: ["/admin/", "/api/"],
       },
-      {
-        userAgent: "GPTBot",
-        disallow: "/",
-      },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
   };
