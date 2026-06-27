@@ -25,7 +25,7 @@ export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
   };
   const isLight = getBrightness(design?.colors?.black || "#080808") > 128;
 
-  const filteredProjects = typeFilter === "personal" ? projects.filter((p) => p.type === "personal") :
+  const filteredProjects = typeFilter === "personal" ? projects.filter((p) => p.type === "personal" || p.tags?.includes("Personal")) :
                            typeFilter === "client" ? projects.filter((p) => p.type === "client" || !p.type) :
                            projects;
   const featured = filteredProjects.filter((p) => p.featured);
@@ -109,7 +109,7 @@ export function FilmStrip({ projects, typeFilter }: FilmStripProps) {
   return (
     <section ref={containerRef} className="relative border-t border-rule overflow-hidden bg-black">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 md:px-12 border-b border-rule">
+      <div className="relative flex items-center justify-between px-5 py-3 md:px-8 border-b border-rule">
         <div className="flex items-center gap-4">
           <span className="fac">{typeFilter === "personal" ? "FAC.03 — Personal" : "FAC.04 — Works"}</span>
           <span className="lab text-white/20 desk-only" style={{ fontSize: "0.52rem" }}>Drag or scroll to advance</span>
