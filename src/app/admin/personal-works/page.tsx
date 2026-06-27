@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { addWork, updateWork, deleteWork, toggleFeatured } from "@/app/admin/actions";
+import { addWork, updateWork, deleteWork, toggleFeatured, reorderWorks } from "@/app/admin/actions";
 import type { Project } from "@/lib/types";
 import Link from "next/link";
 import Image from "next/image";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const CATEGORIES = ["3D", "Illustration", "Graphic Design", "Animation"] as const;
 const EMPTY: Project = {
@@ -13,7 +16,7 @@ const EMPTY: Project = {
   tags: [], cover: "", gallery: [], featured: false, type: "personal", videoUrl: "", hoverVideoUrl: "",
 };
 
-type SortKey = "newest" | "oldest" | "az" | "za";
+type SortKey = "manual" | "newest" | "oldest" | "az" | "za";
 const PAGE_SIZE = 12;
 
 export default function AdminPersonalWorks() {
@@ -59,12 +62,31 @@ export default function AdminPersonalWorks() {
       case "oldest": return Number(a.year) - Number(b.year);
       case "az": return a.title.localeCompare(b.title);
       case "za": return b.title.localeCompare(a.title);
-      default: return 0;
+      case "manual": default: return 0;
     }
   });
 
-  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-  const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(sorted.length / (sort === "manual" ? 9999 : PAGE_SIZE)));
+  const paginated = sort === "manual" ? sorted : sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = works.findIndex((w) => w.slug === active.id);
+      const newIndex = works.findIndex((w) => w.slug === over.id);
+      const newWorks = arrayMove(works, oldIndex, newIndex);
+      setWorks(newWorks);
+      startTransition(async () => {
+        await reorderWorks(newWorks.map(w => w.slug));
+        notify("Order saved.");
+      });
+    }
+  }
 
   async function handleSave(work: Project) {
     work.type = "personal";
@@ -239,6 +261,7 @@ export default function AdminPersonalWorks() {
             <option value="oldest">Oldest</option>
             <option value="az">A → Z</option>
             <option value="za">Z → A</option>
+            <option value="manual">Manual (Drag & Drop)</option>
           </select>
           <span className="lab text-white/30 ml-auto" style={{ fontSize: "0.5rem" }}>{sorted.length} works</span>
         </div>
@@ -289,36 +312,44 @@ export default function AdminPersonalWorks() {
             <p className="dis text-white/20" style={{ fontSize: "3rem" }}>—</p>
             <p className="lab text-white/30 mt-3" style={{ fontSize: "0.6rem" }}>No personal works found</p>
           </div>
-        ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {paginated.map((work) => (
-              <PersonalWorkCard
-                key={work.slug}
-                work={work}
-                onEdit={() => startEdit(work)}
-                onDelete={() => handleDelete(work.slug, work.title)}
-                onToggleFeatured={() => handleToggleFeatured(work.slug)}
-                isPending={isPending}
-                isSelected={selected.has(work.slug)}
-                onToggleSelect={() => toggleSelect(work.slug)}
-              />
-            ))}
-          </div>
         ) : (
-          <div className="space-y-2">
-            {paginated.map((work) => (
-              <PersonalWorkListItem
-                key={work.slug}
-                work={work}
-                onEdit={() => startEdit(work)}
-                onDelete={() => handleDelete(work.slug, work.title)}
-                onToggleFeatured={() => handleToggleFeatured(work.slug)}
-                isPending={isPending}
-                isSelected={selected.has(work.slug)}
-                onToggleSelect={() => toggleSelect(work.slug)}
-              />
-            ))}
-          </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={paginated.map(w => w.slug)} strategy={viewMode === "grid" ? rectSortingStrategy : verticalListSortingStrategy}>
+              {viewMode === "grid" ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {paginated.map((work) => (
+                    <SortablePersonalWorkCard
+                      key={work.slug}
+                      work={work}
+                      onEdit={() => startEdit(work)}
+                      onDelete={() => handleDelete(work.slug, work.title)}
+                      onToggleFeatured={() => handleToggleFeatured(work.slug)}
+                      isPending={isPending}
+                      isSelected={selected.has(work.slug)}
+                      onToggleSelect={() => toggleSelect(work.slug)}
+                      isManual={sort === "manual"}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {paginated.map((work) => (
+                    <SortablePersonalWorkListItem
+                      key={work.slug}
+                      work={work}
+                      onEdit={() => startEdit(work)}
+                      onDelete={() => handleDelete(work.slug, work.title)}
+                      onToggleFeatured={() => handleToggleFeatured(work.slug)}
+                      isPending={isPending}
+                      isSelected={selected.has(work.slug)}
+                      onToggleSelect={() => toggleSelect(work.slug)}
+                      isManual={sort === "manual"}
+                    />
+                  ))}
+                </div>
+              )}
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
@@ -1001,6 +1032,27 @@ function PersonalWorkEditor({ work: initial, isNew, onSave, onCancel, isPending,
           )}
         </div>
       </form>
+    </div>
+  );
+}
+
+// ── Sortable Wrappers ────────────────────────────────────────────────────────
+function SortablePersonalWorkCard(props: any) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: props.work.slug, disabled: !props.isManual });
+  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : 1, position: "relative" as const };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <PersonalWorkCard {...props} />
+    </div>
+  );
+}
+
+function SortablePersonalWorkListItem(props: any) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: props.work.slug, disabled: !props.isManual });
+  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : 1, position: "relative" as const };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <PersonalWorkListItem {...props} />
     </div>
   );
 }

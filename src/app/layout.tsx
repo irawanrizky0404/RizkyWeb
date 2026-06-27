@@ -159,7 +159,7 @@ export default async function RootLayout({
               <ProgressBar />
               {!isAdmin && <Cursor />}
               <Header />
-              <main><PageTransition>{children}</PageTransition></main>
+              <main>{children}</main>
               <Footer />
             </LenisProvider>
           </DesignProvider>
