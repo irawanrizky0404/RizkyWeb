@@ -837,8 +837,8 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
             </div>
           </div>
 
-          {/* Year, Category, Featured */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {/* Year, Category, Type, Featured */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <label className="lab text-white/40 block mb-2" style={{ fontSize: "0.55rem" }}>Year *</label>
               <input
@@ -859,6 +859,19 @@ function WorkEditor({ work: initial, isNew, onSave, onCancel, isPending, msg }: 
                 style={{ fontSize: "0.65rem" }}
               >
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="lab text-white/40 block mb-2" style={{ fontSize: "0.55rem" }}>Type *</label>
+              <select
+                required
+                value={form.type || "client"}
+                onChange={set("type")}
+                className="w-full bg-black border border-rule px-4 py-3 lab text-white focus:outline-none focus:border-signal transition-colors"
+                style={{ fontSize: "0.65rem" }}
+              >
+                <option value="client">Client Work</option>
+                <option value="personal">Personal Work</option>
               </select>
             </div>
             <div>
