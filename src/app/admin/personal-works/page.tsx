@@ -33,7 +33,7 @@ export default function AdminPersonalWorks() {
 
   useEffect(() => {
     fetch("/api/admin/works?t=" + Date.now()).then((r) => r.json()).then((data) => {
-      const personalWorks = (data as Project[]).filter((w: Project) => w.type === "personal");
+      const personalWorks = (data as Project[]).filter((w: Project) => w.type === "personal" || w.tags?.includes("Personal"));
       setWorks(personalWorks);
       setLoaded(true);
     });
@@ -76,7 +76,7 @@ export default function AdminPersonalWorks() {
         setEditing(null);
         setFilter("All");
         const data = await fetch("/api/admin/works?t=" + Date.now()).then((r) => r.json());
-        const personalWorks = (data as Project[]).filter((w: Project) => w.type === "personal");
+        const personalWorks = (data as Project[]).filter((w: Project) => w.type === "personal" || w.tags?.includes("Personal"));
         setWorks(personalWorks);
       } else {
         notify(`Error: ${result.error}`);
