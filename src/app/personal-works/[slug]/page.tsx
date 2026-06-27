@@ -30,7 +30,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function PersonalProjectDetailPage(props: PageProps) {
   const { slug } = await props.params;
   const works = await getWorks();
-  const personalWorks = works.filter((p) => p.type === "personal");
+  const personalWorks = works.filter((p) => p.type === "personal" || p.tags.includes("Personal"));
   const project = personalWorks.find((p) => p.slug === slug);
   if (!project) notFound();
 
