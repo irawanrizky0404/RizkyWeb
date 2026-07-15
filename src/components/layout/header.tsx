@@ -75,6 +75,7 @@ export function Header() {
 
   const siteName = design?.site?.name || siteConfig.name || "Rizky Irawan";
   const email = design?.site?.email || siteConfig.email;
+  const studioUrl = design?.social?.studio || "";
   const socials = [
     { label: "Instagram", href: design?.social?.instagram || siteConfig.social.instagram },
     { label: "Behance", href: design?.social?.behance || siteConfig.social.behance },
@@ -144,6 +145,17 @@ export function Header() {
                 active={pathname === link.href || pathname.startsWith(link.href + "/")}
               />
             ))}
+            {studioUrl && (
+              <a
+                href={studioUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="lab text-signal/50 hover:text-signal transition-colors flex items-center gap-1"
+                style={{ fontSize: "0.68rem" }}
+              >
+                Studio ↗
+              </a>
+            )}
           </nav>
 
           <button
@@ -256,7 +268,7 @@ export function Header() {
               >
                 {email}
               </a>
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-5 flex-wrap">
                 {socials.map((s) => (
                   <a
                     key={s.label}
@@ -269,6 +281,17 @@ export function Header() {
                     {s.label}
                   </a>
                 ))}
+                {studioUrl && (
+                  <a
+                    href={studioUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="lab text-signal/50 hover:text-signal transition-colors"
+                    style={{ fontSize: "0.55rem" }}
+                  >
+                    Phantom Studio ↗
+                  </a>
+                )}
               </div>
             </div>
 

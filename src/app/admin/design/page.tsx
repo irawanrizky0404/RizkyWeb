@@ -250,7 +250,7 @@ const DEFAULT: DesignConfig = {
   colors: { signal: "#ff3500", black: "#080808", white: "#f0f0ee", grey: "#7a7a76" },
   hero: { statement: "Working at the frequency between signal and silence.", bio: "5 years across 3D, motion, illustration, and identity.", availableText: "Available for Work", heroImage: "/images/works/phantom-in-the-ruins/01.jpg", statementSize: "clamp(3rem, 10vw, 12rem)", statementAlign: "left", showImage: true, imageOverlay: 0.6 },
   site: { name: "Rizky Irawan", role: "Multidisciplinary Visual Artist", tagline: "Visual Archive", email: "rizkyirawan0404@gmail.com", location: "Indonesia", timezone: "UTC +7", established: "2017" },
-  social: { instagram: "", behance: "", linkedin: "" },
+  social: { instagram: "", behance: "", linkedin: "", studio: "" },
   fonts: { display: "Bebas Neue", heading: "IBM Plex Sans", body: "IBM Plex Sans", accent: "IBM Plex Mono" },
   favicon: "",
   meta: { title: "", description: "", keywords: "", ogImage: "" },
@@ -2068,6 +2068,7 @@ export default function AdminDesign() {
                 ["instagram", "Instagram URL", "Your Instagram profile link", "https://instagram.com/yourusername"],
                 ["behance", "Behance URL", "Your Behance portfolio link", "https://behance.net/yourusername"],
                 ["linkedin", "LinkedIn URL", "Your LinkedIn profile link", "https://linkedin.com/in/yourprofile"],
+                ["studio", "Phantom Studio URL", "Your Phantom Studio subdomain — shown in nav & footer", "https://studio.rizkyirawan.xyz"],
               ] as [keyof DesignConfig["social"], string, string, string][]).map(([key, label, desc, placeholder]) => (
                 <div key={key} className="mb-4 last:mb-0">
                   <label className={labelCls} style={fs}>{label}</label>
@@ -2103,7 +2104,12 @@ export default function AdminDesign() {
                     LinkedIn ↗
                   </a>
                 )}
-                {!config.social.instagram && !config.social.behance && !config.social.linkedin && (
+                {config.social.studio && (
+                  <a href={config.social.studio} target="_blank" rel="noopener noreferrer" className="border border-rule px-4 py-2 lab text-white/50 hover:text-white hover:border-signal transition-colors" style={{ fontSize: "0.6rem" }}>
+                    Phantom Studio ↗
+                  </a>
+                )}
+                {!config.social.instagram && !config.social.behance && !config.social.linkedin && !config.social.studio && (
                   <p className="lab text-white/30" style={{ fontSize: "0.6rem" }}>No social links configured</p>
                 )}
               </div>

@@ -37,6 +37,7 @@ export function Footer() {
     { label: "Behance",   href: design?.social?.behance   || siteConfig.social.behance   },
     { label: "LinkedIn",  href: design?.social?.linkedin  || siteConfig.social.linkedin  },
   ];
+  const studioUrl = design?.social?.studio || "";
 
   // Split email into user/domain for big display
   const [emailUser, emailDomain] = email.includes("@") ? email.split("@") : [email, ""];
@@ -118,6 +119,20 @@ export function Footer() {
               {s.label}
             </a>
           ))}
+          {studioUrl && (
+            <>
+              <span className="text-white/10" aria-hidden>·</span>
+              <a
+                href={studioUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="lab text-signal/50 transition-colors hover:text-signal flex items-center gap-1"
+                style={{ fontSize: "0.58rem" }}
+              >
+                Phantom Studio ↗
+              </a>
+            </>
+          )}
         </div>
         {/* Status + Ambient Sound */}
         <div className="flex items-center justify-between md:justify-start gap-6">
