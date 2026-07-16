@@ -14,6 +14,22 @@ const ParallaxHero = nextDynamic(() => import("@/components/works/parallax-hero"
 
 type PageProps = { params: Promise<{ slug: string }> };
 
+function getLiveLabel(url: string): { label: string; text: string } {
+  try {
+    const host = new URL(url).hostname.replace("www.", "");
+    if (host.includes("spotify.com"))    return { label: "Music",     text: "Listen on Spotify ↗" };
+    if (host.includes("youtube.com") || host.includes("youtu.be")) return { label: "Video", text: "Watch on YouTube ↗" };
+    if (host.includes("behance.net"))    return { label: "Portfolio",  text: "View on Behance ↗" };
+    if (host.includes("dribbble.com"))   return { label: "Portfolio",  text: "View on Dribbble ↗" };
+    if (host.includes("instagram.com"))  return { label: "Social",    text: "Open on Instagram ↗" };
+    if (host.includes("nasa.gov"))       return { label: "Award",     text: "View on NASA ↗" };
+    if (host.includes("vimeo.com"))      return { label: "Video",     text: "Watch on Vimeo ↗" };
+    if (host.includes("artstation.com")) return { label: "Portfolio",  text: "View on ArtStation ↗" };
+    if (host.includes("github.com"))     return { label: "Code",      text: "View on GitHub ↗" };
+  } catch { /* ignore */ }
+  return { label: "Live", text: "Go to Website ↗" };
+}
+
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { slug } = await props.params;
   const works = await getWorks();
@@ -117,17 +133,20 @@ export default async function PersonalProjectDetailPage(props: PageProps) {
                     </Reveal>
                   )}
 
-                  {project.url && (
-                    <Reveal delay={0.4}>
-                      <div>
-                        <p className="lab text-white/25 mb-1" style={{ fontSize: "0.48rem" }}>Live</p>
-                        <a href={project.url} target="_blank" rel="noopener noreferrer"
-                          className="lab text-signal hover:text-white transition-colors" style={{ fontSize: "0.7rem" }}>
-                          View ↗
-                        </a>
-                      </div>
-                    </Reveal>
-                  )}
+                  {project.url && (() => {
+                    const { label, text } = getLiveLabel(project.url);
+                    return (
+                      <Reveal delay={0.4}>
+                        <div>
+                          <p className="lab text-white/25 mb-1" style={{ fontSize: "0.48rem" }}>{label}</p>
+                          <a href={project.url} target="_blank" rel="noopener noreferrer"
+                            className="lab text-signal hover:text-white transition-colors" style={{ fontSize: "0.7rem" }}>
+                            {text}
+                          </a>
+                        </div>
+                      </Reveal>
+                    );
+                  })()}
                 </div>
               </div>
 

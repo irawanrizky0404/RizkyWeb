@@ -26,9 +26,16 @@ export async function POST() {
   const merged = localWorks.map((local) => {
     const kv = existingMap.get(local.slug);
     if (!kv) return local; // new work — add it
-    // Existing work — update url, videoUrl, gallery if local has them
+    // Existing work — overlay all local fields, preserve KV-only admin fields
     return {
       ...kv,
+      // Always take from local (source of truth for content)
+      title: local.title,
+      category: local.category,
+      summary: local.summary,
+      description: local.description,
+      tags: local.tags,
+      type: local.type ?? kv.type,
       url: local.url || kv.url,
       videoUrl: local.videoUrl || kv.videoUrl,
       gallery: local.gallery.length > kv.gallery.length ? local.gallery : kv.gallery,
