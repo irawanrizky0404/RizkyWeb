@@ -8,6 +8,7 @@ import nextDynamic from "next/dynamic";
 import { getWorks, buildMetadata } from "@/lib/store";
 import { Reveal } from "@/components/ui/reveal";
 import { ReadingProgress } from "@/components/ui/reading-progress";
+import { VideoEmbed } from "@/components/ui/video-embed";
 
 const GalleryLightbox = nextDynamic(() => import("@/components/works/gallery-lightbox").then((m) => m.GalleryLightbox));
 const ParallaxHero = nextDynamic(() => import("@/components/works/parallax-hero").then((m) => m.ParallaxHero));
@@ -166,27 +167,31 @@ export default async function ProjectDetailPage(props: PageProps) {
             {/* Description Block */}
             <div className="p-5 py-12 md:p-12 lg:p-16 lg:py-24 border-b border-rule bg-black relative z-10">
               <Reveal>
-                <p className="dis text-white mb-8" style={{ fontSize: "clamp(1.4rem, 3.5vw, 3.2rem)", lineHeight: 0.95 }}>
+                <p className="dis text-white mb-10" style={{ fontSize: "clamp(1.6rem, 3.8vw, 3.4rem)", lineHeight: 0.92 }}>
                   {project.summary}
                 </p>
               </Reveal>
               <Reveal delay={0.1}>
-                <div className="h-px w-12 bg-signal/40 mb-8" />
-                <p className="text-sm md:text-base leading-loose text-white/50 max-w-2xl">
-                  {project.description}
-                </p>
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="h-px flex-1 max-w-12 bg-signal/50" />
+                  <span className="lab text-signal/40" style={{ fontSize: "0.48rem" }}>Brief</span>
+                </div>
+                <div className="space-y-5">
+                  {project.description.split(/\n\n+/).map((para, i) => (
+                    <p key={i} className="leading-relaxed text-white/60" style={{ fontSize: "clamp(0.85rem, 1.5vw, 1.05rem)" }}>
+                      {para}
+                    </p>
+                  ))}
+                </div>
               </Reveal>
-              
-              {/* Video Support (if added to data) */}
+
               {project.videoUrl && (
                 <Reveal delay={0.2}>
-                  <div className="mt-12 aspect-video w-full bg-dim/50 border border-rule overflow-hidden">
-                    <iframe 
-                      src={project.videoUrl} 
-                      className="w-full h-full"
-                      allow="autoplay; fullscreen; picture-in-picture"
-                      allowFullScreen
-                    />
+                  <div className="mt-14 border-t border-rule/40 pt-10">
+                    <span className="lab text-signal/40 mb-4 block" style={{ fontSize: "0.48rem" }}>Video</span>
+                    <div className="aspect-video w-full border border-rule overflow-hidden">
+                      <VideoEmbed src={project.videoUrl} className="aspect-video" />
+                    </div>
                   </div>
                 </Reveal>
               )}

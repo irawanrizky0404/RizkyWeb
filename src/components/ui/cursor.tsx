@@ -31,10 +31,15 @@ export function Cursor() {
 
     const onOver = (e: MouseEvent) => {
       const el = e.target as HTMLElement;
-      
+
+      // Hide cursor when mouse enters an iframe (events stop firing inside it)
+      const isIframe = el.tagName === "IFRAME";
+      if (dotRef.current) dotRef.current.style.opacity = isIframe ? "0" : "1";
+      if (ringRef.current && isIframe) ringRef.current.style.opacity = "0";
+
       const magneticEl = el.closest("[data-magnetic]") as HTMLElement | null;
       state.current.magneticEl = magneticEl;
-      
+
       const textEl = el.closest("[data-cursor-text]") as HTMLElement | null;
       state.current.text = textEl ? (textEl.getAttribute("data-cursor-text") || "") : "";
 
