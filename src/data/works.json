@@ -1,5 +1,143 @@
 [
   {
+    "slug": "sleepstack",
+    "title": "Sleepstack — Full Branding + Packaging",
+    "year": "2024",
+    "category": "Graphic Design",
+    "client": "Sleepstack",
+    "summary": "Complete brand identity and packaging system for Sleepstack, a sleep wellness brand from the Netherlands.",
+    "description": "Sleepstack required a full identity system — from logo and typography to packaging design. The visual language centers on calm, precision, and rest. Every element communicates a sense of trusted quality for a consumer wellness brand.",
+    "tags": [
+      "Branding",
+      "Packaging",
+      "Identity",
+      "Graphic Design"
+    ],
+    "cover": "/images/works/sleepstack/cover-slug.jpg",
+    "gallery": [
+      "/images/works/sleepstack/01.jpg",
+      "/images/works/sleepstack/02.jpg",
+      "/images/works/sleepstack/03.jpg",
+      "/images/works/sleepstack/04.png"
+    ],
+    "url": "https://sleepstack.nl/",
+    "featured": false,
+    "type": "client"
+  },
+  {
+    "slug": "glass-mousepad",
+    "title": "Glass Mousepad — 3D Product Design + Animation",
+    "year": "2024",
+    "category": "3D",
+    "client": "Private Client (Dubai)",
+    "summary": "3D product visualisation and animation for a premium glass mousepad, commissioned by a Dubai-based tech accessory company.",
+    "description": "A full 3D product design and motion study for a premium glass mousepad. The brief called for high-end material rendering, precise light interaction on glass surfaces, and a motion piece suitable for marketing. Delivered as stills and a product animation loop.",
+    "tags": [
+      "3D",
+      "Product Design",
+      "Animation",
+      "Render"
+    ],
+    "cover": "/images/works/glass-mousepad/cover-home.jpg",
+    "gallery": [
+      "/images/works/glass-mousepad/01.png",
+      "/images/works/glass-mousepad/02.png",
+      "/images/works/glass-mousepad/03.jpg",
+      "/images/works/glass-mousepad/04.jpg"
+    ],
+    "videoUrl": "/videos/glass-mousepad.mp4",
+    "featured": false,
+    "type": "client"
+  },
+  {
+    "slug": "myair0",
+    "title": "MyAir0 — 3D Product Render",
+    "year": "2024",
+    "category": "3D",
+    "client": "MyAir0",
+    "summary": "High-fidelity 3D product renders and animation reel for MyAir0, a consumer air technology brand.",
+    "description": "MyAir0 commissioned a full 3D product render suite — multiple colorways, lifestyle contexts, and a motion reel. The renders were designed for e-commerce and marketing across digital channels, emphasizing clean material quality and product precision.",
+    "tags": [
+      "3D",
+      "Product Render",
+      "Animation",
+      "E-commerce"
+    ],
+    "cover": "/images/works/myair0/cover-home.jpg",
+    "gallery": [
+      "/images/works/myair0/01.jpg",
+      "/images/works/myair0/02.jpg",
+      "/images/works/myair0/03.jpg",
+      "/images/works/myair0/04.jpg",
+      "/images/works/myair0/05.jpg",
+      "/images/works/myair0/06.jpg",
+      "/images/works/myair0/07.jpg",
+      "/images/works/myair0/08.jpg",
+      "/images/works/myair0/09.jpg"
+    ],
+    "url": "https://myair0.com/",
+    "videoUrl": "/videos/myair0.mp4",
+    "featured": true,
+    "type": "client"
+  },
+  {
+    "slug": "cartel-clinic",
+    "title": "Cartel Clinic — Interior Design",
+    "year": "2024",
+    "category": "3D",
+    "client": "Private Client",
+    "summary": "Architectural 3D interior visualisation for Cartel Clinic — a bold, industrial-aesthetic clinic space.",
+    "description": "A full architectural interior visualisation project for Cartel Clinic. The space merges industrial materials — raw concrete, dark steel, exposed geometry — with clinical precision. The brief required photorealistic renders across multiple angles showing the complete interior scheme.",
+    "tags": [
+      "3D",
+      "Archviz",
+      "Interior",
+      "Architecture"
+    ],
+    "cover": "/images/works/cartel-clinic/cover-home.jpg",
+    "gallery": [
+      "/images/works/cartel-clinic/01.jpg",
+      "/images/works/cartel-clinic/02.jpg",
+      "/images/works/cartel-clinic/03.jpg",
+      "/images/works/cartel-clinic/04.jpg",
+      "/images/works/cartel-clinic/05.jpg",
+      "/images/works/cartel-clinic/06.jpg",
+      "/images/works/cartel-clinic/07.jpg",
+      "/images/works/cartel-clinic/08.jpg",
+      "/images/works/cartel-clinic/09.jpg"
+    ],
+    "featured": false,
+    "type": "client"
+  },
+  {
+    "slug": "orthosis-shock",
+    "title": "3D Orthosis Shock Design",
+    "year": "2024",
+    "category": "3D",
+    "client": "Private Client (Belgium)",
+    "summary": "Industrial 3D design and render for a custom orthosis shock component, commissioned by a Belgian prosthetics company.",
+    "description": "A precision industrial 3D design project for a Belgium-based orthotics and prosthetics company. The brief required accurate mechanical modelling of an orthosis shock component, rendered to presentation quality for client approval and production documentation.",
+    "tags": [
+      "3D",
+      "Industrial Design",
+      "Product",
+      "Medical"
+    ],
+    "cover": "/images/works/orthosis-shock/cover-home.jpg",
+    "gallery": [
+      "/images/works/orthosis-shock/01.jpg",
+      "/images/works/orthosis-shock/02.jpg",
+      "/images/works/orthosis-shock/03.jpg",
+      "/images/works/orthosis-shock/04.jpg",
+      "/images/works/orthosis-shock/05.jpg",
+      "/images/works/orthosis-shock/06.jpg",
+      "/images/works/orthosis-shock/07.jpg",
+      "/images/works/orthosis-shock/08.jpg"
+    ],
+    "featured": false,
+    "type": "client"
+  },
+  {
     "slug": "ghibli-interior",
     "title": "Ghibli Interior Room Design",
     "year": "2024",
@@ -15,7 +153,22 @@
     ],
     "cover": "/images/works/ghibli-interior/cover.jpg",
     "gallery": [
-      "/images/works/ghibli-interior/01.jpg"
+      "/images/works/ghibli-interior/01.jpg",
+      "/images/works/ghibli-interior/02.jpg",
+      "/images/works/ghibli-interior/03.jpg",
+      "/images/works/ghibli-interior/04.jpg",
+      "/images/works/ghibli-interior/05.jpg",
+      "/images/works/ghibli-interior/06.jpg",
+      "/images/works/ghibli-interior/07.jpg",
+      "/images/works/ghibli-interior/08.jpg",
+      "/images/works/ghibli-interior/09.jpg",
+      "/images/works/ghibli-interior/10.jpg",
+      "/images/works/ghibli-interior/11.jpg",
+      "/images/works/ghibli-interior/12.jpg",
+      "/images/works/ghibli-interior/13.jpg",
+      "/images/works/ghibli-interior/14.jpg",
+      "/images/works/ghibli-interior/15.jpg",
+      "/images/works/ghibli-interior/16.jpg"
     ],
     "featured": true
   },
@@ -72,9 +225,15 @@
     ],
     "cover": "/images/works/f-this-party/cover.jpg",
     "gallery": [
-      "/images/works/f-this-party/01.jpg"
+      "/images/works/f-this-party/01.jpg",
+      "/images/works/f-this-party/02.jpg",
+      "/images/works/f-this-party/03.jpg",
+      "/images/works/f-this-party/04.jpg",
+      "/images/works/f-this-party/05.jpg"
     ],
-    "featured": true
+    "featured": true,
+    "url": "https://open.spotify.com/intl-id/album/0vWDFLVEPSPjY3amshg8IV",
+    "videoUrl": "/videos/f-this-party.mp4"
   },
   {
     "slug": "echoes-void",
@@ -194,8 +353,12 @@
       "Digital"
     ],
     "cover": "/images/works/roombase/cover.jpg",
-    "gallery": [],
-    "featured": false
+    "gallery": [
+      "/images/works/roombase/01.jpg",
+      "/images/works/roombase/02.jpg"
+    ],
+    "featured": false,
+    "url": "https://roombase.com/"
   },
   {
     "slug": "takeoff",
@@ -248,9 +411,14 @@
     ],
     "cover": "/images/works/cooldown/cover.jpg",
     "gallery": [
-      "/images/works/cooldown/01.jpg"
+      "/images/works/cooldown/01.jpg",
+      "/images/works/cooldown/02.jpg",
+      "/images/works/cooldown/03.jpg",
+      "/images/works/cooldown/04.jpg",
+      "/images/works/cooldown/05.jpg"
     ],
-    "featured": false
+    "featured": false,
+    "url": "https://cooldown.me/"
   },
   {
     "slug": "thing-that-matter",
@@ -284,7 +452,14 @@
     ],
     "cover": "/images/works/dread-runaway/cover.jpg",
     "gallery": [
-      "/images/works/dread-runaway/01.jpg"
+      "/images/works/dread-runaway/01.jpg",
+      "/images/works/dread-runaway/02.jpg",
+      "/images/works/dread-runaway/03.jpg",
+      "/images/works/dread-runaway/04.jpg",
+      "/images/works/dread-runaway/05.jpg",
+      "/images/works/dread-runaway/06.jpg",
+      "/images/works/dread-runaway/07.jpg",
+      "/images/works/dread-runaway/08.jpg"
     ],
     "featured": false
   },
@@ -376,7 +551,9 @@
     ],
     "cover": "/images/works/nasa-space-tech/cover.jpg",
     "gallery": [
-      "/images/works/nasa-space-tech/01.jpg"
+      "/images/works/nasa-space-tech/01.png",
+      "/images/works/nasa-space-tech/02.jpg",
+      "/images/works/nasa-space-tech/03.jpg"
     ],
     "url": "https://www.nasa.gov/image-article/winners-named-in-nasa-space-tech-art-challenge/",
     "featured": true
