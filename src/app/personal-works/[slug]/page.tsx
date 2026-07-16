@@ -175,15 +175,20 @@ export default async function PersonalProjectDetailPage(props: PageProps) {
             </div>
 
             {/* Gallery Block */}
-            {project.gallery.length > 0 && (
-              <div className="flex-1 bg-black">
-                <div className="border-b border-rule px-5 py-3 md:px-12 flex items-center justify-between bg-black/80 backdrop-blur sticky top-16 z-20">
-                  <span className="fac">Gallery</span>
-                  <span className="lab text-white/30" style={{ fontSize: "0.58rem" }}>{project.gallery.length} frame{project.gallery.length > 1 ? "s" : ""}</span>
+            {(() => {
+              const galleryImages = project.cover
+                ? [project.cover, ...project.gallery.filter((img) => img !== project.cover)]
+                : project.gallery;
+              return galleryImages.length > 0 ? (
+                <div className="flex-1 bg-black">
+                  <div className="border-b border-rule px-5 py-3 md:px-12 flex items-center justify-between bg-black/80 backdrop-blur sticky top-16 z-20">
+                    <span className="fac">Gallery</span>
+                    <span className="lab text-white/30" style={{ fontSize: "0.58rem" }}>{galleryImages.length} frame{galleryImages.length > 1 ? "s" : ""}</span>
+                  </div>
+                  <GalleryLightbox images={galleryImages} projectTitle={project.title} />
                 </div>
-                <GalleryLightbox images={project.gallery} projectTitle={project.title} />
-              </div>
-            )}
+              ) : null;
+            })()}
           </div>
 
         </div>
