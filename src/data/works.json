@@ -1,5 +1,27 @@
 [
   {
+    "slug": "avatar-hut-ri",
+    "title": "Avatar Hut RI",
+    "year": "2025",
+    "category": "Animation",
+    "client": "Avatar Hut RI",
+    "summary": "Motion graphics and animation for Avatar Hut RI — a creative identity piece built around character and movement.",
+    "description": "A motion piece created for Avatar Hut RI, combining character animation with bold graphic design. The work explores digital identity through movement, building a visual language that feels both contemporary and distinctly personal.",
+    "tags": [
+      "Animation",
+      "Motion Graphics",
+      "Character",
+      "3D"
+    ],
+    "cover": "/images/works/avatar-hut-ri/cover.jpg",
+    "gallery": [
+      "/images/works/avatar-hut-ri/01.png"
+    ],
+    "videoUrl": "https://www.youtube.com/embed/slJ8fgEpXCo",
+    "featured": false,
+    "type": "client"
+  },
+  {
     "slug": "sleepstack",
     "title": "Sleepstack — Full Branding + Packaging",
     "year": "2024",
@@ -269,7 +291,8 @@
     ],
     "cover": "/images/works/shronic/cover.jpg",
     "gallery": [],
-    "featured": false
+    "featured": false,
+    "videoUrl": "https://www.youtube.com/embed/sVtcIiLhfJs"
   },
   {
     "slug": "maya-labs",
@@ -286,7 +309,8 @@
     ],
     "cover": "/images/works/maya-labs/cover.jpg",
     "gallery": [],
-    "featured": false
+    "featured": false,
+    "videoUrl": "https://www.youtube.com/embed/LHDWgmMcM-k"
   },
   {
     "slug": "social-security",
@@ -303,7 +327,8 @@
     ],
     "cover": "/images/works/social-security/cover.jpg",
     "gallery": [],
-    "featured": false
+    "featured": false,
+    "videoUrl": "https://www.youtube.com/embed/jEF_Zq4f65k"
   },
   {
     "slug": "tredoxa",
@@ -320,7 +345,8 @@
     ],
     "cover": "/images/works/tredoxa/cover.jpg",
     "gallery": [],
-    "featured": false
+    "featured": false,
+    "videoUrl": "https://www.youtube.com/embed/VOHU0eVh7EM"
   },
   {
     "slug": "halo-intro",
@@ -337,7 +363,8 @@
     ],
     "cover": "/images/works/halo-intro/cover.jpg",
     "gallery": [],
-    "featured": false
+    "featured": false,
+    "videoUrl": "https://www.youtube.com/embed/CUsljzHcWJ4"
   },
   {
     "slug": "roombase",
